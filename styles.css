@@ -1,0 +1,709 @@
+/* RESET Y FUENTES */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Futura', 'Century Gothic', 'Avenir Next', sans-serif;
+    background-color: #FFFFFF;
+    color: #000000;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* PRELOADER */
+#preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+#preloader.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.preloader-logo {
+    max-width: 200px;
+    animation: fadeInLogo 1.2s ease-in-out;
+}
+
+@keyframes fadeInLogo {
+    0% {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* HEADER */
+#header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #FFFFFF;
+    z-index: 1000;
+    border-bottom: 1px solid #000000;
+    transition: all 0.3s ease;
+}
+
+.header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-text {
+    font-size: 11px;
+    letter-spacing: 2px;
+    font-weight: 600;
+}
+
+nav {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+}
+
+nav a {
+    color: #000000;
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+nav a::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background-color: #DC143C;
+    transition: width 0.3s ease;
+}
+
+nav a:hover {
+    color: #DC143C;
+}
+
+nav a:hover::after {
+    width: 100%;
+}
+
+/* FILTROS EN HEADER */
+nav .filter-dropdown {
+    position: relative;
+}
+
+nav .filter-toggle {
+    padding: 8px 16px;
+    background-color: #FFFFFF;
+    color: #000000;
+    border: 1px solid #000000;
+    font-family: 'Futura', sans-serif;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+nav .filter-toggle:hover {
+    background-color: #000000;
+    color: #FFFFFF;
+}
+
+nav .filter-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    background-color: #FFFFFF;
+    border: 1px solid #000000;
+    min-width: 220px;
+    display: none;
+    flex-direction: column;
+    z-index: 10000;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+nav .filter-menu.open {
+    display: flex;
+}
+
+nav .filter-option {
+    padding: 12px 20px;
+    background-color: #FFFFFF;
+    color: #000000;
+    border: none;
+    border-bottom: 1px solid #f0f0f0;
+    font-family: 'Futura', sans-serif;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 400;
+    text-align: left;
+}
+
+nav .filter-option:last-child {
+    border-bottom: none;
+}
+
+nav .filter-option:hover {
+    background-color: #f5f5f5;
+    color: #000000;
+}
+
+nav .filter-option.active {
+    background-color: #DC143C;
+    color: #FFFFFF;
+}
+
+nav .filter-option.active:hover {
+    background-color: #DC143C;
+    color: #FFFFFF;
+}
+
+/* SECCIONES GENERALES */
+section {
+    padding: 120px 60px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+h2 {
+    font-size: 32px;
+    letter-spacing: 4px;
+    font-weight: 300;
+    margin-bottom: 80px;
+    text-align: center;
+}
+
+/* PROYECTOS */
+#proyectos {
+    background-color: #FFFFFF;
+    margin-top: 80px;
+    padding: 0 60px 60px;
+}
+
+
+
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.project-item {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4/3;
+    cursor: pointer;
+}
+
+.project-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.project-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.project-overlay span {
+    color: #DC143C;
+    font-size: 18px;
+    letter-spacing: 3px;
+    font-weight: 500;
+}
+
+.project-item:hover img {
+    transform: scale(1.05);
+}
+
+.project-item:hover .project-overlay {
+    opacity: 1;
+}
+
+/* MODAL PROYECTO */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.95);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+}
+
+.modal-content {
+    position: relative;
+    max-width: 1200px;
+    width: 90%;
+    background-color: #FFFFFF;
+    padding: 60px;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.modal.active .modal-content {
+    transform: scale(1);
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 40px;
+    font-weight: 300;
+    color: #000000;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    line-height: 1;
+    z-index: 10;
+}
+
+.modal-close:hover {
+    color: #DC143C;
+}
+
+.modal-body {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 60px;
+    align-items: start;
+}
+
+.modal-image-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/3;
+    overflow: hidden;
+}
+
+.modal-body img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.modal-prev,
+.modal-next {
+    position: absolute;
+    bottom: 20px;
+    background-color: transparent;
+    color: #000000;
+    border: none;
+    width: 32px;
+    height: 32px;
+    font-size: 32px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 300;
+}
+
+.modal-prev {
+    left: 20px;
+}
+
+.modal-next {
+    right: 20px;
+}
+
+.modal-prev:hover,
+.modal-next:hover {
+    color: #DC143C;
+}
+
+.modal-prev.hidden,
+.modal-next.hidden {
+    display: none;
+}
+
+.modal-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.modal-indicator {
+    width: 8px;
+    height: 8px;
+    background-color: #CCCCCC;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.modal-indicator.active {
+    background-color: #DC143C;
+}
+
+.modal-info h3 {
+    font-size: 28px;
+    letter-spacing: 3px;
+    font-weight: 300;
+    margin-bottom: 30px;
+    color: #DC143C;
+}
+
+.modal-info p {
+    font-size: 15px;
+    line-height: 1.9;
+    letter-spacing: 0.5px;
+    color: #000000;
+}
+
+.modal-counter {
+    display: block;
+    margin-top: 30px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #666666;
+}
+
+/* CONTACTO */
+#contacto {
+    background-color: #FFFFFF;
+    padding: 120px 60px;
+}
+
+.contacto-content {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+    align-items: center;
+}
+
+.contacto-info {
+    text-align: center;
+}
+
+.contacto-info p {
+    margin-bottom: 30px;
+    font-size: 14px;
+    letter-spacing: 1px;
+    line-height: 1.8;
+}
+
+.contacto-info strong {
+    font-size: 11px;
+    letter-spacing: 2px;
+    font-weight: 600;
+}
+
+.btn-instagram {
+    display: inline-block;
+    padding: 18px 40px;
+    border: 1px solid #000000;
+    color: #000000;
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 2px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-instagram:hover {
+    background-color: #DC143C;
+    color: #FFFFFF;
+    border-color: #DC143C;
+}
+
+/* FOOTER */
+footer {
+    background-color: #000000;
+    color: #FFFFFF;
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 10px;
+    letter-spacing: 2px;
+}
+
+/* ANIMACIONES DE SCROLL */
+.fade-in {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+    .header-content {
+        padding: 20px 40px;
+    }
+    
+    nav {
+        gap: 25px;
+    }
+    
+    nav .filter-toggle {
+        font-size: 9px;
+        padding: 6px 12px;
+    }
+    
+    nav .filter-menu {
+        min-width: 200px;
+    }
+    
+    nav .filter-option {
+        padding: 10px 15px;
+        font-size: 8px;
+    }
+    
+    .projects-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    section {
+        padding: 80px 40px;
+    }
+    
+    #proyectos {
+        padding: 0 40px 80px;
+        margin-top: 80px;
+    }
+    
+    .modal-body {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .modal-prev,
+    .modal-next {
+        width: 35px;
+        height: 35px;
+        font-size: 18px;
+    }
+    
+    .modal-content {
+        padding: 40px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px 30px;
+    }
+    
+    .logo-text {
+        font-size: 10px;
+        text-align: center;
+    }
+    
+    nav {
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    nav a {
+        font-size: 10px;
+    }
+    
+    nav .filter-toggle {
+        font-size: 9px;
+        padding: 6px 12px;
+    }
+    
+    nav .filter-menu {
+        min-width: 180px;
+    }
+    
+    nav .filter-option {
+        padding: 10px 12px;
+        font-size: 8px;
+    }
+    
+    .projects-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    section {
+        padding: 60px 30px;
+    }
+    
+    #proyectos {
+        padding: 0 30px 60px;
+        margin-top: 75px;
+    }
+    
+    h2 {
+        font-size: 24px;
+        margin-bottom: 50px;
+    }
+    
+    .modal-content {
+        padding: 30px;
+    }
+    
+    .modal-prev,
+    .modal-next {
+        width: 30px;
+        height: 30px;
+        font-size: 28px;
+        bottom: 15px;
+    }
+    
+    .modal-prev {
+        left: 15px;
+    }
+    
+    .modal-next {
+        right: 15px;
+    }
+    
+    .modal-info h3 {
+        font-size: 20px;
+    }
+    
+    .contacto-content {
+        gap: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-content {
+        padding: 12px 20px;
+    }
+    
+    .logo-text {
+        font-size: 9px;
+    }
+    
+    nav {
+        gap: 15px;
+    }
+    
+    nav a {
+        font-size: 9px;
+    }
+    
+    nav .filter-toggle {
+        font-size: 8px;
+        padding: 6px 10px;
+    }
+    
+    nav .filter-menu {
+        min-width: 160px;
+    }
+    
+    nav .filter-option {
+        padding: 10px;
+        font-size: 7px;
+        letter-spacing: 1px;
+    }
+    
+    section {
+        padding: 50px 20px;
+    }
+    
+    #proyectos {
+        padding: 0 20px 50px;
+        margin-top: 70px;
+    }
+    
+    .modal-content {
+        padding: 20px;
+        width: 95%;
+    }
+    
+    .modal-prev,
+    .modal-next {
+        width: 28px;
+        height: 28px;
+        font-size: 24px;
+        bottom: 10px;
+    }
+    
+    .modal-close {
+        font-size: 30px;
+        right: 15px;
+        top: 15px;
+    }
+    
+    .modal-indicators {
+        gap: 6px;
+        margin-top: 15px;
+    }
+    
+    .modal-indicator {
+        width: 6px;
+        height: 6px;
+    }
+    
+    h2 {
+        font-size: 20px;
+        letter-spacing: 3px;
+    }
+    
+    .preloader-logo {
+        max-width: 150px;
+    }
+}

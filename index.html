@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupo Culata Jovái Arquitectos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- PRELOADER -->
+    <div id="preloader">
+        <img src="images/logo.png" alt="Grupo Culata Jovái" class="preloader-logo">
+    </div>
+
+    <!-- HEADER -->
+    <header id="header">
+        <div class="header-content">
+            <div class="logo-text">GRUPO CULATA JOVÁI ARQUITECTOS</div>
+            <nav>
+                <div class="filter-dropdown">
+                    <button class="filter-toggle" id="filterToggle">FILTROS ▼</button>
+                    <div class="filter-menu" id="filterMenu">
+                        <button class="filter-option active" data-filter="todos">TODOS</button>
+                        <button class="filter-option" data-filter="vivienda-unifamiliar">VIVIENDA UNIFAMILIAR</button>
+                        <button class="filter-option" data-filter="vivienda-multifamiliar">VIVIENDA MULTIFAMILIAR</button>
+                        <button class="filter-option" data-filter="comercial">COMERCIAL</button>
+                        <button class="filter-option" data-filter="espacio-publico">ESPACIO PÚBLICO</button>
+                        <button class="filter-option" data-filter="no-construido">NO CONSTRUIDO</button>
+                    </div>
+                </div>
+                <a href="nosotros.html">NOSOTROS</a>
+                <a href="https://www.instagram.com/culatajovai.arq" target="_blank" rel="noopener">INSTAGRAM</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- PROYECTOS -->
+    <section id="proyectos">
+        <div class="projects-grid" id="projectsGrid">
+            <!-- Projects will be loaded dynamically -->
+        </div>
+    </section>
+
+    <!-- MODAL PROYECTO -->
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div class="modal-body">
+                <div class="modal-image-container">
+                    <img id="modalImage" src="" alt="">
+                    <button class="modal-prev" id="modalPrev">‹</button>
+                    <button class="modal-next" id="modalNext">›</button>
+                    <div class="modal-indicators" id="modalIndicators"></div>
+                </div>
+                <div class="modal-info">
+                    <h3 id="modalTitle"></h3>
+                    <p id="modalDescription"></p>
+                    <span class="modal-counter" id="modalCounter">1 / 1</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>© 2026 GRUPO CULATA JOVÁI ARQUITECTOS</p>
+        <p style="margin-top: 10px; font-size: 9px;"><a href="admin.html" style="color: #FFFFFF; text-decoration: none; opacity: 0.5;">ADMIN</a></p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

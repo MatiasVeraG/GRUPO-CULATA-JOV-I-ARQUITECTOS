@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nosotros - Grupo Culata Jovái Arquitectos</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* ESTILOS ESPECÍFICOS PARA NOSOTROS */
+        #nosotros {
+            background-color: #FFFFFF;
+            padding: 140px 60px;
+            margin-top: 80px;
+        }
+
+        .nosotros-container {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .nosotros-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 1px;
+            height: 100%;
+            background-color: #DC143C;
+            transform: translateX(-50%);
+        }
+
+        .nosotros-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            position: relative;
+        }
+
+        .nosotros-col p {
+            font-size: 15px;
+            line-height: 1.9;
+            letter-spacing: 0.5px;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        .nosotros-col h2 {
+            text-align: left;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 1024px) {
+            #nosotros {
+                padding: 100px 40px;
+            }
+            
+            .nosotros-content {
+                gap: 60px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #nosotros {
+                padding: 80px 30px;
+            }
+            
+            .nosotros-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            
+            .nosotros-line {
+                display: none;
+            }
+            
+            .nosotros-col h2 {
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #nosotros {
+                padding: 60px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- PRELOADER -->
+    <div id="preloader">
+        <img src="images/logo.png" alt="Grupo Culata Jovái" class="preloader-logo">
+    </div>
+
+    <!-- HEADER -->
+    <header id="header">
+        <div class="header-content">
+            <div class="logo-text">GRUPO CULATA JOVÁI ARQUITECTOS</div>
+            <nav>
+                <a href="index.html">PROYECTOS</a>
+                <a href="nosotros.html">NOSOTROS</a>
+                <a href="https://www.instagram.com/culatajovai.arq" target="_blank" rel="noopener">INSTAGRAM</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- NOSOTROS -->
+    <section id="nosotros">
+        <div class="nosotros-container">
+            <div class="nosotros-line"></div>
+            <div class="nosotros-content">
+                <div class="nosotros-col">
+                    <h2>NOSOTROS</h2>
+                    <p>Grupo Culata Jovái Arquitectos es un estudio dedicado al diseño arquitectónico contemporáneo, donde la funcionalidad y la estética se encuentran en perfecta armonía.</p>
+                    <p>Nuestra filosofía se fundamenta en la creación de espacios que trascienden lo convencional, integrando innovación, sostenibilidad y una profunda comprensión del contexto.</p>
+                </div>
+                <div class="nosotros-col">
+                    <p>Cada proyecto es una respuesta única a las necesidades específicas del cliente y del entorno, materializada a través de un lenguaje arquitectónico limpio y atemporal.</p>
+                    <p>Creemos en la arquitectura como disciplina que debe mejorar la calidad de vida de las personas, respetando el entorno natural y cultural en el que se inserta.</p>
+                    <p>Nuestro equipo trabaja con compromiso y precisión, buscando siempre la excelencia en cadadetalle del proceso de diseño y construcción.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACTO -->
+    <section id="contacto">
+        <h2>CONTACTO</h2>
+        <div class="contacto-content">
+            <div class="contacto-info">
+                <p><strong>EMAIL</strong><br>contacto@culatajovai.com</p>
+                <p><strong>TELÉFONO</strong><br>+595 XXX XXX XXX</p>
+                <p><strong>UBICACIÓN</strong><br>Asunción, Paraguay</p>
+            </div>
+            <div class="contacto-social">
+                <a href="https://www.instagram.com/culatajovai.arq" target="_blank" rel="noopener" class="btn-instagram">SÍGUENOS EN INSTAGRAM</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>© 2026 GRUPO CULATA JOVÁI ARQUITECTOS</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
