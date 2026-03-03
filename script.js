@@ -71,67 +71,10 @@ window.addEventListener('scroll', () => {
 });
 
 // MODAL DE PROYECTOS
-// Inicializar proyectos por defecto si no existen
+// Inicializar proyectos - sin proyectos por defecto
 function initializeProjects() {
-    if (!localStorage.getItem('projects')) {
-        const defaultProjects = [
-            {
-                id: 1,
-                title: "PROYECTO 01",
-                description: "Residencia contemporánea que integra espacios abiertos y luminosos. El diseño prioriza la conexión con el entorno natural mediante amplias ventanas y terrazas integradas. Materiales nobles y líneas limpias definen su carácter arquitectónico.",
-                images: ["images/casa1.jpg"]
-            },
-            {
-                id: 2,
-                title: "PROYECTO 02",
-                description: "Vivienda unifamiliar de estética minimalista donde la funcionalidad y el confort convergen. Espacios fluidos y una cuidadosa composición volumétrica caracterizan esta obra. La luz natural es protagonista en cada ambiente.",
-                images: ["images/casa2.jpg"]
-            },
-            {
-                id: 3,
-                title: "PROYECTO 03",
-                description: "Proyecto residencial que explora la relación entre interior y exterior. Dobles alturas y circulaciones verticales aportan dinamismo espacial. La paleta material sobria refuerza el concepto arquitectónico.",
-                images: ["images/casa3.jpg"]
-            },
-            {
-                id: 4,
-                title: "PROYECTO 04",
-                description: "Arquitectura residencial contemporánea con énfasis en la eficiencia espacial. Volúmenes puros y geometría clara definen la composición. Cada detalle ha sido pensado para optimizar la experiencia del usuario.",
-                images: ["images/casa4.jpg"]
-            },
-            {
-                id: 5,
-                title: "PROYECTO 05",
-                description: "Vivienda que destaca por su integración con el paisaje circundante. Terrazas escalonadas y jardines integrados generan una transición fluida entre espacios. La arquitectura se funde con su contexto natural.",
-                images: ["images/casa5.jpg"]
-            },
-            {
-                id: 6,
-                title: "PROYECTO 06",
-                description: "Residencia de líneas horizontales que enfatizan la conexión con el horizonte. Amplios voladizos generan espacios de transición protegidos. La materialidad honesta refuerza el carácter del proyecto.",
-                images: ["images/casa6.jpg"]
-            },
-            {
-                id: 7,
-                title: "PROYECTO 07",
-                description: "Proyecto que explora la verticalidad y la luz como elementos compositivos. Espacios de doble altura y aberturas estratégicas generan dinamismo. La arquitectura responde a las necesidades contemporáneas del habitar.",
-                images: ["images/casa7.jpg"]
-            },
-            {
-                id: 8,
-                title: "PROYECTO 08",
-                description: "Vivienda unifamiliar donde la privacidad y la apertura coexisten en equilibrio. Patios internos y visuales controladas caracterizan el diseño. Cada espacio ha sido concebido con precisión y cuidado.",
-                images: ["images/casa8.jpg"]
-            },
-            {
-                id: 9,
-                title: "PROYECTO 09",
-                description: "Arquitectura residencial que reinterpreta la tradición con lenguaje contemporáneo. Volúmenes simples y composición equilibrada definen la propuesta. El proyecto dialoga respetuosamente con su contexto urbano.",
-                images: ["images/casa9.jpg"]
-            }
-        ];
-        localStorage.setItem('projects', JSON.stringify(defaultProjects));
-    }
+    // No crear proyectos por defecto, dejar que localStorage esté vacío
+    // Los proyectos se agregarán desde el panel de administración
 }
 
 // Obtener proyectos desde localStorage
