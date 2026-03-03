@@ -328,19 +328,8 @@
         function getCarouselImages() {
             const projects = localStorage.getItem('projects');
             if (!projects) {
-                // Imágenes por defecto si no hay proyectos en localStorage
-                return [
-                    'images/casa mainumby/casa-mainumby-grupo-culata-jovai_2.jpg',
-                    'images/casa miralgo/casa-miralago-grupo-culata-jovai_1.jpg',
-                    'images/vivienda gt/01-vivienda-gt-grupo-culata-jovai-c-federico-cairoli-low.jpg',
-                    'images/casa mainumby/casa-mainumby-grupo-culata-jovai_3.jpg',
-                    'images/casa miralgo/casa-miralago-grupo-culata-jovai_2.jpg',
-                    'images/vivienda gt/02-vivienda-gt-grupo-culata-jovai-c-federico-cairoli-low.jpg',
-                    'images/casa mainumby/casa-mainumby-grupo-culata-jovai_4.jpg',
-                    'images/casa miralgo/casa-miralago-grupo-culata-jovai_16.jpg',
-                    'images/vivienda gt/04-vivienda-gt-grupo-culata-jovai-c-federico-cairoli-low.jpg',
-                    'images/casa mainumby/casa-mainumby-grupo-culata-jovai_5.jpg'
-                ];
+                // Sin imágenes por defecto, devolver array vacío
+                return [];
             }
 
             const projectsArray = JSON.parse(projects);
