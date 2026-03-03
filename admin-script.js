@@ -10,63 +10,54 @@ function initializeProjects() {
             {
                 id: 1,
                 title: "PROYECTO 01",
-                category: "vivienda-unifamiliar",
                 description: "Residencia contemporánea que integra espacios abiertos y luminosos. El diseño prioriza la conexión con el entorno natural mediante amplias ventanas y terrazas integradas. Materiales nobles y líneas limpias definen su carácter arquitectónico.",
                 images: ["images/casa1.jpg"]
             },
             {
                 id: 2,
                 title: "PROYECTO 02",
-                category: "vivienda-unifamiliar",
                 description: "Vivienda unifamiliar de estética minimalista donde la funcionalidad y el confort convergen. Espacios fluidos y una cuidadosa composición volumétrica caracterizan esta obra. La luz natural es protagonista en cada ambiente.",
                 images: ["images/casa2.jpg"]
             },
             {
                 id: 3,
                 title: "PROYECTO 03",
-                category: "vivienda-multifamiliar",
                 description: "Proyecto residencial que explora la relación entre interior y exterior. Dobles alturas y circulaciones verticales aportan dinamismo espacial. La paleta material sobria refuerza el concepto arquitectónico.",
                 images: ["images/casa3.jpg"]
             },
             {
                 id: 4,
                 title: "PROYECTO 04",
-                category: "comercial",
                 description: "Arquitectura residencial contemporánea con énfasis en la eficiencia espacial. Volúmenes puros y geometría clara definen la composición. Cada detalle ha sido pensado para optimizar la experiencia del usuario.",
                 images: ["images/casa4.jpg"]
             },
             {
                 id: 5,
                 title: "PROYECTO 05",
-                category: "vivienda-unifamiliar",
                 description: "Vivienda que destaca por su integración con el paisaje circundante. Terrazas escalonadas y jardines integrados generan una transición fluida entre espacios. La arquitectura se funde con su contexto natural.",
                 images: ["images/casa5.jpg"]
             },
             {
                 id: 6,
                 title: "PROYECTO 06",
-                category: "espacio-publico",
                 description: "Residencia de líneas horizontales que enfatizan la conexión con el horizonte. Amplios voladizos generan espacios de transición protegidos. La materialidad honesta refuerza el carácter del proyecto.",
                 images: ["images/casa6.jpg"]
             },
             {
                 id: 7,
                 title: "PROYECTO 07",
-                category: "no-construido",
                 description: "Proyecto que explora la verticalidad y la luz como elementos compositivos. Espacios de doble altura y aberturas estratégicas generan dinamismo. La arquitectura responde a las necesidades contemporáneas del habitar.",
                 images: ["images/casa7.jpg"]
             },
             {
                 id: 8,
                 title: "PROYECTO 08",
-                category: "vivienda-unifamiliar",
                 description: "Vivienda unifamiliar donde la privacidad y la apertura coexisten en equilibrio. Patios internos y visuales controladas caracterizan el diseño. Cada espacio ha sido concebido con precisión y cuidado.",
                 images: ["images/casa8.jpg"]
             },
             {
                 id: 9,
                 title: "PROYECTO 09",
-                category: "vivienda-multifamiliar",
                 description: "Arquitectura residencial que reinterpreta la tradición con lenguaje contemporáneo. Volúmenes simples y composición equilibrada definen la propuesta. El proyecto dialoga respetuosamente con su contexto urbano.",
                 images: ["images/casa9.jpg"]
             }
@@ -101,7 +92,7 @@ function loadProjects() {
             <div class="project-order-handle">⋮⋮ ORDEN: ${index + 1}</div>
             <img src="${project.images ? project.images[0] : project.image}" alt="${project.title}">
             <h3>${project.title}</h3>
-            <p><strong>Categoría:</strong> ${getCategoryName(project.category)}</p>
+
             <p><strong>Imágenes:</strong> ${project.images ? project.images.length : 1}</p>
             <p>${project.description.substring(0, 100)}...</p>
             <div class="project-admin-actions">
@@ -113,18 +104,6 @@ function loadProjects() {
     
     // Configurar drag & drop para reordenar proyectos
     setupProjectDragDrop();
-}
-
-// Obtener nombre de categoría
-function getCategoryName(category) {
-    const categories = {
-        'vivienda-unifamiliar': 'Vivienda unifamiliar',
-        'vivienda-multifamiliar': 'Vivienda multifamiliar',
-        'comercial': 'Comercial',
-        'espacio-publico': 'Espacio público',
-        'no-construido': 'No construido'
-    };
-    return categories[category] || category;
 }
 
 // Abrir modal para agregar
@@ -145,7 +124,6 @@ function editProject(id) {
         document.getElementById('formTitle').textContent = 'EDITAR PROYECTO';
         document.getElementById('projectId').value = project.id;
         document.getElementById('projectTitle').value = project.title;
-        document.getElementById('projectCategory').value = project.category;
         document.getElementById('projectDescription').value = project.description;
         
         // Cargar todas las imágenes (base64 y URLs) en el array de uploadedImages
@@ -157,8 +135,6 @@ function editProject(id) {
             uploadedImages = [project.image];
         }
         
-        // Limpiar el textarea de URLs
-        document.getElementById('projectImage').value = '';
         updateImagePreview();
         
         document.getElementById('modalForm').classList.add('active');
@@ -194,22 +170,7 @@ document.getElementById('projectForm').addEventListener('submit', (e) => {
     
     const id = document.getElementById('projectId').value;
     const title = document.getElementById('projectTitle').value;
-    const category = document.getElementById('projectCategory').value;
     const description = document.getElementById('projectDescription').value;
-    const imageInput = document.getElementById('projectImage').value;
-    
-    // Convertir string de URLs en array si hay algo en el textarea
-    const urlImages = imageInput
-        .split(',')
-        .map(img => img.trim())
-        .filter(img => img.length > 0);
-    
-    // Agregar URLs adicionales del textarea al array de imágenes
-    urlImages.forEach(url => {
-        if (!uploadedImages.includes(url)) {
-            uploadedImages.push(url);
-        }
-    });
     
     // Usar el array uploadedImages que ya tiene el orden correcto
     const images = [...uploadedImages];
@@ -229,7 +190,6 @@ document.getElementById('projectForm').addEventListener('submit', (e) => {
             projects[index] = {
                 id: parseInt(id),
                 title,
-                category,
                 description,
                 images
             };
@@ -240,7 +200,6 @@ document.getElementById('projectForm').addEventListener('submit', (e) => {
         projects.push({
             id: newId,
             title,
-            category,
             description,
             images
         });
@@ -259,33 +218,10 @@ function setupImageUpload() {
     const uploadArea = document.getElementById('imageUploadArea');
     const fileInput = document.getElementById('imageFileInput');
     const previewGrid = document.getElementById('imagePreviewGrid');
-    const imageTextarea = document.getElementById('projectImage');
 
     // Click para abrir selector de archivos
     uploadArea.addEventListener('click', () => {
         fileInput.click();
-    });
-
-    // Listener para textarea de URLs
-    imageTextarea.addEventListener('blur', () => {
-        const urlInput = imageTextarea.value;
-        if (urlInput.trim()) {
-            const urls = urlInput
-                .split(',')
-                .map(url => url.trim())
-                .filter(url => url.length > 0);
-            
-            // Agregar URLs al final del array de imágenes cargadas
-            urls.forEach(url => {
-                if (!uploadedImages.includes(url)) {
-                    uploadedImages.push(url);
-                }
-            });
-            
-            // Limpiar textarea
-            imageTextarea.value = '';
-            updateImagePreview();
-        }
     });
 
     // Prevenir comportamiento por defecto del drag

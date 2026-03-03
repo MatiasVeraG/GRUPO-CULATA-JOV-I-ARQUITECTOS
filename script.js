@@ -1,15 +1,5 @@
-// PRELOADER
+// CARGA INICIAL
 window.addEventListener('load', () => {
-    const preloader = document.getElementById('preloader');
-    
-    setTimeout(() => {
-        preloader.classList.add('hidden');
-        
-        setTimeout(() => {
-            preloader.style.display = 'none';
-        }, 800);
-    }, 1500);
-    
     // Cargar proyectos al iniciar
     loadProjects();
 });
@@ -88,63 +78,54 @@ function initializeProjects() {
             {
                 id: 1,
                 title: "PROYECTO 01",
-                category: "vivienda-unifamiliar",
                 description: "Residencia contemporánea que integra espacios abiertos y luminosos. El diseño prioriza la conexión con el entorno natural mediante amplias ventanas y terrazas integradas. Materiales nobles y líneas limpias definen su carácter arquitectónico.",
                 images: ["images/casa1.jpg"]
             },
             {
                 id: 2,
                 title: "PROYECTO 02",
-                category: "vivienda-unifamiliar",
                 description: "Vivienda unifamiliar de estética minimalista donde la funcionalidad y el confort convergen. Espacios fluidos y una cuidadosa composición volumétrica caracterizan esta obra. La luz natural es protagonista en cada ambiente.",
                 images: ["images/casa2.jpg"]
             },
             {
                 id: 3,
                 title: "PROYECTO 03",
-                category: "vivienda-multifamiliar",
                 description: "Proyecto residencial que explora la relación entre interior y exterior. Dobles alturas y circulaciones verticales aportan dinamismo espacial. La paleta material sobria refuerza el concepto arquitectónico.",
                 images: ["images/casa3.jpg"]
             },
             {
                 id: 4,
                 title: "PROYECTO 04",
-                category: "comercial",
                 description: "Arquitectura residencial contemporánea con énfasis en la eficiencia espacial. Volúmenes puros y geometría clara definen la composición. Cada detalle ha sido pensado para optimizar la experiencia del usuario.",
                 images: ["images/casa4.jpg"]
             },
             {
                 id: 5,
                 title: "PROYECTO 05",
-                category: "vivienda-unifamiliar",
                 description: "Vivienda que destaca por su integración con el paisaje circundante. Terrazas escalonadas y jardines integrados generan una transición fluida entre espacios. La arquitectura se funde con su contexto natural.",
                 images: ["images/casa5.jpg"]
             },
             {
                 id: 6,
                 title: "PROYECTO 06",
-                category: "espacio-publico",
                 description: "Residencia de líneas horizontales que enfatizan la conexión con el horizonte. Amplios voladizos generan espacios de transición protegidos. La materialidad honesta refuerza el carácter del proyecto.",
                 images: ["images/casa6.jpg"]
             },
             {
                 id: 7,
                 title: "PROYECTO 07",
-                category: "no-construido",
                 description: "Proyecto que explora la verticalidad y la luz como elementos compositivos. Espacios de doble altura y aberturas estratégicas generan dinamismo. La arquitectura responde a las necesidades contemporáneas del habitar.",
                 images: ["images/casa7.jpg"]
             },
             {
                 id: 8,
                 title: "PROYECTO 08",
-                category: "vivienda-unifamiliar",
                 description: "Vivienda unifamiliar donde la privacidad y la apertura coexisten en equilibrio. Patios internos y visuales controladas caracterizan el diseño. Cada espacio ha sido concebido con precisión y cuidado.",
                 images: ["images/casa8.jpg"]
             },
             {
                 id: 9,
                 title: "PROYECTO 09",
-                category: "vivienda-multifamiliar",
                 description: "Arquitectura residencial que reinterpreta la tradición con lenguaje contemporáneo. Volúmenes simples y composición equilibrada definen la propuesta. El proyecto dialoga respetuosamente con su contexto urbano.",
                 images: ["images/casa9.jpg"]
             }
@@ -160,25 +141,18 @@ function getProjects() {
 }
 
 // Cargar y mostrar proyectos
-let currentFilter = 'todos';
-
-function loadProjects(filter = 'todos') {
+function loadProjects() {
     initializeProjects();
     const projects = getProjects();
     const grid = document.getElementById('projectsGrid');
     
-    // Filtrar proyectos
-    const filteredProjects = filter === 'todos' 
-        ? projects 
-        : projects.filter(p => p.category === filter);
-    
-    if (filteredProjects.length === 0) {
-        grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; letter-spacing: 1px; padding: 60px 0;">No hay proyectos en esta categoría</p>';
+    if (projects.length === 0) {
+        grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; letter-spacing: 1px; padding: 60px 0;">No hay proyectos</p>';
         return;
     }
     
-    grid.innerHTML = filteredProjects.map(project => `
-        <div class="project-item" data-project="${project.id}" data-category="${project.category}">
+    grid.innerHTML = projects.map(project => `
+        <div class="project-item" data-project="${project.id}">
             <img src="${project.images ? project.images[0] : project.image}" alt="${project.title}">
             <div class="project-overlay">
                 <span>${project.title}</span>
@@ -189,46 +163,6 @@ function loadProjects(filter = 'todos') {
     // Reiniciar event listeners para el modal
     attachProjectClickEvents();
 }
-
-// Manejar filtros dropdown
-document.addEventListener('DOMContentLoaded', () => {
-    const filterToggle = document.getElementById('filterToggle');
-    const filterMenu = document.getElementById('filterMenu');
-    const filterOptions = document.querySelectorAll('.filter-option');
-    
-    // Toggle dropdown
-    filterToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-        filterMenu.classList.toggle('open');
-    });
-    
-    // Cerrar dropdown al hacer click fuera
-    document.addEventListener('click', (e) => {
-        if (!filterToggle.contains(e.target) && !filterMenu.contains(e.target)) {
-            filterMenu.classList.remove('open');
-        }
-    });
-    
-    // Manejar selección de filtro
-    filterOptions.forEach(option => {
-        option.addEventListener('click', (e) => {
-            e.stopPropagation();
-            
-            // Remover active de todas las opciones
-            filterOptions.forEach(opt => opt.classList.remove('active'));
-            // Agregar active a la opción clickeada
-            option.classList.add('active');
-            
-            // Obtener filtro y cargar proyectos
-            const filter = option.getAttribute('data-filter');
-            currentFilter = filter;
-            loadProjects(filter);
-            
-            // Cerrar menú
-            filterMenu.classList.remove('open');
-        });
-    });
-});
 
 // Adjuntar eventos de click a los proyectos
 function attachProjectClickEvents() {

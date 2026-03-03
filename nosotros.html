@@ -6,11 +6,121 @@
     <title>Nosotros - Grupo Culata Jovái Arquitectos</title>
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* HEADER MINIMALISTA */
+        .landing-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 30px 60px;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #FFFFFF;
+        }
+
+        .logo-text {
+            cursor: pointer;
+            height: 35px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-text img {
+            height: 100%;
+            width: auto;
+            transition: opacity 0.3s ease;
+        }
+
+        .logo-text:hover img {
+            opacity: 0.7;
+        }
+
+        .nav-link {
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: #000000;
+            text-decoration: none;
+            text-transform: lowercase;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #DC143C;
+        }
+
+        /* SELECTOR DE IDIOMA */
+        .language-selector {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 200;
+            display: flex;
+            gap: 10px;
+        }
+
+        .lang-option {
+            font-size: 10px;
+            letter-spacing: 1px;
+            color: #999999;
+            text-decoration: none;
+            text-transform: lowercase;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            font-weight: 400;
+        }
+
+        .lang-option:hover {
+            color: #000000;
+        }
+
+        .lang-option.active {
+            color: #000000;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .landing-header {
+                padding: 20px 30px;
+            }
+
+            .logo-text {
+                height: 28px;
+            }
+
+            .nav-link {
+                font-size: 8px;
+            }
+
+            .language-selector {
+                bottom: 20px;
+                right: 20px;
+                gap: 8px;
+            }
+
+            .lang-option {
+                font-size: 9px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .landing-header {
+                padding: 15px 20px;
+            }
+
+            .logo-text {
+                height: 24px;
+            }
+        }
+    </style>
+    <style>
         /* ESTILOS ESPECÍFICOS PARA NOSOTROS */
         #nosotros {
             background-color: #FFFFFF;
-            padding: 140px 60px;
+            padding: 140px 60px 100px;
             margin-top: 80px;
+            min-height: 100vh;
         }
 
         .nosotros-container {
@@ -86,22 +196,15 @@
     </style>
 </head>
 <body>
-    <!-- PRELOADER -->
-    <div id="preloader">
-        <img src="images/logo.png" alt="Grupo Culata Jovái" class="preloader-logo">
-    </div>
-
     <!-- HEADER -->
-    <header id="header">
-        <div class="header-content">
-            <a href="landing.html" style="text-decoration: none; color: inherit;">
-                <div class="logo-text">GRUPO CULATA JOVÁI ARQUITECTOS</div>
-            </a>
-            <nav>
-                <a href="index.html">PROYECTOS</a>
-                <a href="nosotros.html">NOSOTROS</a>
-                <a href="https://www.instagram.com/culatajovai.arq" target="_blank" rel="noopener">INSTAGRAM</a>
-            </nav>
+    <header class="landing-header">
+        <nav style="display: flex; gap: 30px;">
+            <a href="index.html" class="nav-link" data-i18n="nav-trabajos">trabajos</a>
+            <a href="nosotros.html" class="nav-link" data-i18n="nav-sobre">sobre</a>
+            <a href="contacto.html" class="nav-link" data-i18n="nav-contacto">contacto</a>
+        </nav>
+        <div class="logo-text" onclick="window.location.href='landing.html'">
+            <img src="images/logo.png" alt="Grupo Culata Jovái Arquitectos">
         </div>
     </header>
 
@@ -124,26 +227,69 @@
         </div>
     </section>
 
-    <!-- CONTACTO -->
-    <section id="contacto">
-        <h2>CONTACTO</h2>
-        <div class="contacto-content">
-            <div class="contacto-info">
-                <p><strong>EMAIL</strong><br>contacto@culatajovai.com</p>
-                <p><strong>TELÉFONO</strong><br>+595 XXX XXX XXX</p>
-                <p><strong>UBICACIÓN</strong><br>Asunción, Paraguay</p>
-            </div>
-            <div class="contacto-social">
-                <a href="https://www.instagram.com/culatajovai.arq" target="_blank" rel="noopener" class="btn-instagram">SÍGUENOS EN INSTAGRAM</a>
-            </div>
-        </div>
-    </section>
+    <!-- SELECTOR DE IDIOMA -->
+    <div class="language-selector">
+        <span class="lang-option active" data-lang="es" onclick="changeLanguage('es')">es</span>
+        <span class="lang-option" data-lang="en" onclick="changeLanguage('en')">en</span>
+        <span class="lang-option" data-lang="de" onclick="changeLanguage('de')">de</span>
+    </div>
 
-    <!-- FOOTER -->
-    <footer>
-        <p>© 2026 GRUPO CULATA JOVÁI ARQUITECTOS</p>
-    </footer>
+    <script>
+        // Sistema de traducción
+        const translations = {
+            es: {
+                'nav-trabajos': 'trabajos',
+                'nav-sobre': 'sobre',
+                'nav-contacto': 'contacto'
+            },
+            en: {
+                'nav-trabajos': 'works',
+                'nav-sobre': 'about',
+                'nav-contacto': 'contact'
+            },
+            de: {
+                'nav-trabajos': 'arbeiten',
+                'nav-sobre': 'über',
+                'nav-contacto': 'kontakt'
+            }
+        };
 
-    <script src="script.js"></script>
+        // Función para cambiar idioma
+        function changeLanguage(lang) {
+            localStorage.setItem('selectedLanguage', lang);
+            updateLanguageUI(lang);
+            applyTranslations(lang);
+        }
+
+        // Actualizar indicador visual del idioma seleccionado
+        function updateLanguageUI(lang) {
+            document.querySelectorAll('.lang-option').forEach(option => {
+                option.classList.remove('active');
+                if (option.dataset.lang === lang) {
+                    option.classList.add('active');
+                }
+            });
+        }
+
+        // Aplicar traducciones a todos los elementos con data-i18n
+        function applyTranslations(lang) {
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.dataset.i18n;
+                if (translations[lang] && translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+        }
+
+        // Inicializar idioma al cargar la página
+        function initLanguage() {
+            const savedLang = localStorage.getItem('selectedLanguage') || 'es';
+            updateLanguageUI(savedLang);
+            applyTranslations(savedLang);
+        }
+
+        // Inicializar idioma
+        initLanguage();
+    </script>    <script src="script.js"></script>
 </body>
 </html>
