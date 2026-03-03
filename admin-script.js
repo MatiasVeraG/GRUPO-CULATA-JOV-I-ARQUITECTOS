@@ -3,84 +3,88 @@ if (!sessionStorage.getItem('adminLoggedIn')) {
     window.location.href = 'admin.html';
 }
 
-// Inicializar proyectos por defecto si no existen
-function initializeProjects() {
-    if (!localStorage.getItem('projects')) {
-        const defaultProjects = [
-            {
-                id: 1,
-                title: "PROYECTO 01",
-                description: "Residencia contemporánea que integra espacios abiertos y luminosos. El diseño prioriza la conexión con el entorno natural mediante amplias ventanas y terrazas integradas. Materiales nobles y líneas limpias definen su carácter arquitectónico.",
-                images: ["images/casa1.jpg"]
-            },
-            {
-                id: 2,
-                title: "PROYECTO 02",
-                description: "Vivienda unifamiliar de estética minimalista donde la funcionalidad y el confort convergen. Espacios fluidos y una cuidadosa composición volumétrica caracterizan esta obra. La luz natural es protagonista en cada ambiente.",
-                images: ["images/casa2.jpg"]
-            },
-            {
-                id: 3,
-                title: "PROYECTO 03",
-                description: "Proyecto residencial que explora la relación entre interior y exterior. Dobles alturas y circulaciones verticales aportan dinamismo espacial. La paleta material sobria refuerza el concepto arquitectónico.",
-                images: ["images/casa3.jpg"]
-            },
-            {
-                id: 4,
-                title: "PROYECTO 04",
-                description: "Arquitectura residencial contemporánea con énfasis en la eficiencia espacial. Volúmenes puros y geometría clara definen la composición. Cada detalle ha sido pensado para optimizar la experiencia del usuario.",
-                images: ["images/casa4.jpg"]
-            },
-            {
-                id: 5,
-                title: "PROYECTO 05",
-                description: "Vivienda que destaca por su integración con el paisaje circundante. Terrazas escalonadas y jardines integrados generan una transición fluida entre espacios. La arquitectura se funde con su contexto natural.",
-                images: ["images/casa5.jpg"]
-            },
-            {
-                id: 6,
-                title: "PROYECTO 06",
-                description: "Residencia de líneas horizontales que enfatizan la conexión con el horizonte. Amplios voladizos generan espacios de transición protegidos. La materialidad honesta refuerza el carácter del proyecto.",
-                images: ["images/casa6.jpg"]
-            },
-            {
-                id: 7,
-                title: "PROYECTO 07",
-                description: "Proyecto que explora la verticalidad y la luz como elementos compositivos. Espacios de doble altura y aberturas estratégicas generan dinamismo. La arquitectura responde a las necesidades contemporáneas del habitar.",
-                images: ["images/casa7.jpg"]
-            },
-            {
-                id: 8,
-                title: "PROYECTO 08",
-                description: "Vivienda unifamiliar donde la privacidad y la apertura coexisten en equilibrio. Patios internos y visuales controladas caracterizan el diseño. Cada espacio ha sido concebido con precisión y cuidado.",
-                images: ["images/casa8.jpg"]
-            },
-            {
-                id: 9,
-                title: "PROYECTO 09",
-                description: "Arquitectura residencial que reinterpreta la tradición con lenguaje contemporáneo. Volúmenes simples y composición equilibrada definen la propuesta. El proyecto dialoga respetuosamente con su contexto urbano.",
-                images: ["images/casa9.jpg"]
-            }
-        ];
-        localStorage.setItem('projects', JSON.stringify(defaultProjects));
+// Obtener proyectos desde Firestore
+async function getProjects() {
+    try {
+        const snapshot = await db.collection('projects').orderBy('order', 'asc').get();
+        const projects = [];
+        snapshot.forEach(doc => {
+            projects.push({ id: doc.id, ...doc.data() });
+        });
+        return projects;
+    } catch (error) {
+        console.error('Error al cargar proyectos:', error);
+        return [];
     }
 }
 
-// Obtener proyectos
-function getProjects() {
-    const projects = localStorage.getItem('projects');
-    return projects ? JSON.parse(projects) : [];
+// Guardar o actualizar proyecto en Firestore
+async function saveProject(projectData) {
+    try {
+        if (projectData.id && projectData.id.length > 10) {
+            // Actualizar proyecto existente (ID de Firestore)
+            await db.collection('projects').doc(projectData.id).update({
+                title: projectData.title,
+                description: projectData.description,
+                images: projectData.images,
+                order: projectData.order || 0
+            });
+        } else {
+            // Crear nuevo proyecto
+            const projects = await getProjects();
+            const maxOrder = projects.length > 0 ? Math.max(...projects.map(p => p.order || 0)) : -1;
+            
+            await db.collection('projects').add({
+                title: projectData.title,
+                description: projectData.description,
+                images: projectData.images,
+                order: maxOrder + 1
+            });
+        }
+        return true;
+    } catch (error) {
+        console.error('Error al guardar proyecto:', error);
+        alert('Error al guardar el proyecto: ' + error.message);
+        return false;
+    }
 }
 
-// Guardar proyectos
-function saveProjects(projects) {
-    localStorage.setItem('projects', JSON.stringify(projects));
+// Eliminar proyecto de Firestore
+async function deleteProjectFromFirestore(projectId) {
+    try {
+        await db.collection('projects').doc(projectId).delete();
+        return true;
+    } catch (error) {
+        console.error('Error al eliminar proyecto:', error);
+        alert('Error al eliminar el proyecto: ' + error.message);
+        return false;
+    }
+}
+
+// Actualizar orden de proyectos en Firestore
+async function updateProjectsOrder(projects) {
+    try {
+        const batch = db.batch();
+        projects.forEach((project, index) => {
+            const projectRef = db.collection('projects').doc(project.id);
+            batch.update(projectRef, { order: index });
+        });
+        await batch.commit();
+        return true;
+    } catch (error) {
+        console.error('Error al actualizar orden:', error);
+        return false;
+    }
 }
 
 // Cargar proyectos en el grid
-function loadProjects() {
-    const projects = getProjects();
+async function loadProjects() {
     const grid = document.getElementById('projectsAdminGrid');
+    
+    // Mostrar indicador de carga
+    grid.innerHTML = '<p style="text-align: center; letter-spacing: 1px;">Cargando proyectos...</p>';
+    
+    const projects = await getProjects();
     
     if (projects.length === 0) {
         grid.innerHTML = '<p style="text-align: center; letter-spacing: 1px;">No hay proyectos disponibles</p>';
@@ -92,12 +96,11 @@ function loadProjects() {
             <div class="project-order-handle">⋮⋮ ORDEN: ${index + 1}</div>
             <img src="${project.images ? project.images[0] : project.image}" alt="${project.title}">
             <h3>${project.title}</h3>
-
             <p><strong>Imágenes:</strong> ${project.images ? project.images.length : 1}</p>
             <p>${project.description.substring(0, 100)}...</p>
             <div class="project-admin-actions">
-                <button class="btn-edit" onclick="editProject(${project.id})">EDITAR</button>
-                <button class="btn-delete" onclick="deleteProject(${project.id})">ELIMINAR</button>
+                <button class="btn-edit" onclick="editProject('${project.id}')">EDITAR</button>
+                <button class="btn-delete" onclick="deleteProject('${project.id}')">ELIMINAR</button>
             </div>
         </div>
     `).join('');
@@ -116,8 +119,8 @@ function openAddModal() {
 }
 
 // Editar proyecto
-function editProject(id) {
-    const projects = getProjects();
+async function editProject(id) {
+    const projects = await getProjects();
     const project = projects.find(p => p.id === id);
     
     if (project) {
@@ -143,12 +146,12 @@ function editProject(id) {
 }
 
 // Eliminar proyecto
-function deleteProject(id) {
+async function deleteProject(id) {
     if (confirm('¿Estás seguro de que deseas eliminar este proyecto?')) {
-        let projects = getProjects();
-        projects = projects.filter(p => p.id !== id);
-        saveProjects(projects);
-        loadProjects();
+        const success = await deleteProjectFromFirestore(id);
+        if (success) {
+            await loadProjects();
+        }
     }
 }
 
@@ -165,7 +168,7 @@ function logout() {
 }
 
 // Manejar envío del formulario
-document.getElementById('projectForm').addEventListener('submit', (e) => {
+document.getElementById('projectForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const id = document.getElementById('projectId').value;
@@ -181,33 +184,28 @@ document.getElementById('projectForm').addEventListener('submit', (e) => {
         return;
     }
     
-    let projects = getProjects();
+    const projectData = {
+        id: id || null,
+        title,
+        description,
+        images
+    };
     
-    if (id) {
-        // Editar proyecto existente
-        const index = projects.findIndex(p => p.id === parseInt(id));
-        if (index !== -1) {
-            projects[index] = {
-                id: parseInt(id),
-                title,
-                description,
-                images
-            };
-        }
-    } else {
-        // Agregar nuevo proyecto
-        const newId = projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1;
-        projects.push({
-            id: newId,
-            title,
-            description,
-            images
-        });
+    // Mostrar indicador de carga
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'GUARDANDO...';
+    submitBtn.disabled = true;
+    
+    const success = await saveProject(projectData);
+    
+    submitBtn.textContent = originalText;
+    submitBtn.disabled = false;
+    
+    if (success) {
+        await loadProjects();
+        closeFormModal();
     }
-    
-    saveProjects(projects);
-    loadProjects();
-    closeFormModal();
 });
 
 // Array para almacenar imágenes cargadas (base64)
@@ -431,8 +429,8 @@ function setupProjectDragDrop() {
 }
 
 // Reordenar proyectos
-function reorderProjects(draggedId, targetId) {
-    let projects = getProjects();
+async function reorderProjects(draggedId, targetId) {
+    let projects = await getProjects();
     
     const draggedIndex = projects.findIndex(p => p.id === draggedId);
     const targetIndex = projects.findIndex(p => p.id === targetId);
@@ -443,12 +441,12 @@ function reorderProjects(draggedId, targetId) {
         // Insertar en nueva posición
         projects.splice(targetIndex, 0, draggedProject);
         
-        saveProjects(projects);
-        loadProjects();
+        // Actualizar orden en Firestore
+        await updateProjectsOrder(projects);
+        await loadProjects();
     }
 }
 
 // Inicializar
-initializeProjects();
 loadProjects();
 setupImageUpload();
