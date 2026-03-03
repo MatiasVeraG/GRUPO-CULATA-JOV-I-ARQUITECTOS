@@ -56,15 +56,44 @@ async function saveProject(projectData) {
     }
 }
 
-// Eliminar proyecto de Firestore
+// Eliminar proyecto de Firestore y sus imágenes de Storage
 async function deleteProjectFromFirestore(projectId) {
     try {
+        // Obtener el proyecto para eliminar sus imágenes
+        const projectDoc = await db.collection('projects').doc(projectId).get();
+        const projectData = projectDoc.data();
+        
+        // Eliminar imágenes de Storage
+        if (projectData && projectData.images) {
+            const deletePromises = projectData.images.map(imageUrl => deleteImageFromStorage(imageUrl));
+            await Promise.all(deletePromises);
+        }
+        
+        // Eliminar el documento de Firestore
         await db.collection('projects').doc(projectId).delete();
         return true;
     } catch (error) {
         console.error('Error al eliminar proyecto:', error);
         alert('Error al eliminar el proyecto: ' + error.message);
         return false;
+    }
+}
+
+// Eliminar una imagen de Firebase Storage
+async function deleteImageFromStorage(imageUrl) {
+    try {
+        // Extraer la ruta del archivo de la URL
+        const decodedUrl = decodeURIComponent(imageUrl);
+        const pathMatch = decodedUrl.match(/\/o\/(.+?)\?/);
+        
+        if (pathMatch && pathMatch[1]) {
+            const filePath = pathMatch[1];
+            const storageRef = storage.ref(filePath);
+            await storageRef.delete();
+        }
+    } catch (error) {
+        console.error('Error al eliminar imagen de Storage:', error);
+        // No mostrar alerta, solo registrar el error
     }
 }
 
@@ -269,23 +298,39 @@ function setupImageUpload() {
     });
 }
 
-// Procesar archivos de imagen
-function handleFiles(files) {
-    files.forEach(file => {
+// Procesar archivos de imagen y subirlos a Firebase Storage
+async function handleFiles(files) {
+    const uploadPromises = [];
+    
+    for (const file of files) {
         if (file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            
-            reader.onload = (e) => {
-                const imageData = e.target.result;
-                uploadedImages.push(imageData);
-                updateImagePreview();
-            };
-            
-            reader.readAsDataURL(file);
+            uploadPromises.push(uploadImageToStorage(file));
         } else {
             alert('Por favor, selecciona solo archivos de imagen');
         }
-    });
+    }
+    
+    try {
+        const imageUrls = await Promise.all(uploadPromises);
+        uploadedImages.push(...imageUrls);
+        updateImagePreview();
+    } catch (error) {
+        console.error('Error al subir imágenes:', error);
+        alert('Error al subir las imágenes: ' + error.message);
+    }
+}
+
+// Subir una imagen a Firebase Storage
+async function uploadImageToStorage(file) {
+    const timestamp = Date.now();
+    const randomString = Math.random().toString(36).substring(2, 15);
+    const fileName = `projects/${timestamp}_${randomString}_${file.name}`;
+    
+    const storageRef = storage.ref(fileName);
+    const snapshot = await storageRef.put(file);
+    const downloadURL = await snapshot.ref.getDownloadURL();
+    
+    return downloadURL;
 }
 
 // Actualizar preview de imágenes
@@ -305,7 +350,14 @@ function updateImagePreview() {
 }
 
 // Eliminar imagen subida
-function removeUploadedImage(index) {
+async function removeUploadedImage(index) {
+    const imageUrl = uploadedImages[index];
+    
+    // Eliminar de Storage si es una URL de Firebase Storage
+    if (imageUrl && imageUrl.includes('firebasestorage.googleapis.com')) {
+        await deleteImageFromStorage(imageUrl);
+    }
+    
     uploadedImages.splice(index, 1);
     updateImagePreview();
 }

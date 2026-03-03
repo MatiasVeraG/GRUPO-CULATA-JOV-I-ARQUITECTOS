@@ -63,7 +63,37 @@ service cloud.firestore {
 
 3. Haz clic en "Publicar" (Publish)
 
-### 6. Habilitar Firebase Authentication
+### 6. Habilitar Firebase Storage
+
+1. En el menú lateral de Firebase Console, ve a "Storage"
+2. Haz clic en "Get started" o "Comenzar"
+3. Selecciona **"Comenzar en modo de producción"** (Production mode)
+4. Usa la misma ubicación que elegiste para Firestore
+5. Haz clic en "Listo" o "Done"
+
+#### Configurar reglas de Storage:
+
+1. Ve a la pestaña "Rules" (Reglas)
+2. Reemplaza las reglas existentes con estas:
+
+```javascript
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /projects/{imageId} {
+      allow read: if true;  // Lectura pública
+      allow write: if request.auth != null;  // Solo usuarios autenticados pueden subir
+      allow delete: if request.auth != null;  // Solo usuarios autenticados pueden eliminar
+    }
+  }
+}
+```
+
+3. Haz clic en "Publicar" (Publish)
+
+**Nota:** Las imágenes ahora se guardan en Firebase Storage en lugar de base64 en Firestore. Esto evita el límite de 1 MB por documento.
+
+### 7. Habilitar Firebase Authentication
 
 1. En el menú lateral de Firebase Console, ve a "Authentication"
 2. Haz clic en "Get started" o "Comenzar"
@@ -72,7 +102,7 @@ service cloud.firestore {
 5. Activa la primera opción (Email/password)
 6. Haz clic en "Guardar" o "Save"
 
-### 7. Crear usuario administrador
+### 8. Crear usuario administrador
 
 1. En Authentication, ve a la pestaña "Users" (Usuarios)
 2. Haz clic en "Add user" o "Agregar usuario"
@@ -85,7 +115,7 @@ service cloud.firestore {
 - Esta contraseña NO está en el código fuente
 - Para iniciar sesión en el panel admin, usa "admin" como usuario (se convertirá automáticamente a admin@culatajovai.admin)
 
-### 8. Probar la configuración
+### 9. Probar la configuración
 
 1. Abre tu sitio web localmente
 2. Ve al panel de administración (admin.html)
@@ -95,7 +125,7 @@ service cloud.firestore {
 4. Intenta agregar un proyecto nuevo
 5. Si todo funciona, verás el proyecto en la página de trabajos
 
-### 9. Desplegar en Vercel
+### 10. Desplegar en Vercel
 
 Una vez que hayas configurado Firebase:
 
@@ -120,6 +150,7 @@ Una vez que hayas configurado Firebase:
 - El sistema usa Firebase Authentication para proteger el panel de administración
 - La contraseña del admin NO está en el código fuente, está guardada de forma segura en Firebase
 - Los datos se almacenan en la nube de Firebase, no en localStorage del navegador
+- **Las imágenes se guardan en Firebase Storage** (no en Firestore), evitando el límite de 1 MB por documento
 - Todos los cambios que hagas desde el panel admin se reflejarán inmediatamente para todos los visitantes
 
 ## Seguridad:
@@ -127,6 +158,7 @@ Una vez que hayas configurado Firebase:
 - ✅ **Authentication:** El panel admin está protegido con Firebase Authentication
 - ✅ **Contraseña segura:** Las contraseñas se almacenan hasheadas en Firebase, nunca en texto plano
 - ✅ **Reglas de Firestore:** Solo usuarios autenticados pueden agregar/editar/eliminar proyectos
+- ✅ **Reglas de Storage:** Solo usuarios autenticados pueden subir/eliminar imágenes
 - ✅ **Sesión segura:** La sesión se valida en tiempo real con Firebase
 - ⚠️ **Recordatorio:** Nunca compartas tu contraseña de administrador
 
@@ -134,8 +166,15 @@ Una vez que hayas configurado Firebase:
 
 Si ves errores en la consola del navegador:
 1. Verifica que los valores en `firebase-config.js` sean correctos
-2. Asegúrate de haber habilitado Firestore Database
+2. Asegúrate de haber habilitado Firestore Database y Firebase Storage
 3. Verifica que Firebase Authentication esté habilitado con Email/Password
 4. Confirma que el usuario admin@culatajovai.admin existe en Authentication > Users
-5. Revisa que las reglas de seguridad estén configuradas correctamente
+5. Revisa que las reglas de seguridad de Firestore y Storage estén configuradas correctamente
 6. Limpia la caché del navegador y recarga la página
+
+### Error: "Document size exceeds the maximum allowed size"
+
+Este error ocurría cuando se usaba base64 para las imágenes. La versión actual usa Firebase Storage, que no tiene este límite. Si ves este error:
+1. Asegúrate de haber habilitado Firebase Storage (paso 6)
+2. Verifica que el código esté actualizado con la versión que usa Storage
+3. Las imágenes antiguas en base64 seguirán funcionando, pero las nuevas usarán Storage

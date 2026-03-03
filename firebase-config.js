@@ -22,5 +22,9 @@ firebase.initializeApp(firebaseConfig);
 // Inicializar Firestore
 const db = firebase.firestore();
 
+// Inicializar Storage
+const storage = firebase.storage();
+
 // Exportar referencias
 window.db = db;
+window.storage = storage;
