@@ -53,10 +53,9 @@ const firebaseConfig = {
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Permitir lectura pública de proyectos
     match /projects/{projectId} {
-      allow read: if true;
-      allow write: if false; // Solo permitir escritura desde el panel admin
+      allow read: if true;  // Lectura pública
+      allow write: if request.auth != null;  // Solo usuarios autenticados pueden escribir
     }
   }
 }
@@ -64,15 +63,39 @@ service cloud.firestore {
 
 3. Haz clic en "Publicar" (Publish)
 
-### 6. Probar la configuración
+### 6. Habilitar Firebase Authentication
+
+1. En el menú lateral de Firebase Console, ve a "Authentication"
+2. Haz clic en "Get started" o "Comenzar"
+3. Ve a la pestaña "Sign-in method" (Método de inicio de sesión)
+4. Haz clic en "Email/Password"
+5. Activa la primera opción (Email/password)
+6. Haz clic en "Guardar" o "Save"
+
+### 7. Crear usuario administrador
+
+1. En Authentication, ve a la pestaña "Users" (Usuarios)
+2. Haz clic en "Add user" o "Agregar usuario"
+3. Ingresa el email: **admin@culatajovai.admin**
+4. Ingresa una contraseña segura (esta será la nueva contraseña del panel admin)
+5. Haz clic en "Add user" o "Agregar usuario"
+
+**⚠️ Importante:** 
+- Guarda esta contraseña en un lugar seguro
+- Esta contraseña NO está en el código fuente
+- Para iniciar sesión en el panel admin, usa "admin" como usuario (se convertirá automáticamente a admin@culatajovai.admin)
+
+### 8. Probar la configuración
 
 1. Abre tu sitio web localmente
 2. Ve al panel de administración (admin.html)
-3. Inicia sesión (contraseña por defecto: "admin123")
+3. Inicia sesión con:
+   - Usuario: **admin**
+   - Contraseña: La que configuraste en Firebase Authentication
 4. Intenta agregar un proyecto nuevo
 5. Si todo funciona, verás el proyecto en la página de trabajos
 
-### 7. Desplegar en Vercel
+### 9. Desplegar en Vercel
 
 Una vez que hayas configurado Firebase:
 
@@ -93,15 +116,26 @@ Una vez que hayas configurado Firebase:
 ## Notas importantes:
 
 - **No subas las credenciales de Firebase a un repositorio público** si contienen información sensible
-- Las reglas de Firestore actuales permiten lectura pública pero no escritura (solo desde el navegador donde estés autenticado como admin)
-- Para mayor seguridad, considera implementar Firebase Authentication para el panel de administración
+- Las reglas de Firestore permiten lectura pública pero solo escritura para usuarios autenticados
+- El sistema usa Firebase Authentication para proteger el panel de administración
+- La contraseña del admin NO está en el código fuente, está guardada de forma segura en Firebase
 - Los datos se almacenan en la nube de Firebase, no en localStorage del navegador
 - Todos los cambios que hagas desde el panel admin se reflejarán inmediatamente para todos los visitantes
+
+## Seguridad:
+
+- ✅ **Authentication:** El panel admin está protegido con Firebase Authentication
+- ✅ **Contraseña segura:** Las contraseñas se almacenan hasheadas en Firebase, nunca en texto plano
+- ✅ **Reglas de Firestore:** Solo usuarios autenticados pueden agregar/editar/eliminar proyectos
+- ✅ **Sesión segura:** La sesión se valida en tiempo real con Firebase
+- ⚠️ **Recordatorio:** Nunca compartas tu contraseña de administrador
 
 ## Solución de problemas:
 
 Si ves errores en la consola del navegador:
 1. Verifica que los valores en `firebase-config.js` sean correctos
 2. Asegúrate de haber habilitado Firestore Database
-3. Revisa que las reglas de seguridad estén configuradas correctamente
-4. Limpia la caché del navegador y recarga la página
+3. Verifica que Firebase Authentication esté habilitado con Email/Password
+4. Confirma que el usuario admin@culatajovai.admin existe en Authentication > Users
+5. Revisa que las reglas de seguridad estén configuradas correctamente
+6. Limpia la caché del navegador y recarga la página

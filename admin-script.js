@@ -1,7 +1,14 @@
-// Verificar autenticación
-if (!sessionStorage.getItem('adminLoggedIn')) {
-    window.location.href = 'admin.html';
-}
+// Verificar autenticación con Firebase
+firebase.auth().onAuthStateChanged((user) => {
+    if (!user) {
+        // No hay usuario autenticado, redirigir al login
+        window.location.href = 'admin.html';
+    } else {
+        // Usuario autenticado, cargar proyectos
+        sessionStorage.setItem('adminLoggedIn', 'true');
+        loadProjects();
+    }
+});
 
 // Obtener proyectos desde Firestore
 async function getProjects() {
@@ -162,9 +169,15 @@ function closeFormModal() {
 }
 
 // Cerrar sesión
-function logout() {
-    sessionStorage.removeItem('adminLoggedIn');
-    window.location.href = 'admin.html';
+async function logout() {
+    try {
+        await firebase.auth().signOut();
+        sessionStorage.removeItem('adminLoggedIn');
+        window.location.href = 'admin.html';
+    } catch (error) {
+        console.error('Error al cerrar sesión:', error);
+        alert('Error al cerrar sesión');
+    }
 }
 
 // Manejar envío del formulario

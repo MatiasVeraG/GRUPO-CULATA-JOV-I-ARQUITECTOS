@@ -128,24 +128,35 @@
         </div>
     </div>
 
-    <script>
-        // Credenciales por defecto (en un caso real, esto debería estar en el backend)
-        const ADMIN_USER = 'admin';
-        const ADMIN_PASS = 'culatajovai2026';
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
 
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+    <script>
+        // Sistema de autenticación con Firebase Authentication
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const errorMessage = document.getElementById('errorMessage');
             
-            if (username === ADMIN_USER && password === ADMIN_PASS) {
+            // Construir email a partir del username
+            const email = username + '@culatajovai.admin';
+            
+            try {
+                // Intentar iniciar sesión con Firebase Auth
+                await firebase.auth().signInWithEmailAndPassword(email, password);
+                
                 // Guardar sesión
                 sessionStorage.setItem('adminLoggedIn', 'true');
+                
                 // Redirigir al panel
                 window.location.href = 'admin-panel.html';
-            } else {
+            } catch (error) {
+                console.error('Error de autenticación:', error);
+                errorMessage.textContent = 'Usuario o contraseña incorrectos';
                 errorMessage.classList.add('show');
                 setTimeout(() => {
                     errorMessage.classList.remove('show');

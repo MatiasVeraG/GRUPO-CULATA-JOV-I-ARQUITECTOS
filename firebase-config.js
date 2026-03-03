@@ -7,12 +7,13 @@
 // 5. Habilita Firestore Database en la consola de Firebase
 
 const firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "TU_PROJECT_ID.firebaseapp.com",
-    projectId: "TU_PROJECT_ID",
-    storageBucket: "TU_PROJECT_ID.appspot.com",
-    messagingSenderId: "TU_MESSAGING_SENDER_ID",
-    appId: "TU_APP_ID"
+  apiKey: "AIzaSyDoO4ba92JaxBZYomZqWE3-o3_2pboE4XE",
+  authDomain: "culata-jovai-39018.firebaseapp.com",
+  projectId: "culata-jovai-39018",
+  storageBucket: "culata-jovai-39018.firebasestorage.app",
+  messagingSenderId: "568999082518",
+  appId: "1:568999082518:web:dc31c18ecb69db0fde1337",
+  measurementId: "G-0SPBLWV323"
 };
 
 // Inicializar Firebase
