@@ -71,19 +71,11 @@ window.addEventListener('scroll', () => {
 });
 
 // MODAL DE PROYECTOS
-// Obtener proyectos desde API
-async function getProjects() {
-    try {
-        const response = await fetch('/api/projects');
-        if (!response.ok) {
-            throw new Error('Error al cargar proyectos');
-        }
-        const projects = await response.json();
-        return projects.sort((a, b) => (a.order || 0) - (b.order || 0));
-    } catch (error) {
-        console.error('Error al cargar proyectos:', error);
-        return [];
-    }
+// Obtener proyectos desde localStorage
+function getProjects() {
+    const projects = localStorage.getItem('projects');
+    const parsed = projects ? JSON.parse(projects) : [];
+    return parsed.sort((a, b) => (a.order || 0) - (b.order || 0));
 }
 
 // Cargar y mostrar proyectos
@@ -93,7 +85,7 @@ async function loadProjects() {
     // Mostrar indicador de carga
     grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; letter-spacing: 1px; padding: 60px 0;">Cargando proyectos...</p>';
     
-    const projects = await getProjects();
+    const projects = getProjects();
     
     if (projects.length === 0) {
         grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; letter-spacing: 1px; padding: 60px 0;">No hay proyectos</p>';
@@ -128,8 +120,8 @@ function attachProjectClickEvents() {
 let currentImageIndex = 0;
 let currentProjectImages = [];
 
-async function openProjectModal(projectId) {
-    const projects = await getProjects();
+function openProjectModal(projectId) {
+    const projects = getProjects();
     const project = projects.find(p => p.id === projectId);
     
     if (!project) return;

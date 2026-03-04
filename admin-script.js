@@ -5,37 +5,48 @@ if (!sessionStorage.getItem('adminLoggedIn')) {
     loadProjects();
 }
 
-// Obtener proyectos desde API
-async function getProjects() {
-    try {
-        const response = await fetch('/api/projects');
-        if (!response.ok) {
-            throw new Error('Error al cargar proyectos');
-        }
-        const projects = await response.json();
-        return projects.sort((a, b) => (a.order || 0) - (b.order || 0));
-    } catch (error) {
-        console.error('Error al cargar proyectos:', error);
-        return [];
-    }
+// Obtener proyectos desde localStorage
+function getProjects() {
+    const projects = localStorage.getItem('projects');
+    return projects ? JSON.parse(projects) : [];
+}
+
+// Guardar proyectos en localStorage
+function saveProjectsToStorage(projects) {
+    localStorage.setItem('projects', JSON.stringify(projects));
 }
 
 // Guardar o actualizar proyecto
-async function saveProject(projectData) {
+function saveProject(projectData) {
     try {
-        const method = projectData.id ? 'PUT' : 'POST';
-        const response = await fetch('/api/projects', {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(projectData)
-        });
-
-        if (!response.ok) {
-            throw new Error('Error al guardar proyecto');
+        const projects = getProjects();
+        
+        if (projectData.id) {
+            // Actualizar proyecto existente
+            const index = projects.findIndex(p => p.id === projectData.id);
+            if (index !== -1) {
+                projects[index] = {
+                    ...projects[index],
+                    title: projectData.title,
+                    description: projectData.description,
+                    images: projectData.images,
+                    order: projects[index].order
+                };
+            }
+        } else {
+            // Crear nuevo proyecto
+            const maxOrder = projects.length > 0 ? Math.max(...projects.map(p => p.order || 0)) : -1;
+            const newProject = {
+                id: Date.now().toString(),
+                title: projectData.title,
+                description: projectData.description,
+                images: projectData.images,
+                order: maxOrder + 1
+            };
+            projects.push(newProject);
         }
-
+        
+        saveProjectsToStorage(projects);
         return true;
     } catch (error) {
         console.error('Error al guardar proyecto:', error);
@@ -45,16 +56,16 @@ async function saveProject(projectData) {
 }
 
 // Eliminar proyecto
-async function deleteProjectFromAPI(projectId) {
+function deleteProjectFromStorage(projectId) {
     try {
-        const response = await fetch(`/api/projects?id=${projectId}`, {
-            method: 'DELETE'
-        });
-
-        if (!response.ok) {
-            throw new Error('Error al eliminar proyecto');
+        const projects = getProjects();
+        const index = projects.findIndex(p => p.id === projectId);
+        
+        if (index !== -1) {
+            projects.splice(index, 1);
+            saveProjectsToStorage(projects);
         }
-
+        
         return true;
     } catch (error) {
         console.error('Error al eliminar proyecto:', error);
@@ -64,40 +75,22 @@ async function deleteProjectFromAPI(projectId) {
 }
 
 // Actualizar orden de proyectos
-async function updateProjectsOrder(projects) {
-    try {
-        const updatePromises = projects.map((project, index) => 
-            fetch('/api/projects', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    id: project.id,
-                    title: project.title,
-                    description: project.description,
-                    images: project.images,
-                    order: index
-                })
-            })
-        );
-        
-        await Promise.all(updatePromises);
-        return true;
-    } catch (error) {
-        console.error('Error al actualizar orden:', error);
-        return false;
-    }
+function updateProjectsOrder(projects) {
+    projects.forEach((project, index) => {
+        project.order = index;
+    });
+    saveProjectsToStorage(projects);
+    return true;
 }
 
 // Cargar proyectos en el grid
-async function loadProjects() {
+function loadProjects() {
     const grid = document.getElementById('projectsAdminGrid');
     
     // Mostrar indicador de carga
     grid.innerHTML = '<p style="text-align: center; letter-spacing: 1px;">Cargando proyectos...</p>';
     
-    const projects = await getProjects();
+    const projects = getProjects();
     
     if (projects.length === 0) {
         grid.innerHTML = '<p style="text-align: center; letter-spacing: 1px;">No hay proyectos disponibles</p>';
@@ -162,11 +155,11 @@ async function editProject(id) {
 }
 
 // Eliminar proyecto
-async function deleteProject(id) {
+function deleteProject(id) {
     if (confirm('¿Estás seguro de que deseas eliminar este proyecto?')) {
-        const success = await deleteProjectFromAPI(id);
+        const success = deleteProjectFromStorage(id);
         if (success) {
-            await loadProjects();
+            loadProjects();
         }
     }
 }
@@ -218,13 +211,13 @@ document.getElementById('projectForm').addEventListener('submit', async (e) => {
     submitBtn.textContent = 'GUARDANDO...';
     submitBtn.disabled = true;
     
-    const success = await saveProject(projectData);
+    const success = saveProject(projectData);
     
     submitBtn.textContent = originalText;
     submitBtn.disabled = false;
     
     if (success) {
-        await loadProjects();
+        loadProjects();
         closeFormModal();
     }
 });
@@ -472,8 +465,8 @@ async function reorderProjects(draggedId, targetId) {
         projects.splice(targetIndex, 0, draggedProject);
         
         // Actualizar orden
-        await updateProjectsOrder(projects);
-        await loadProjects();
+        updateProjectsOrder(projects);
+        loadProjects();
     }
 }
 
