@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "description": "Sitio web Grupo Culata Jovái Arquitectos",
   "main": "index.html",
+  "type": "module",
   "scripts": {
     "build": "echo 'Build complete'"
   },
   "dependencies": {
-    "cloudinary": "^1.41.0"
+    "cloudinary": "^1.41.0",
+    "@vercel/kv": "^1.0.1"
   }
 }

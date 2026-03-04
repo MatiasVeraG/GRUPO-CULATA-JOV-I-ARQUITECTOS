@@ -1,17 +1,15 @@
-// API para manejar proyectos (CRUD)
-const fs = require('fs').promises;
-const path = require('path');
+// API para manejar proyectos usando Vercel KV
+import { kv } from '@vercel/kv';
 
-// Path al archivo JSON de proyectos
-const projectsFile = path.join(process.cwd(), 'data', 'projects.json');
+const PROJECTS_KEY = 'projects';
 
 // Leer proyectos
 async function getProjects() {
     try {
-        const data = await fs.readFile(projectsFile, 'utf8');
-        return JSON.parse(data);
+        const projects = await kv.get(PROJECTS_KEY);
+        return projects || [];
     } catch (error) {
-        // Si no existe, devolver array vacío
+        console.error('Error leyendo proyectos:', error);
         return [];
     }
 }
@@ -19,8 +17,7 @@ async function getProjects() {
 // Guardar proyectos
 async function saveProjects(projects) {
     try {
-        await fs.mkdir(path.dirname(projectsFile), { recursive: true });
-        await fs.writeFile(projectsFile, JSON.stringify(projects, null, 2), 'utf8');
+        await kv.set(PROJECTS_KEY, projects);
         return true;
     } catch (error) {
         console.error('Error guardando proyectos:', error);
@@ -28,7 +25,7 @@ async function saveProjects(projects) {
     }
 }
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
     // Headers CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -120,6 +117,6 @@ module.exports = async (req, res) => {
 
     } catch (error) {
         console.error('Error en API:', error);
-        return res.status(500).json({ error: 'Error interno del servidor' });
+        return res.status(500).json({ error: 'Error interno del servidor', details: error.message });
     }
-};
+}

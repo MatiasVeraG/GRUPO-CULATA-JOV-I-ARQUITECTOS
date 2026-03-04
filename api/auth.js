@@ -1,5 +1,5 @@
 // API de autenticación simple
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
     // Headers CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -40,4 +40,4 @@ module.exports = async (req, res) => {
         console.error('Error en autenticación:', error);
         return res.status(500).json({ error: 'Error interno del servidor' });
     }
-};
+}
