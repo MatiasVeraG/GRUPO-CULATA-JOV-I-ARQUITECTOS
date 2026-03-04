@@ -278,61 +278,51 @@ function setupImageUpload() {
 
 // Procesar archivos de imagen y subirlos a Cloudinary
 async function handleFiles(files) {
-    const uploadPromises = [];
+    const uploadArea = document.getElementById('imageUploadArea');
+    uploadArea.innerHTML = '<p style="letter-spacing: 1px;">Subiendo imágenes...</p>';
     
     for (const file of files) {
         if (file.type.startsWith('image/')) {
-            uploadPromises.push(uploadImageToCloudinary(file));
+            try {
+                const imageUrl = await uploadImageToCloudinary(file);
+                uploadedImages.push(imageUrl);
+            } catch (error) {
+                console.error('Error al subir imagen:', error);
+                alert('Error al subir imagen: ' + file.name);
+            }
         } else {
             alert('Por favor, selecciona solo archivos de imagen');
         }
     }
     
-    try {
-        const imageUrls = await Promise.all(uploadPromises);
-        uploadedImages.push(...imageUrls);
-        updateImagePreview();
-    } catch (error) {
-        console.error('Error al subir imágenes:', error);
-        alert('Error al subir las imágenes: ' + error.message);
-    }
+    uploadArea.innerHTML = '<p style="letter-spacing: 1px;">📁 ARRASTRA IMÁGENES AQUÍ O HAZ CLICK</p>';
+    updateImagePreview();
 }
 
-// Subir una imagen a Cloudinary
+// Subir una imagen a Cloudinary usando Upload Preset (desde cliente)
 async function uploadImageToCloudinary(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        
-        reader.onload = async (e) => {
-            try {
-                const response = await fetch('/api/upload', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        image: e.target.result,
-                        folder: 'projects'
-                    })
-                });
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'culata_jovai'); // Debes crear este preset
+    formData.append('cloud_name', 'dnd1vjkrw');
+    
+    try {
+        const response = await fetch('https://api.cloudinary.com/v1_1/dnd1vjkrw/image/upload', {
+            method: 'POST',
+            body: formData
+        });
 
-                if (!response.ok) {
-                    throw new Error('Error al subir imagen');
-                }
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error?.message || 'Error al subir imagen');
+        }
 
-                const data = await response.json();
-                resolve(data.url);
-            } catch (error) {
-                reject(error);
-            }
-        };
-        
-        reader.onerror = () => {
-            reject(new Error('Error al leer el archivo'));
-        };
-        
-        reader.readAsDataURL(file);
-    });
+        const data = await response.json();
+        return data.secure_url;
+    } catch (error) {
+        console.error('Error en uploadImageToCloudinary:', error);
+        throw error;
+    }
 }
 
 // Actualizar preview de imágenes
