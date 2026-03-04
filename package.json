@@ -4,7 +4,6 @@
   "description": "Sitio web Grupo Culata Jovái Arquitectos",
   "main": "index.html",
   "scripts": {
-    "dev": "vercel dev",
     "build": "echo 'Build complete'"
   },
   "dependencies": {
