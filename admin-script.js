@@ -1,53 +1,41 @@
-// Verificar autenticación con Firebase
-firebase.auth().onAuthStateChanged((user) => {
-    if (!user) {
-        // No hay usuario autenticado, redirigir al login
-        window.location.href = 'admin.html';
-    } else {
-        // Usuario autenticado, cargar proyectos
-        sessionStorage.setItem('adminLoggedIn', 'true');
-        loadProjects();
-    }
-});
+// Verificar autenticación
+if (!sessionStorage.getItem('adminLoggedIn')) {
+    window.location.href = 'admin.html';
+} else {
+    loadProjects();
+}
 
-// Obtener proyectos desde Firestore
+// Obtener proyectos desde API
 async function getProjects() {
     try {
-        const snapshot = await db.collection('projects').orderBy('order', 'asc').get();
-        const projects = [];
-        snapshot.forEach(doc => {
-            projects.push({ id: doc.id, ...doc.data() });
-        });
-        return projects;
+        const response = await fetch('/api/projects');
+        if (!response.ok) {
+            throw new Error('Error al cargar proyectos');
+        }
+        const projects = await response.json();
+        return projects.sort((a, b) => (a.order || 0) - (b.order || 0));
     } catch (error) {
         console.error('Error al cargar proyectos:', error);
         return [];
     }
 }
 
-// Guardar o actualizar proyecto en Firestore
+// Guardar o actualizar proyecto
 async function saveProject(projectData) {
     try {
-        if (projectData.id && projectData.id.length > 10) {
-            // Actualizar proyecto existente (ID de Firestore)
-            await db.collection('projects').doc(projectData.id).update({
-                title: projectData.title,
-                description: projectData.description,
-                images: projectData.images,
-                order: projectData.order || 0
-            });
-        } else {
-            // Crear nuevo proyecto
-            const projects = await getProjects();
-            const maxOrder = projects.length > 0 ? Math.max(...projects.map(p => p.order || 0)) : -1;
-            
-            await db.collection('projects').add({
-                title: projectData.title,
-                description: projectData.description,
-                images: projectData.images,
-                order: maxOrder + 1
-            });
+        const method = projectData.id ? 'PUT' : 'POST';
+        const response = await fetch('/api/projects', {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(projectData)
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al guardar proyecto');
         }
+
         return true;
     } catch (error) {
         console.error('Error al guardar proyecto:', error);
@@ -56,21 +44,17 @@ async function saveProject(projectData) {
     }
 }
 
-// Eliminar proyecto de Firestore y sus imágenes de Storage
-async function deleteProjectFromFirestore(projectId) {
+// Eliminar proyecto
+async function deleteProjectFromAPI(projectId) {
     try {
-        // Obtener el proyecto para eliminar sus imágenes
-        const projectDoc = await db.collection('projects').doc(projectId).get();
-        const projectData = projectDoc.data();
-        
-        // Eliminar imágenes de Storage
-        if (projectData && projectData.images) {
-            const deletePromises = projectData.images.map(imageUrl => deleteImageFromStorage(imageUrl));
-            await Promise.all(deletePromises);
+        const response = await fetch(`/api/projects?id=${projectId}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al eliminar proyecto');
         }
-        
-        // Eliminar el documento de Firestore
-        await db.collection('projects').doc(projectId).delete();
+
         return true;
     } catch (error) {
         console.error('Error al eliminar proyecto:', error);
@@ -79,33 +63,26 @@ async function deleteProjectFromFirestore(projectId) {
     }
 }
 
-// Eliminar una imagen de Firebase Storage
-async function deleteImageFromStorage(imageUrl) {
-    try {
-        // Extraer la ruta del archivo de la URL
-        const decodedUrl = decodeURIComponent(imageUrl);
-        const pathMatch = decodedUrl.match(/\/o\/(.+?)\?/);
-        
-        if (pathMatch && pathMatch[1]) {
-            const filePath = pathMatch[1];
-            const storageRef = storage.ref(filePath);
-            await storageRef.delete();
-        }
-    } catch (error) {
-        console.error('Error al eliminar imagen de Storage:', error);
-        // No mostrar alerta, solo registrar el error
-    }
-}
-
-// Actualizar orden de proyectos en Firestore
+// Actualizar orden de proyectos
 async function updateProjectsOrder(projects) {
     try {
-        const batch = db.batch();
-        projects.forEach((project, index) => {
-            const projectRef = db.collection('projects').doc(project.id);
-            batch.update(projectRef, { order: index });
-        });
-        await batch.commit();
+        const updatePromises = projects.map((project, index) => 
+            fetch('/api/projects', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: project.id,
+                    title: project.title,
+                    description: project.description,
+                    images: project.images,
+                    order: index
+                })
+            })
+        );
+        
+        await Promise.all(updatePromises);
         return true;
     } catch (error) {
         console.error('Error al actualizar orden:', error);
@@ -150,6 +127,9 @@ function openAddModal() {
     document.getElementById('formTitle').textContent = 'AGREGAR PROYECTO';
     document.getElementById('projectForm').reset();
     document.getElementById('projectId').value = '';
+    uploadedImages = [];
+    updateImagePreview();
+    document.getElementById('imageFileInput').value = '';
     document.getElementById('modalForm').classList.add('active');
     document.body.style.overflow = 'hidden';
 }
@@ -165,7 +145,7 @@ async function editProject(id) {
         document.getElementById('projectTitle').value = project.title;
         document.getElementById('projectDescription').value = project.description;
         
-        // Cargar todas las imágenes (base64 y URLs) en el array de uploadedImages
+        // Cargar todas las imágenes
         uploadedImages = [];
         
         if (project.images && project.images.length > 0) {
@@ -184,7 +164,7 @@ async function editProject(id) {
 // Eliminar proyecto
 async function deleteProject(id) {
     if (confirm('¿Estás seguro de que deseas eliminar este proyecto?')) {
-        const success = await deleteProjectFromFirestore(id);
+        const success = await deleteProjectFromAPI(id);
         if (success) {
             await loadProjects();
         }
@@ -195,18 +175,17 @@ async function deleteProject(id) {
 function closeFormModal() {
     document.getElementById('modalForm').classList.remove('active');
     document.body.style.overflow = 'auto';
+    uploadedImages = [];
+    updateImagePreview();
+    document.getElementById('imageFileInput').value = '';
 }
 
 // Cerrar sesión
-async function logout() {
-    try {
-        await firebase.auth().signOut();
-        sessionStorage.removeItem('adminLoggedIn');
-        window.location.href = 'admin.html';
-    } catch (error) {
-        console.error('Error al cerrar sesión:', error);
-        alert('Error al cerrar sesión');
-    }
+function logout() {
+    sessionStorage.removeItem('adminLoggedIn');
+    sessionStorage.removeItem('adminToken');
+    sessionStorage.removeItem('adminEmail');
+    window.location.href = 'admin.html';
 }
 
 // Manejar envío del formulario
@@ -250,14 +229,13 @@ document.getElementById('projectForm').addEventListener('submit', async (e) => {
     }
 });
 
-// Array para almacenar imágenes cargadas (base64)
+// Array para almacenar imágenes cargadas
 let uploadedImages = [];
 
 // Configurar drag & drop
 function setupImageUpload() {
     const uploadArea = document.getElementById('imageUploadArea');
     const fileInput = document.getElementById('imageFileInput');
-    const previewGrid = document.getElementById('imagePreviewGrid');
 
     // Click para abrir selector de archivos
     uploadArea.addEventListener('click', () => {
@@ -298,13 +276,13 @@ function setupImageUpload() {
     });
 }
 
-// Procesar archivos de imagen y subirlos a Firebase Storage
+// Procesar archivos de imagen y subirlos a Cloudinary
 async function handleFiles(files) {
     const uploadPromises = [];
     
     for (const file of files) {
         if (file.type.startsWith('image/')) {
-            uploadPromises.push(uploadImageToStorage(file));
+            uploadPromises.push(uploadImageToCloudinary(file));
         } else {
             alert('Por favor, selecciona solo archivos de imagen');
         }
@@ -320,17 +298,41 @@ async function handleFiles(files) {
     }
 }
 
-// Subir una imagen a Firebase Storage
-async function uploadImageToStorage(file) {
-    const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 15);
-    const fileName = `projects/${timestamp}_${randomString}_${file.name}`;
-    
-    const storageRef = storage.ref(fileName);
-    const snapshot = await storageRef.put(file);
-    const downloadURL = await snapshot.ref.getDownloadURL();
-    
-    return downloadURL;
+// Subir una imagen a Cloudinary
+async function uploadImageToCloudinary(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        
+        reader.onload = async (e) => {
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        image: e.target.result,
+                        folder: 'projects'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al subir imagen');
+                }
+
+                const data = await response.json();
+                resolve(data.url);
+            } catch (error) {
+                reject(error);
+            }
+        };
+        
+        reader.onerror = () => {
+            reject(new Error('Error al leer el archivo'));
+        };
+        
+        reader.readAsDataURL(file);
+    });
 }
 
 // Actualizar preview de imágenes
@@ -350,35 +352,10 @@ function updateImagePreview() {
 }
 
 // Eliminar imagen subida
-async function removeUploadedImage(index) {
-    const imageUrl = uploadedImages[index];
-    
-    // Eliminar de Storage si es una URL de Firebase Storage
-    if (imageUrl && imageUrl.includes('firebasestorage.googleapis.com')) {
-        await deleteImageFromStorage(imageUrl);
-    }
-    
+function removeUploadedImage(index) {
     uploadedImages.splice(index, 1);
     updateImagePreview();
 }
-
-// Limpiar imágenes cargadas al cerrar modal
-const originalCloseFormModal = closeFormModal;
-closeFormModal = function() {
-    uploadedImages = [];
-    updateImagePreview();
-    document.getElementById('imageFileInput').value = '';
-    originalCloseFormModal();
-};
-
-// Modificar openAddModal para limpiar imágenes
-const originalOpenAddModal = openAddModal;
-openAddModal = function() {
-    uploadedImages = [];
-    updateImagePreview();
-    document.getElementById('imageFileInput').value = '';
-    originalOpenAddModal();
-};
 
 // Configurar drag & drop para reordenar imágenes
 function setupImageDragDrop() {
@@ -399,7 +376,6 @@ function setupImageDragDrop() {
         }
         
         item.addEventListener('dragstart', (e) => {
-            // Prevenir drag si se inició desde el botón
             if (e.target.classList.contains('remove-image')) {
                 e.preventDefault();
                 return;
@@ -458,12 +434,11 @@ function setupProjectDragDrop() {
         });
         
         card.addEventListener('dragstart', (e) => {
-            // Solo permitir drag si no se inició desde un botón
             if (e.target.tagName === 'BUTTON') {
                 e.preventDefault();
                 return;
             }
-            draggedProjectId = parseInt(e.currentTarget.getAttribute('data-project-id'));
+            draggedProjectId = e.currentTarget.getAttribute('data-project-id');
             e.currentTarget.classList.add('dragging');
         });
         
@@ -484,7 +459,7 @@ function setupProjectDragDrop() {
             e.preventDefault();
             e.currentTarget.classList.remove('drag-over');
             
-            const dropProjectId = parseInt(e.currentTarget.getAttribute('data-project-id'));
+            const dropProjectId = e.currentTarget.getAttribute('data-project-id');
             
             if (draggedProjectId !== null && draggedProjectId !== dropProjectId) {
                 reorderProjects(draggedProjectId, dropProjectId);
@@ -506,7 +481,7 @@ async function reorderProjects(draggedId, targetId) {
         // Insertar en nueva posición
         projects.splice(targetIndex, 0, draggedProject);
         
-        // Actualizar orden en Firestore
+        // Actualizar orden
         await updateProjectsOrder(projects);
         await loadProjects();
     }

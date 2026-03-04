@@ -71,15 +71,15 @@ window.addEventListener('scroll', () => {
 });
 
 // MODAL DE PROYECTOS
-// Obtener proyectos desde Firestore
+// Obtener proyectos desde API
 async function getProjects() {
     try {
-        const snapshot = await db.collection('projects').orderBy('order', 'asc').get();
-        const projects = [];
-        snapshot.forEach(doc => {
-            projects.push({ id: doc.id, ...doc.data() });
-        });
-        return projects;
+        const response = await fetch('/api/projects');
+        if (!response.ok) {
+            throw new Error('Error al cargar proyectos');
+        }
+        const projects = await response.json();
+        return projects.sort((a, b) => (a.order || 0) - (b.order || 0));
     } catch (error) {
         console.error('Error al cargar proyectos:', error);
         return [];

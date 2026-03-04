@@ -1,0 +1,13 @@
+{
+  "name": "culata-jovai-web",
+  "version": "1.0.0",
+  "description": "Sitio web Grupo Culata Jovái Arquitectos",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Build complete'"
+  },
+  "dependencies": {
+    "cloudinary": "^1.41.0"
+  }
+}

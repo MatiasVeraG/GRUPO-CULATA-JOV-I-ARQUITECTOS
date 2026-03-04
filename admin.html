@@ -128,14 +128,8 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-    <script src="firebase-config.js"></script>
-
     <script>
-        // Sistema de autenticación con Firebase Authentication
+        // Sistema de autenticación
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -143,21 +137,38 @@
             const password = document.getElementById('password').value;
             const errorMessage = document.getElementById('errorMessage');
             
-            // Construir email a partir del username
-            const email = username + '@culatajovai.admin';
-            
             try {
-                // Intentar iniciar sesión con Firebase Auth
-                await firebase.auth().signInWithEmailAndPassword(email, password);
-                
-                // Guardar sesión
-                sessionStorage.setItem('adminLoggedIn', 'true');
-                
-                // Redirigir al panel
-                window.location.href = 'admin-panel.html';
+                const response = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: username,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Guardar sesión
+                    sessionStorage.setItem('adminLoggedIn', 'true');
+                    sessionStorage.setItem('adminToken', data.token);
+                    sessionStorage.setItem('adminEmail', data.email);
+                    
+                    // Redirigir al panel
+                    window.location.href = 'admin-panel.html';
+                } else {
+                    errorMessage.textContent = 'Usuario o contraseña incorrectos';
+                    errorMessage.classList.add('show');
+                    setTimeout(() => {
+                        errorMessage.classList.remove('show');
+                    }, 3000);
+                }
             } catch (error) {
                 console.error('Error de autenticación:', error);
-                errorMessage.textContent = 'Usuario o contraseña incorrectos';
+                errorMessage.textContent = 'Error al conectar con el servidor';
                 errorMessage.classList.add('show');
                 setTimeout(() => {
                     errorMessage.classList.remove('show');
