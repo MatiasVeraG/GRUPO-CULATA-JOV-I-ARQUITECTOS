@@ -83,10 +83,15 @@
 
                         <div class="row" style="margin-top:10px;">
                             <div>
-                                <label style="font-size:10px;letter-spacing:1px;color:#666;text-transform:uppercase;">Sobre</label>
-                                <textarea id="siteSobreText" placeholder="Texto de la página Sobre..."></textarea>
+                                <label style="font-size:10px;letter-spacing:1px;color:#666;text-transform:uppercase;">Sobre – Español</label>
+                                <textarea id="siteSobreEs" placeholder="Texto de la página Sobre en Español..."></textarea>
                                 <div class="actions">
-                                    <button class="btn btn-primary" onclick="saveSiteText('sobre')">Guardar Sobre</button>
+                                    <button class="btn btn-primary" onclick="saveSiteText('sobre_es')">Guardar Sobre ES</button>
+                                </div>
+                                <label style="font-size:10px;letter-spacing:1px;color:#666;text-transform:uppercase;margin-top:10px;display:block;">Sobre – English</label>
+                                <textarea id="siteSobreEn" placeholder="About page text in English..."></textarea>
+                                <div class="actions">
+                                    <button class="btn btn-primary" onclick="saveSiteText('sobre_en')">Guardar Sobre EN</button>
                                 </div>
                             </div>
                             <div>
@@ -320,23 +325,32 @@
 
         async function loadSiteContentEditors() {
             try {
-                const [sobre, contacto] = await Promise.all([
-                    dropboxService.getSiteContent('sobre'),
-                    dropboxService.getSiteContent('contacto')
+                const [sobreEs, sobreEn, contacto] = await Promise.all([
+                    dropboxService.getSiteContent('sobre_es').catch(() => ''),
+                    dropboxService.getSiteContent('sobre_en').catch(() => ''),
+                    dropboxService.getSiteContent('contacto').catch(() => '')
                 ]);
 
-                const sobreEl = document.getElementById('siteSobreText');
+                const sobreEsEl = document.getElementById('siteSobreEs');
+                const sobreEnEl = document.getElementById('siteSobreEn');
                 const contactoEl = document.getElementById('siteContactoText');
-                if (sobreEl) sobreEl.value = sobre || '';
+                if (sobreEsEl) sobreEsEl.value = sobreEs || '';
+                if (sobreEnEl) sobreEnEl.value = sobreEn || '';
                 if (contactoEl) contactoEl.value = contacto || '';
             } catch (error) {
                 console.error(error);
-                setStatus('No se pudieron cargar Sobre/Contacto', true);
+                setStatus('No se pudieron cargar los textos', true);
             }
         }
 
         async function saveSiteText(pageKey) {
-            const fieldId = pageKey === 'sobre' ? 'siteSobreText' : 'siteContactoText';
+            const fieldMap = {
+                'sobre': 'siteSobreText',
+                'sobre_es': 'siteSobreEs',
+                'sobre_en': 'siteSobreEn',
+                'contacto': 'siteContactoText'
+            };
+            const fieldId = fieldMap[pageKey];
             const field = document.getElementById(fieldId);
             if (!field) return;
 

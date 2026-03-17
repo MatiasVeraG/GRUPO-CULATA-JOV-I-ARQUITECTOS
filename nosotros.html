@@ -241,13 +241,18 @@
     <script src="dropbox-config.js"></script>
     <script src="dropbox-service-vercel.js"></script>
     <script>
-        async function loadSobreContent() {
+        async function loadSobreContent(lang) {
             const col1 = document.getElementById('sobreColumna1');
             const col2 = document.getElementById('sobreColumna2');
             if (!col1 || !col2) return;
 
             try {
-                const text = await dropboxService.getSiteContent('sobre');
+                const langKey = lang === 'en' ? 'sobre_en' : 'sobre_es';
+                let text = null;
+                try { text = await dropboxService.getSiteContent(langKey); } catch (_) {}
+                if (!text || !text.trim()) {
+                    text = await dropboxService.getSiteContent('sobre');
+                }
                 if (!text || !text.trim()) return;
 
                 const paragraphsArray = text
@@ -298,6 +303,7 @@
             localStorage.setItem('selectedLanguage', lang);
             updateLanguageUI(lang);
             applyTranslations(lang);
+            loadSobreContent(lang);
         }
 
         // Actualizar indicador visual del idioma seleccionado
@@ -328,8 +334,9 @@
         }
 
         // Inicializar idioma
+        const _initLang = localStorage.getItem('selectedLanguage') || 'es';
         initLanguage();
-        loadSobreContent();
+        loadSobreContent(_initLang);
     </script>    <script src="script.js"></script>
 </body>
 </html>

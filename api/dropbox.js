@@ -113,7 +113,7 @@ function getSiteContentRootPath() {
 }
 
 function normalizePageKey(pageKey) {
-    const allowed = ['sobre', 'contacto'];
+    const allowed = ['sobre', 'contacto', 'sobre_es', 'sobre_en'];
     if (!pageKey || typeof pageKey !== 'string') return null;
     const normalized = pageKey.trim().toLowerCase();
     return allowed.includes(normalized) ? normalized : null;
