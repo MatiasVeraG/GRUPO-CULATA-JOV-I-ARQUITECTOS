@@ -317,6 +317,21 @@ class DropboxService {
         return data;
     }
 
+    async getSiteContent(pageKey) {
+        const data = await this.callApi('get-site-content', {
+            pageKey
+        });
+        return data.content || '';
+    }
+
+    async saveSiteContent(pageKey, content) {
+        const data = await this.callApi('save-site-content', {
+            pageKey,
+            content
+        });
+        return data;
+    }
+
     /**
      * Elimina un archivo
      */

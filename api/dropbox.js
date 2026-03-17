@@ -67,6 +67,10 @@ export default async function handler(req, res) {
                 return await saveDescription(params.projectPath, params.content, res);
             case 'save-features':
                 return await saveFeatures(params.projectPath, params.featuresText, res);
+            case 'get-site-content':
+                return await getSiteContent(params.pageKey, res);
+            case 'save-site-content':
+                return await saveSiteContent(params.pageKey, params.content, res);
             case 'delete-file':
                 return await deleteFile(params.filePath, res);
             default:
@@ -96,6 +100,23 @@ function getProjectsRootPath() {
     return withLeadingSlash.endsWith('/') && withLeadingSlash.length > 1
         ? withLeadingSlash.slice(0, -1)
         : withLeadingSlash;
+}
+
+function getSiteContentRootPath() {
+    const configured = process.env.DROPBOX_SITE_CONTENT_FOLDER || '/ContenidoSitio';
+    const trimmed = configured.trim();
+    if (!trimmed) return '/ContenidoSitio';
+    const withLeadingSlash = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+    return withLeadingSlash.endsWith('/') && withLeadingSlash.length > 1
+        ? withLeadingSlash.slice(0, -1)
+        : withLeadingSlash;
+}
+
+function normalizePageKey(pageKey) {
+    const allowed = ['sobre', 'contacto'];
+    if (!pageKey || typeof pageKey !== 'string') return null;
+    const normalized = pageKey.trim().toLowerCase();
+    return allowed.includes(normalized) ? normalized : null;
 }
 
 function isPathNotFound(errorSummary) {
@@ -171,6 +192,19 @@ async function ensureProjectStructure(projectPath, token) {
             if (!message.includes('conflict/folder')) {
                 throw error;
             }
+        }
+    }
+}
+
+async function ensureSiteContentStructure(token) {
+    const root = getSiteContentRootPath();
+
+    try {
+        await createFolderIfMissing(root, token);
+    } catch (error) {
+        const message = String(error.message || '');
+        if (!message.includes('conflict/folder')) {
+            throw error;
         }
     }
 }
@@ -673,6 +707,69 @@ async function saveFeatures(projectPath, featuresText, res) {
     } catch (error) {
         return res.status(500).json({
             error: 'Failed to save features',
+            message: error.message
+        });
+    }
+}
+
+async function getSiteContent(pageKey, res) {
+    try {
+        const safePageKey = normalizePageKey(pageKey);
+        if (!safePageKey) {
+            return res.status(400).json({ error: 'Invalid pageKey. Use sobre or contacto' });
+        }
+
+        const token = await getValidAccessToken();
+        await ensureSiteContentStructure(token);
+
+        const root = getSiteContentRootPath();
+        const filePath = `${root}/${safePageKey}.txt`;
+
+        let content = '';
+        try {
+            content = await downloadTextFile(filePath, token);
+        } catch (error) {
+            if (!isPathNotFound(String(error.message))) {
+                throw error;
+            }
+        }
+
+        return res.status(200).json({
+            success: true,
+            pageKey: safePageKey,
+            content
+        });
+    } catch (error) {
+        return res.status(500).json({
+            error: 'Failed to get site content',
+            message: error.message
+        });
+    }
+}
+
+async function saveSiteContent(pageKey, content, res) {
+    try {
+        const safePageKey = normalizePageKey(pageKey);
+        if (!safePageKey) {
+            return res.status(400).json({ error: 'Invalid pageKey. Use sobre or contacto' });
+        }
+
+        const token = await getValidAccessToken();
+        await ensureSiteContentStructure(token);
+
+        const root = getSiteContentRootPath();
+        const filePath = `${root}/${safePageKey}.txt`;
+        await uploadTextFile(filePath, content || '', token);
+
+        return res.status(200).json({
+            success: true,
+            pageKey: safePageKey,
+            path: filePath,
+            message: 'Site content updated'
+        });
+    } catch (error) {
+        return res.status(500).json({
+            error: 'Failed to save site content',
             message: error.message
         });
     }

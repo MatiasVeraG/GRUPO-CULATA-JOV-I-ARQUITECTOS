@@ -15,11 +15,10 @@
         .project-page { margin-top: 100px; }
         .loading { text-align: center; padding: 120px 20px; letter-spacing: 2px; color: #777; }
 
-        .project-slideshow, .planos-slideshow { width: 100%; position: relative; overflow: hidden; background: #fff; }
-        .slideshow-track, .planos-track { display: flex; transition: transform 0.5s ease; }
-        .slideshow-slide, .planos-slide { min-width: 100%; display: flex; align-items: center; justify-content: center; }
+        .project-slideshow { width: 100%; position: relative; overflow: hidden; background: #fff; }
+        .slideshow-track { display: flex; transition: transform 0.5s ease; }
+        .slideshow-slide { min-width: 100%; display: flex; align-items: center; justify-content: center; }
         .slideshow-slide img { width: 100%; height: 88vh; object-fit: contain; cursor: zoom-in; }
-        .planos-slide img { width: 100%; height: 78vh; object-fit: contain; cursor: zoom-in; }
 
         .slideshow-btn { position: absolute; top: 50%; transform: translateY(-50%); background: none; border: none; color: #000; font-size: 46px; cursor: pointer; padding: 10px 20px; }
         .slideshow-prev { left: 0; }
@@ -37,6 +36,10 @@
         .project-description p { margin-bottom: 20px; }
 
         .planos-title { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: #999; padding: 40px 80px 24px; border-top: 1px solid #eee; }
+        .drawings-wrap { padding: 0 80px 40px; }
+        .drawings-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+        .drawing-item { background: #f7f7f7; border: 1px solid #eee; cursor: zoom-in; }
+        .drawing-item img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
 
         .back-wrap { padding: 20px 80px 10px; }
         .back-button { display: inline-flex; align-items: center; gap: 8px; font-size: 10px; letter-spacing: 2px; color: #000; text-decoration: none; text-transform: lowercase; }
@@ -60,8 +63,10 @@
             .project-info { display: block; padding: 40px 24px; }
             .project-sidebar { max-width: none; border-right: none; padding-right: 0; margin-bottom: 24px; }
             .project-description-wrap { max-width: none; padding-left: 0; }
-            .slideshow-slide img, .planos-slide img { height: 60vh; }
+            .slideshow-slide img { height: 60vh; }
             .back-wrap, .planos-title { padding-left: 24px; padding-right: 24px; }
+            .drawings-wrap { padding: 0 24px 30px; }
+            .drawings-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
     </style>
 </head>
@@ -106,7 +111,6 @@
         let allImages = [];
         let currentImageIndex = 0;
         let slideshowIndex = 0;
-        let planosIndex = 0;
 
         function escapeHtml(text) {
             const div = document.createElement('div');
@@ -176,15 +180,10 @@
             if (drawings.length) {
                 drawingsHTML = `
                     <h3 class="planos-title">Dibujos</h3>
-                    <div class="planos-slideshow">
-                        <div class="planos-track" id="planosTrack">
-                            ${drawings.map((item, idx) => `<div class="planos-slide"><img src="${item.temporaryLink}" alt="Dibujo" loading="lazy" onclick="openLightbox(${images.length + idx})"></div>`).join('')}
+                    <div class="drawings-wrap">
+                        <div class="drawings-grid">
+                            ${drawings.map((item, idx) => `<div class="drawing-item" onclick="openLightbox(${images.length + idx})"><img src="${item.temporaryLink}" alt="Dibujo" loading="lazy"></div>`).join('')}
                         </div>
-                        ${drawings.length > 1 ? `
-                            <button class="slideshow-btn slideshow-prev" onclick="planosMove(-1)">&#8249;</button>
-                            <button class="slideshow-btn slideshow-next" onclick="planosMove(1)">&#8250;</button>
-                            <span class="slideshow-counter" id="planosCounter">1 / ${drawings.length}</span>
-                        ` : ''}
                     </div>
                 `;
             }
@@ -212,7 +211,6 @@
             `;
 
             slideshowIndex = 0;
-            planosIndex = 0;
         }
 
         function slideshowMove(dir) {
@@ -221,15 +219,6 @@
             slideshowIndex = (slideshowIndex + dir + images.length) % images.length;
             document.getElementById('slideshowTrack').style.transform = `translateX(-${slideshowIndex * 100}%)`;
             document.getElementById('slideshowCounter').textContent = `${slideshowIndex + 1} / ${images.length}`;
-        }
-
-        function planosMove(dir) {
-            const drawings = currentProject.drawings || [];
-            if (drawings.length < 2) return;
-            planosIndex = (planosIndex + dir + drawings.length) % drawings.length;
-            document.getElementById('planosTrack').style.transform = `translateX(-${planosIndex * 100}%)`;
-            const counter = document.getElementById('planosCounter');
-            if (counter) counter.textContent = `${planosIndex + 1} / ${drawings.length}`;
         }
 
         function openLightbox(index) {

@@ -215,13 +215,17 @@
             <div class="nosotros-content">
                 <div class="nosotros-col">
                     <h2>NOSOTROS</h2>
-                    <p>Grupo Culata Jovái Arquitectos es un estudio dedicado al diseño arquitectónico contemporáneo, donde la funcionalidad y la estética se encuentran en perfecta armonía.</p>
-                    <p>Nuestra filosofía se fundamenta en la creación de espacios que trascienden lo convencional, integrando innovación, sostenibilidad y una profunda comprensión del contexto.</p>
+                    <div id="sobreColumna1">
+                        <p>Grupo Culata Jovái Arquitectos es un estudio dedicado al diseño arquitectónico contemporáneo, donde la funcionalidad y la estética se encuentran en perfecta armonía.</p>
+                        <p>Nuestra filosofía se fundamenta en la creación de espacios que trascienden lo convencional, integrando innovación, sostenibilidad y una profunda comprensión del contexto.</p>
+                    </div>
                 </div>
                 <div class="nosotros-col">
-                    <p>Cada proyecto es una respuesta única a las necesidades específicas del cliente y del entorno, materializada a través de un lenguaje arquitectónico limpio y atemporal.</p>
-                    <p>Creemos en la arquitectura como disciplina que debe mejorar la calidad de vida de las personas, respetando el entorno natural y cultural en el que se inserta.</p>
-                    <p>Nuestro equipo trabaja con compromiso y precisión, buscando siempre la excelencia en cadadetalle del proceso de diseño y construcción.</p>
+                    <div id="sobreColumna2">
+                        <p>Cada proyecto es una respuesta única a las necesidades específicas del cliente y del entorno, materializada a través de un lenguaje arquitectónico limpio y atemporal.</p>
+                        <p>Creemos en la arquitectura como disciplina que debe mejorar la calidad de vida de las personas, respetando el entorno natural y cultural en el que se inserta.</p>
+                        <p>Nuestro equipo trabaja con compromiso y precisión, buscando siempre la excelencia en cada detalle del proceso de diseño y construcción.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -234,7 +238,42 @@
         <span class="lang-option" data-lang="de" onclick="changeLanguage('de')">de</span>
     </div>
 
+    <script src="dropbox-config.js"></script>
+    <script src="dropbox-service-vercel.js"></script>
     <script>
+        async function loadSobreContent() {
+            const col1 = document.getElementById('sobreColumna1');
+            const col2 = document.getElementById('sobreColumna2');
+            if (!col1 || !col2) return;
+
+            try {
+                const text = await dropboxService.getSiteContent('sobre');
+                if (!text || !text.trim()) return;
+
+                const paragraphsArray = text
+                    .split(/\n\s*\n/)
+                    .map(item => item.trim())
+                    .filter(Boolean);
+
+                if (paragraphsArray.length === 0) return;
+
+                const splitIndex = Math.ceil(paragraphsArray.length / 2);
+                const col1Html = paragraphsArray
+                    .slice(0, splitIndex)
+                    .map(item => `<p>${item.replace(/\n/g, '<br>')}</p>`)
+                    .join('');
+                const col2Html = paragraphsArray
+                    .slice(splitIndex)
+                    .map(item => `<p>${item.replace(/\n/g, '<br>')}</p>`)
+                    .join('');
+
+                col1.innerHTML = col1Html;
+                col2.innerHTML = col2Html || '<p></p>';
+            } catch (error) {
+                console.error('No se pudo cargar el contenido de Sobre desde Dropbox:', error);
+            }
+        }
+
         // Sistema de traducción
         const translations = {
             es: {
@@ -290,6 +329,7 @@
 
         // Inicializar idioma
         initLanguage();
+        loadSobreContent();
     </script>    <script src="script.js"></script>
 </body>
 </html>

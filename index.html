@@ -26,6 +26,8 @@
             font-family: 'Futura', 'Century Gothic', sans-serif;
             background-color: #FFFFFF;
             overflow-x: hidden;
+            overflow-y: hidden;
+            height: 100%;
         }
 
         /* HEADER MINIMALISTA */
@@ -75,8 +77,8 @@
         /* CAROUSEL */
         .carousel-container {
             width: 95vw;
-            height: 105vh;
-            margin: 10px auto 80px;
+            height: calc(100vh - 210px);
+            margin: 10px auto 40px;
             overflow: hidden;
             position: relative;
         }
@@ -185,7 +187,9 @@
 
             .carousel-container {
                 width: 98vw;
+                height: calc(100vh - 180px);
                 margin-top: 100px;
+                margin-bottom: 28px;
             }
 
             .language-selector {
@@ -221,7 +225,9 @@
 
             .carousel-container {
                 width: 100vw;
+                height: calc(100vh - 165px);
                 margin-top: 90px;
+                margin-bottom: 22px;
             }
         }
     </style>

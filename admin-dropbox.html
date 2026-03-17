@@ -48,6 +48,8 @@
         .media-item button { position:absolute; top:6px; right:6px; border:none; background:rgba(220,20,60,.95); color:#fff; cursor:pointer; padding:4px 6px; font-size:10px; }
 
         .new-project { display:flex; gap:8px; padding:12px 16px; border-bottom:1px solid #eee; }
+        .site-content-box { border:1px solid #efefef; padding:14px; margin-bottom:16px; }
+        .site-content-box h3 { margin:0 0 10px; font-size:11px; letter-spacing:2px; text-transform:uppercase; }
 
         @media (max-width: 980px) {
             .layout { grid-template-columns: 1fr; }
@@ -75,6 +77,27 @@
             <section class="panel">
                 <div class="panel-title" id="editorTitle">Selecciona un proyecto</div>
                 <div class="content" id="editorContent">
+                    <div class="site-content-box">
+                        <h3>Contenido Del Sitio</h3>
+                        <p class="help">Edita aquí los textos globales de Sobre y Contacto (guardados en Dropbox).</p>
+
+                        <div class="row" style="margin-top:10px;">
+                            <div>
+                                <label style="font-size:10px;letter-spacing:1px;color:#666;text-transform:uppercase;">Sobre</label>
+                                <textarea id="siteSobreText" placeholder="Texto de la página Sobre..."></textarea>
+                                <div class="actions">
+                                    <button class="btn btn-primary" onclick="saveSiteText('sobre')">Guardar Sobre</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label style="font-size:10px;letter-spacing:1px;color:#666;text-transform:uppercase;">Contacto</label>
+                                <textarea id="siteContactoText" placeholder="Texto de la página Contacto..."></textarea>
+                                <div class="actions">
+                                    <button class="btn btn-primary" onclick="saveSiteText('contacto')">Guardar Contacto</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <p class="help">Elige un proyecto de la lista para editar Descripcion, Caracteristicas, Imagenes y Dibujos.</p>
                 </div>
             </section>
@@ -295,9 +318,41 @@
             await loadProjects();
         }
 
+        async function loadSiteContentEditors() {
+            try {
+                const [sobre, contacto] = await Promise.all([
+                    dropboxService.getSiteContent('sobre'),
+                    dropboxService.getSiteContent('contacto')
+                ]);
+
+                const sobreEl = document.getElementById('siteSobreText');
+                const contactoEl = document.getElementById('siteContactoText');
+                if (sobreEl) sobreEl.value = sobre || '';
+                if (contactoEl) contactoEl.value = contacto || '';
+            } catch (error) {
+                console.error(error);
+                setStatus('No se pudieron cargar Sobre/Contacto', true);
+            }
+        }
+
+        async function saveSiteText(pageKey) {
+            const fieldId = pageKey === 'sobre' ? 'siteSobreText' : 'siteContactoText';
+            const field = document.getElementById(fieldId);
+            if (!field) return;
+
+            setStatus(`Guardando ${pageKey}...`);
+            try {
+                await dropboxService.saveSiteContent(pageKey, field.value || '');
+                setStatus(`${pageKey} guardado`);
+            } catch (error) {
+                console.error(error);
+                setStatus(`Error guardando ${pageKey}`, true);
+            }
+        }
+
         window.addEventListener('load', async () => {
             try {
-                await loadProjects();
+                await Promise.all([loadProjects(), loadSiteContentEditors()]);
             } catch (error) {
                 console.error(error);
                 setStatus(error.message, true);

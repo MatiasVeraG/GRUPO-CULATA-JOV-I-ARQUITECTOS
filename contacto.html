@@ -152,7 +152,7 @@
     <section id="contacto">
         <h2>CONTACTO</h2>
         <div class="contacto-content">
-            <div class="contacto-info">
+            <div class="contacto-info" id="contactoInfoEditable">
                 <p><strong>EMAIL</strong><br>contacto@culatajovai.com</p>
                 <p><strong>TELÉFONO</strong><br>+595 XXX XXX XXX</p>
                 <p><strong>UBICACIÓN</strong><br>Asunción, Paraguay</p>
@@ -170,7 +170,38 @@
         <span class="lang-option" data-lang="de" onclick="changeLanguage('de')">de</span>
     </div>
 
+    <script src="dropbox-config.js"></script>
+    <script src="dropbox-service-vercel.js"></script>
     <script>
+        async function loadContactoContent() {
+            const container = document.getElementById('contactoInfoEditable');
+            if (!container) return;
+
+            try {
+                const text = await dropboxService.getSiteContent('contacto');
+                if (!text || !text.trim()) return;
+
+                const blocks = text
+                    .split(/\n\s*\n/)
+                    .map(item => item.trim())
+                    .filter(Boolean)
+                    .map(item => {
+                        const lines = item.split(/\n/).map(l => l.trim()).filter(Boolean);
+                        if (lines.length === 0) return '';
+                        const title = lines[0];
+                        const body = lines.slice(1).join('<br>');
+                        return `<p><strong>${title}</strong>${body ? `<br>${body}` : ''}</p>`;
+                    })
+                    .join('');
+
+                if (blocks) {
+                    container.innerHTML = blocks;
+                }
+            } catch (error) {
+                console.error('No se pudo cargar el contenido de Contacto desde Dropbox:', error);
+            }
+        }
+
         // Sistema de traducción
         const translations = {
             es: {
@@ -226,6 +257,7 @@
 
         // Inicializar idioma
         initLanguage();
+        loadContactoContent();
     </script>
 </body>
 </html>
