@@ -3,72 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dropbox - Grupo Culata Jovai</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Admin – Grupo Culata Jovái</title>
     <style>
-        .admin-container { max-width: 1440px; margin: 0 auto; padding: 36px 28px; }
-        .admin-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:26px; border-bottom:1px solid #eee; padding-bottom:16px; }
-        .admin-header h1 { font-size: 20px; letter-spacing: 2px; text-transform: uppercase; font-weight: 400; }
-        .status { font-size: 11px; letter-spacing: 1px; color:#666; }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-        .layout { display:grid; grid-template-columns: 320px 1fr; gap: 22px; }
-        .panel { border:1px solid #ececec; background:#fff; }
-        .panel-title { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; padding: 14px 16px; border-bottom:1px solid #ececec; }
+        body { font-family: 'Futura','Century Gothic',sans-serif; background:#f7f7f7; color:#111; min-height:100vh; }
 
-        .projects-list { max-height: 72vh; overflow: auto; }
-        .project-item { padding: 12px 16px; border-bottom:1px solid #f2f2f2; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
+        /* ── HEADER ── */
+        .admin-header {
+            background:#fff;
+            border-bottom:1px solid #e0e0e0;
+            padding:18px 32px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            position:sticky;
+            top:0;
+            z-index:50;
+        }
+        .admin-header h1 { font-size:13px; letter-spacing:3px; text-transform:uppercase; font-weight:400; }
+        .status { font-size:11px; letter-spacing:1px; color:#888; }
+
+        /* ── TABS ── */
+        .tab-bar {
+            background:#fff;
+            border-bottom:1px solid #e0e0e0;
+            display:flex;
+            gap:0;
+            padding:0 32px;
+        }
+        .tab-btn {
+            border:none;
+            background:none;
+            padding:14px 22px;
+            font-family:inherit;
+            font-size:11px;
+            letter-spacing:2px;
+            text-transform:uppercase;
+            cursor:pointer;
+            color:#888;
+            border-bottom:2px solid transparent;
+            transition:color .2s, border-color .2s;
+        }
+        .tab-btn:hover { color:#111; }
+        .tab-btn.active { color:#111; border-bottom-color:#111; }
+
+        /* ── TAB PANELS ── */
+        .tab-panel { display:none; padding:28px 32px; max-width:1440px; }
+        .tab-panel.active { display:block; }
+
+        /* ── TRABAJOS LAYOUT ── */
+        .layout { display:grid; grid-template-columns:300px 1fr; gap:22px; }
+        .panel { border:1px solid #e0e0e0; background:#fff; }
+        .panel-title { font-size:11px; letter-spacing:2px; text-transform:uppercase; padding:13px 16px; border-bottom:1px solid #e0e0e0; background:#fafafa; }
+
+        .projects-list { max-height:70vh; overflow:auto; }
+        .project-item { padding:11px 16px; border-bottom:1px solid #f0f0f0; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
         .project-item:hover { background:#fafafa; }
-        .project-item.active { background:#000; color:#fff; }
-        .project-item small { color:#999; }
+        .project-item.active { background:#111; color:#fff; }
+        .project-item small { color:#aaa; font-size:10px; }
         .project-item.active small { color:#ccc; }
 
-        .content { padding: 16px; }
-        .row { display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .box { border:1px solid #efefef; padding: 14px; }
-        .box h3 { margin:0 0 10px; font-size:11px; letter-spacing:2px; text-transform:uppercase; }
+        .new-project { display:flex; gap:8px; padding:12px 16px; border-bottom:1px solid #e0e0e0; }
 
-        textarea, input[type="text"], select { width:100%; border:1px solid #ddd; padding:10px; font-family:inherit; font-size:13px; }
-        textarea { min-height: 180px; resize: vertical; line-height: 1.5; }
+        .content { padding:18px; }
+        .row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+        .box { border:1px solid #e8e8e8; padding:16px; background:#fff; }
+        .box h3 { margin:0 0 12px; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#444; }
 
-        .features-list { display:flex; flex-direction:column; gap:8px; margin-bottom:8px; }
-        .feature-row { display:grid; grid-template-columns: 1fr 1fr auto; gap:8px; }
+        /* ── FORMS ── */
+        textarea, input[type="text"], select {
+            width:100%;
+            border:1px solid #d8d8d8;
+            padding:10px 12px;
+            font-family:inherit;
+            font-size:13px;
+            background:#fafafa;
+            transition:border-color .2s;
+        }
+        textarea:focus, input[type="text"]:focus, select:focus { outline:none; border-color:#111; background:#fff; }
+        textarea { min-height:200px; resize:vertical; line-height:1.6; }
 
-        .actions { display:flex; gap:8px; flex-wrap: wrap; margin-top: 10px; }
-        .btn { border:none; padding:10px 14px; font-size:11px; letter-spacing:1px; text-transform:uppercase; cursor:pointer; }
-        .btn-primary { background:#000; color:#fff; }
-        .btn-danger { background:#DC143C; color:#fff; }
-        .btn-light { background:#f3f3f3; color:#333; }
+        .features-list { display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
+        .feature-row { display:grid; grid-template-columns:1fr 1fr auto; gap:8px; }
 
-        .upload-row { display:grid; grid-template-columns: 160px 1fr auto; gap:8px; align-items:center; margin:12px 0; }
-        .help { font-size: 11px; color:#777; }
+        .actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+        .btn { border:none; padding:10px 16px; font-size:11px; letter-spacing:1px; text-transform:uppercase; cursor:pointer; font-family:inherit; transition:opacity .2s; }
+        .btn:hover { opacity:.8; }
+        .btn-primary { background:#111; color:#fff; }
+        .btn-danger  { background:#DC143C; color:#fff; }
+        .btn-light   { background:#eee; color:#333; }
 
-        .media-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap:10px; margin-top:12px; }
-        .media-item { border:1px solid #eee; position: relative; }
+        .upload-row { display:grid; grid-template-columns:160px 1fr auto; gap:8px; align-items:center; margin:12px 0; }
+        .help { font-size:11px; color:#999; margin-top:6px; }
+
+        .media-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px; margin-top:12px; }
+        .media-item { border:1px solid #e8e8e8; position:relative; }
         .media-item img { width:100%; aspect-ratio:1; object-fit:cover; display:block; }
-        .media-item button { position:absolute; top:6px; right:6px; border:none; background:rgba(220,20,60,.95); color:#fff; cursor:pointer; padding:4px 6px; font-size:10px; }
+        .media-item button { position:absolute; top:5px; right:5px; border:none; background:rgba(220,20,60,.95); color:#fff; cursor:pointer; padding:4px 7px; font-size:10px; }
 
-        .new-project { display:flex; gap:8px; padding:12px 16px; border-bottom:1px solid #eee; }
-        .site-content-box { border:1px solid #efefef; padding:14px; margin-bottom:16px; }
-        .site-content-box h3 { margin:0 0 10px; font-size:11px; letter-spacing:2px; text-transform:uppercase; }
+        /* ── SOBRE / CONTACTO PANELS ── */
+        .text-section { max-width:860px; }
+        .text-block { background:#fff; border:1px solid #e0e0e0; padding:22px; margin-bottom:22px; }
+        .text-block h2 { font-size:11px; letter-spacing:3px; text-transform:uppercase; font-weight:400; margin-bottom:16px; color:#444; }
+        .text-block textarea { min-height:260px; }
+        .lang-tag { display:inline-block; font-size:10px; letter-spacing:1px; text-transform:uppercase; background:#111; color:#fff; padding:2px 7px; margin-bottom:10px; }
 
-        @media (max-width: 980px) {
-            .layout { grid-template-columns: 1fr; }
-            .row { grid-template-columns: 1fr; }
+        @media (max-width:980px) {
+            .layout { grid-template-columns:1fr; }
+            .row { grid-template-columns:1fr; }
+            .tab-panel { padding:20px 16px; }
         }
     </style>
 </head>
 <body>
-    <div class="admin-container">
-        <div class="admin-header">
-            <h1>Administrador Dropbox</h1>
-            <div class="status" id="statusText">Conectando...</div>
-        </div>
 
+    <div class="admin-header">
+        <h1>Administrador</h1>
+        <div class="status" id="statusText">Conectando…</div>
+    </div>
+
+    <nav class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('trabajos')">Trabajos</button>
+        <button class="tab-btn"        onclick="switchTab('sobre')">Sobre</button>
+        <button class="tab-btn"        onclick="switchTab('contacto')">Contacto</button>
+    </nav>
+
+    <!-- ══════════════ PESTAÑA TRABAJOS ══════════════ -->
+    <div id="tab-trabajos" class="tab-panel active">
         <div class="layout">
             <aside class="panel">
                 <div class="panel-title">Proyectos</div>
                 <div class="new-project">
-                    <input id="newProjectName" type="text" placeholder="Nuevo proyecto">
+                    <input id="newProjectName" type="text" placeholder="Nombre del nuevo proyecto">
                     <button class="btn btn-primary" onclick="createProject()">Crear</button>
                 </div>
                 <div id="projectsList" class="projects-list"></div>
@@ -77,41 +144,64 @@
             <section class="panel">
                 <div class="panel-title" id="editorTitle">Selecciona un proyecto</div>
                 <div class="content" id="editorContent">
-                    <div class="site-content-box">
-                        <h3>Contenido Del Sitio</h3>
-                        <p class="help">Edita aquí los textos globales de Sobre y Contacto (guardados en Dropbox).</p>
-
-                        <div class="row" style="margin-top:10px;">
-                            <div>
-                                <label style="font-size:10px;letter-spacing:1px;color:#666;text-transform:uppercase;">Sobre – Español</label>
-                                <textarea id="siteSobreEs" placeholder="Texto de la página Sobre en Español..."></textarea>
-                                <div class="actions">
-                                    <button class="btn btn-primary" onclick="saveSiteText('sobre_es')">Guardar Sobre ES</button>
-                                </div>
-                                <label style="font-size:10px;letter-spacing:1px;color:#666;text-transform:uppercase;margin-top:10px;display:block;">Sobre – English</label>
-                                <textarea id="siteSobreEn" placeholder="About page text in English..."></textarea>
-                                <div class="actions">
-                                    <button class="btn btn-primary" onclick="saveSiteText('sobre_en')">Guardar Sobre EN</button>
-                                </div>
-                            </div>
-                            <div>
-                                <label style="font-size:10px;letter-spacing:1px;color:#666;text-transform:uppercase;">Contacto</label>
-                                <textarea id="siteContactoText" placeholder="Texto de la página Contacto..."></textarea>
-                                <div class="actions">
-                                    <button class="btn btn-primary" onclick="saveSiteText('contacto')">Guardar Contacto</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="help">Elige un proyecto de la lista para editar Descripcion, Caracteristicas, Imagenes y Dibujos.</p>
+                    <p class="help">Elige un proyecto de la lista para editar su Descripción, Características, Imágenes y Dibujos.</p>
                 </div>
             </section>
+        </div>
+    </div>
+
+    <!-- ══════════════ PESTAÑA SOBRE ══════════════ -->
+    <div id="tab-sobre" class="tab-panel">
+        <div class="text-section">
+            <div class="text-block">
+                <h2>Sobre – Español</h2>
+                <span class="lang-tag">es</span>
+                <textarea id="siteSobreEs" placeholder="Texto de la página Sobre en español. Separa párrafos con una línea en blanco."></textarea>
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="saveSiteText('sobre_es')">Guardar versión español</button>
+                </div>
+            </div>
+
+            <div class="text-block">
+                <h2>Sobre – English</h2>
+                <span class="lang-tag">en</span>
+                <textarea id="siteSobreEn" placeholder="About page text in English. Separate paragraphs with a blank line."></textarea>
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="saveSiteText('sobre_en')">Guardar versión inglés</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════ PESTAÑA CONTACTO ══════════════ -->
+    <div id="tab-contacto" class="tab-panel">
+        <div class="text-section">
+            <div class="text-block">
+                <h2>Contacto</h2>
+                <p class="help" style="margin-bottom:14px;">
+                    Cada bloque separado por línea en blanco se mostrará como un párrafo.<br>
+                    La primera línea de cada bloque se mostrará en negrita (ej: EMAIL, TELÉFONO).
+                </p>
+                <textarea id="siteContactoText" placeholder="EMAIL&#10;contacto@culatajovai.com&#10;&#10;TELÉFONO&#10;+595 XXX XXX XXX&#10;&#10;UBICACIÓN&#10;Asunción, Paraguay"></textarea>
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="saveSiteText('contacto')">Guardar contacto</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script src="dropbox-config.js"></script>
     <script src="dropbox-service-vercel.js"></script>
     <script>
+        /* ── TAB NAVIGATION ── */
+        function switchTab(name) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + name).classList.add('active');
+            document.querySelector(`.tab-btn[onclick="switchTab('${name}')"]`).classList.add('active');
+        }
+
+        /* ── UTILS ── */
         let projects = [];
         let selectedProjectPath = null;
         let selectedDetail = null;
@@ -125,69 +215,77 @@
         function setStatus(text, isError = false) {
             const el = document.getElementById('statusText');
             el.textContent = text;
-            el.style.color = isError ? '#DC143C' : '#666';
+            el.style.color = isError ? '#DC143C' : '#888';
         }
 
+        /* ── TRABAJOS ── */
         function featureRowsHtml(features) {
             const rows = (features && features.length ? features : [{ key: '', value: '' }]);
             return rows.map((item, index) => `
                 <div class="feature-row" data-row="${index}">
-                    <input type="text" placeholder="Clave (Ej: Ubicacion)" value="${esc(item.key)}">
-                    <input type="text" placeholder="Valor (Ej: Asuncion, Paraguay)" value="${esc(item.value)}">
-                    <button class="btn btn-light" onclick="removeFeatureRow(${index})">X</button>
+                    <input type="text" placeholder="Clave (ej: Ubicación)" value="${esc(item.key)}">
+                    <input type="text" placeholder="Valor (ej: Asunción, Paraguay)" value="${esc(item.value)}">
+                    <button class="btn btn-light" onclick="removeFeatureRow(${index})">✕</button>
                 </div>
             `).join('');
         }
 
         function renderEditor(detail) {
             const content = document.getElementById('editorContent');
-            const title = document.getElementById('editorTitle');
-            title.textContent = `Editando: ${detail.name}`;
+            document.getElementById('editorTitle').textContent = `Editando: ${detail.name}`;
 
             content.innerHTML = `
                 <div class="row">
                     <div class="box">
-                        <h3>Descripcion</h3>
-                        <textarea id="descriptionText" placeholder="Narracion del proyecto...">${esc(detail.description || '')}</textarea>
+                        <h3>Descripción</h3>
+                        <textarea id="descriptionText" placeholder="Narración del proyecto...">${esc(detail.description || '')}</textarea>
                         <div class="actions">
-                            <button class="btn btn-primary" onclick="saveDescription()">Guardar descripcion</button>
+                            <button class="btn btn-primary" onclick="saveDescription()">Guardar descripción</button>
                         </div>
                     </div>
 
                     <div class="box">
-                        <h3>Caracteristicas</h3>
+                        <h3>Características</h3>
                         <div id="featuresList" class="features-list">${featureRowsHtml(detail.features || [])}</div>
                         <div class="actions">
-                            <button class="btn btn-light" onclick="addFeatureRow()">Agregar fila</button>
-                            <button class="btn btn-primary" onclick="saveFeatures()">Guardar caracteristicas</button>
+                            <button class="btn btn-light" onclick="addFeatureRow()">+ Agregar fila</button>
+                            <button class="btn btn-primary" onclick="saveFeatures()">Guardar características</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="box" style="margin-top:16px;">
-                    <h3>Subir Archivos</h3>
+                    <h3>Subir archivos</h3>
                     <div class="upload-row">
                         <select id="uploadType">
-                            <option value="Imagenes">Imagenes</option>
+                            <option value="Imagenes">Imágenes</option>
                             <option value="Dibujos">Dibujos</option>
                         </select>
                         <input id="uploadFiles" type="file" accept=".jpg,.jpeg,.png,.webp" multiple>
                         <button class="btn btn-primary" onclick="uploadFiles()">Subir</button>
                     </div>
-                    <p class="help">Solo JPG/PNG/WebP. Maximo 10MB por archivo.</p>
+                    <p class="help">Solo JPG / PNG / WebP. Máximo 10 MB por archivo.</p>
                 </div>
 
                 <div class="row" style="margin-top:16px;">
                     <div class="box">
-                        <h3>Imagenes</h3>
+                        <h3>Imágenes</h3>
                         <div class="media-grid">
-                            ${detail.images.map(item => `<div class="media-item"><img src="${item.temporaryLink}" alt="${esc(item.name)}"><button onclick="deleteMedia('${encodeURIComponent(item.path)}')">Eliminar</button></div>`).join('') || '<p class="help">Sin imagenes.</p>'}
+                            ${detail.images.map(item => `
+                                <div class="media-item">
+                                    <img src="${item.temporaryLink}" alt="${esc(item.name)}">
+                                    <button onclick="deleteMedia('${encodeURIComponent(item.path)}')">✕</button>
+                                </div>`).join('') || '<p class="help">Sin imágenes.</p>'}
                         </div>
                     </div>
                     <div class="box">
                         <h3>Dibujos</h3>
                         <div class="media-grid">
-                            ${detail.drawings.map(item => `<div class="media-item"><img src="${item.temporaryLink}" alt="${esc(item.name)}"><button onclick="deleteMedia('${encodeURIComponent(item.path)}')">Eliminar</button></div>`).join('') || '<p class="help">Sin dibujos.</p>'}
+                            ${detail.drawings.map(item => `
+                                <div class="media-item">
+                                    <img src="${item.temporaryLink}" alt="${esc(item.name)}">
+                                    <button onclick="deleteMedia('${encodeURIComponent(item.path)}')">✕</button>
+                                </div>`).join('') || '<p class="help">Sin dibujos.</p>'}
                         </div>
                     </div>
                 </div>
@@ -195,18 +293,19 @@
         }
 
         async function loadProjects() {
-            setStatus('Cargando proyectos...');
+            setStatus('Cargando proyectos…');
             const list = document.getElementById('projectsList');
-            list.innerHTML = '<div style="padding:12px 16px;color:#777;">Cargando...</div>';
+            list.innerHTML = '<div style="padding:12px 16px;color:#aaa;">Cargando…</div>';
             try {
                 projects = await dropboxService.listProjects();
                 if (!projects.length) {
-                    list.innerHTML = '<div style="padding:12px 16px;color:#777;">Sin proyectos</div>';
+                    list.innerHTML = '<div style="padding:12px 16px;color:#aaa;">Sin proyectos</div>';
                     setStatus('Sin proyectos');
                     return;
                 }
                 list.innerHTML = projects.map(project => `
-                    <div class="project-item ${selectedProjectPath === project.path ? 'active' : ''}" onclick="selectProject('${encodeURIComponent(project.path)}')">
+                    <div class="project-item ${selectedProjectPath === project.path ? 'active' : ''}"
+                         onclick="selectProject('${encodeURIComponent(project.path)}')">
                         <span>${esc(project.name)}</span>
                         <small>${esc(project.slug)}</small>
                     </div>
@@ -215,7 +314,7 @@
             } catch (error) {
                 console.error(error);
                 list.innerHTML = `<div style="padding:12px 16px;color:#DC143C;">Error: ${esc(error.message)}</div>`;
-                setStatus('Error de conexion', true);
+                setStatus('Error de conexión', true);
             }
         }
 
@@ -227,21 +326,16 @@
 
         async function refreshDetail() {
             if (!selectedProjectPath) return;
-            setStatus('Cargando detalle del proyecto...');
+            setStatus('Cargando proyecto…');
             selectedDetail = await dropboxService.getProjectDetail(selectedProjectPath);
             renderEditor(selectedDetail);
             setStatus('Conectado a Dropbox');
         }
 
         function collectFeaturesRows() {
-            const container = document.getElementById('featuresList');
-            const rows = Array.from(container.querySelectorAll('.feature-row'));
-            return rows.map(row => {
+            return Array.from(document.querySelectorAll('#featuresList .feature-row')).map(row => {
                 const inputs = row.querySelectorAll('input');
-                return {
-                    key: (inputs[0].value || '').trim(),
-                    value: (inputs[1].value || '').trim()
-                };
+                return { key: (inputs[0].value || '').trim(), value: (inputs[1].value || '').trim() };
             }).filter(item => item.key || item.value);
         }
 
@@ -250,9 +344,9 @@
             const row = document.createElement('div');
             row.className = 'feature-row';
             row.innerHTML = `
-                <input type="text" placeholder="Clave (Ej: Ubicacion)">
-                <input type="text" placeholder="Valor (Ej: Asuncion, Paraguay)">
-                <button class="btn btn-light" onclick="this.parentElement.remove()">X</button>
+                <input type="text" placeholder="Clave (ej: Ubicación)">
+                <input type="text" placeholder="Valor (ej: Asunción, Paraguay)">
+                <button class="btn btn-light" onclick="this.parentElement.remove()">✕</button>
             `;
             container.appendChild(row);
         }
@@ -265,9 +359,9 @@
         async function saveDescription() {
             if (!selectedProjectPath) return;
             const content = document.getElementById('descriptionText').value;
-            setStatus('Guardando descripcion...');
+            setStatus('Guardando descripción…');
             await dropboxService.saveDescription(selectedProjectPath, content);
-            setStatus('Descripcion guardada');
+            setStatus('Descripción guardada');
             await refreshDetail();
         }
 
@@ -275,9 +369,9 @@
             if (!selectedProjectPath) return;
             const rows = collectFeaturesRows();
             const text = rows.map(item => `${item.key}: ${item.value}`).join('\n');
-            setStatus('Guardando caracteristicas...');
+            setStatus('Guardando características…');
             await dropboxService.saveFeatures(selectedProjectPath, text);
-            setStatus('Caracteristicas guardadas');
+            setStatus('Características guardadas');
             await refreshDetail();
         }
 
@@ -286,14 +380,10 @@
             const input = document.getElementById('uploadFiles');
             const type = document.getElementById('uploadType').value;
             const files = Array.from(input.files || []);
-            if (!files.length) {
-                setStatus('Selecciona archivos para subir', true);
-                return;
-            }
-            setStatus(`Subiendo ${files.length} archivo(s)...`);
+            if (!files.length) { setStatus('Selecciona archivos para subir', true); return; }
+            setStatus(`Subiendo ${files.length} archivo(s)…`);
             for (const file of files) {
-                const destinationPath = `${selectedProjectPath}/${type}/${file.name}`;
-                await dropboxService.uploadFile(file, destinationPath);
+                await dropboxService.uploadFile(file, `${selectedProjectPath}/${type}/${file.name}`);
             }
             input.value = '';
             setStatus('Archivos subidos');
@@ -301,10 +391,9 @@
         }
 
         async function deleteMedia(encodedPath) {
-            const path = decodeURIComponent(encodedPath);
-            if (!confirm('Eliminar este archivo de Dropbox?')) return;
-            setStatus('Eliminando archivo...');
-            await dropboxService.deleteFile(path);
+            if (!confirm('¿Eliminar este archivo de Dropbox?')) return;
+            setStatus('Eliminando…');
+            await dropboxService.deleteFile(decodeURIComponent(encodedPath));
             setStatus('Archivo eliminado');
             await refreshDetail();
         }
@@ -312,17 +401,15 @@
         async function createProject() {
             const input = document.getElementById('newProjectName');
             const name = (input.value || '').trim();
-            if (!name) {
-                setStatus('Ingresa nombre del proyecto', true);
-                return;
-            }
-            setStatus('Creando proyecto...');
+            if (!name) { setStatus('Ingresa el nombre del proyecto', true); return; }
+            setStatus('Creando proyecto…');
             await dropboxService.createProject(name);
             input.value = '';
             setStatus('Proyecto creado');
             await loadProjects();
         }
 
+        /* ── SOBRE / CONTACTO ── */
         async function loadSiteContentEditors() {
             try {
                 const [sobreEs, sobreEn, contacto] = await Promise.all([
@@ -330,40 +417,37 @@
                     dropboxService.getSiteContent('sobre_en').catch(() => ''),
                     dropboxService.getSiteContent('contacto').catch(() => '')
                 ]);
-
-                const sobreEsEl = document.getElementById('siteSobreEs');
-                const sobreEnEl = document.getElementById('siteSobreEn');
+                const sobreEsEl  = document.getElementById('siteSobreEs');
+                const sobreEnEl  = document.getElementById('siteSobreEn');
                 const contactoEl = document.getElementById('siteContactoText');
-                if (sobreEsEl) sobreEsEl.value = sobreEs || '';
-                if (sobreEnEl) sobreEnEl.value = sobreEn || '';
+                if (sobreEsEl)  sobreEsEl.value  = sobreEs  || '';
+                if (sobreEnEl)  sobreEnEl.value  = sobreEn  || '';
                 if (contactoEl) contactoEl.value = contacto || '';
             } catch (error) {
                 console.error(error);
-                setStatus('No se pudieron cargar los textos', true);
+                setStatus('Error cargando textos', true);
             }
         }
 
         async function saveSiteText(pageKey) {
             const fieldMap = {
-                'sobre': 'siteSobreText',
-                'sobre_es': 'siteSobreEs',
-                'sobre_en': 'siteSobreEn',
-                'contacto': 'siteContactoText'
+                'sobre_es':  'siteSobreEs',
+                'sobre_en':  'siteSobreEn',
+                'contacto':  'siteContactoText'
             };
-            const fieldId = fieldMap[pageKey];
-            const field = document.getElementById(fieldId);
+            const field = document.getElementById(fieldMap[pageKey]);
             if (!field) return;
-
-            setStatus(`Guardando ${pageKey}...`);
+            setStatus(`Guardando ${pageKey}…`);
             try {
                 await dropboxService.saveSiteContent(pageKey, field.value || '');
-                setStatus(`${pageKey} guardado`);
+                setStatus(`Guardado correctamente`);
             } catch (error) {
                 console.error(error);
                 setStatus(`Error guardando ${pageKey}`, true);
             }
         }
 
+        /* ── INIT ── */
         window.addEventListener('load', async () => {
             try {
                 await Promise.all([loadProjects(), loadSiteContentEditors()]);
