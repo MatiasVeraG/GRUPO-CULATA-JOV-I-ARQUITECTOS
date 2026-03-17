@@ -119,78 +119,80 @@
         #nosotros {
             background-color: #FFFFFF;
             padding: 140px 60px 100px;
-            margin-top: 80px;
             min-height: 100vh;
         }
 
         .nosotros-container {
-            position: relative;
-            max-width: 1200px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
-        .nosotros-line {
-            position: absolute;
-            left: 50%;
-            top: 0;
-            width: 1px;
-            height: 100%;
-            background-color: #DC143C;
-            transform: translateX(-50%);
+        .nosotros-title {
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: 400;
+            margin-bottom: 60px;
         }
 
-        .nosotros-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 80px;
-            position: relative;
+        .person-card {
+            display: flex;
+            gap: 50px;
+            margin-bottom: 70px;
+            align-items: flex-start;
         }
 
-        .nosotros-col p {
+        .person-card:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .person-photo {
+            width: 200px;
+            flex-shrink: 0;
+        }
+
+        .person-photo img {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .person-bio {
+            flex: 1;
+        }
+
+        .person-bio p {
             font-size: 15px;
             line-height: 1.9;
             letter-spacing: 0.5px;
-            margin-bottom: 30px;
+            margin-bottom: 16px;
             font-weight: 300;
-        }
-
-        .nosotros-col h2 {
-            text-align: left;
-            margin-bottom: 40px;
-        }
-
-        @media (max-width: 1024px) {
-            #nosotros {
-                padding: 100px 40px;
-            }
-            
-            .nosotros-content {
-                gap: 60px;
-            }
         }
 
         @media (max-width: 768px) {
             #nosotros {
-                padding: 80px 30px;
+                padding: 100px 30px 80px;
             }
-            
-            .nosotros-content {
-                grid-template-columns: 1fr;
-                gap: 40px;
+
+            .person-card,
+            .person-card:nth-child(even) {
+                flex-direction: column;
+                gap: 24px;
             }
-            
-            .nosotros-line {
-                display: none;
+
+            .person-photo {
+                width: 100%;
             }
-            
-            .nosotros-col h2 {
-                text-align: center;
+
+            .person-photo img {
+                height: 240px;
             }
         }
 
         @media (max-width: 480px) {
             #nosotros {
-                padding: 60px 20px;
+                padding: 80px 20px 60px;
             }
         }
     </style>
@@ -211,22 +213,9 @@
     <!-- NOSOTROS -->
     <section id="nosotros">
         <div class="nosotros-container">
-            <div class="nosotros-line"></div>
-            <div class="nosotros-content">
-                <div class="nosotros-col">
-                    <h2>NOSOTROS</h2>
-                    <div id="sobreColumna1">
-                        <p>Grupo Culata Jovái Arquitectos es un estudio dedicado al diseño arquitectónico contemporáneo, donde la funcionalidad y la estética se encuentran en perfecta armonía.</p>
-                        <p>Nuestra filosofía se fundamenta en la creación de espacios que trascienden lo convencional, integrando innovación, sostenibilidad y una profunda comprensión del contexto.</p>
-                    </div>
-                </div>
-                <div class="nosotros-col">
-                    <div id="sobreColumna2">
-                        <p>Cada proyecto es una respuesta única a las necesidades específicas del cliente y del entorno, materializada a través de un lenguaje arquitectónico limpio y atemporal.</p>
-                        <p>Creemos en la arquitectura como disciplina que debe mejorar la calidad de vida de las personas, respetando el entorno natural y cultural en el que se inserta.</p>
-                        <p>Nuestro equipo trabaja con compromiso y precisión, buscando siempre la excelencia en cada detalle del proceso de diseño y construcción.</p>
-                    </div>
-                </div>
+            <h2 class="nosotros-title">NOSOTROS</h2>
+            <div id="personCards">
+                <!-- Se llena dinámicamente desde Dropbox -->
             </div>
         </div>
     </section>
@@ -241,41 +230,42 @@
     <script src="dropbox-config.js"></script>
     <script src="dropbox-service-vercel.js"></script>
     <script>
+        let sobreImages = [];
+
         async function loadSobreContent(lang) {
-            const col1 = document.getElementById('sobreColumna1');
-            const col2 = document.getElementById('sobreColumna2');
-            if (!col1 || !col2) return;
+            const container = document.getElementById('personCards');
+            if (!container) return;
 
             try {
                 const langKey = lang === 'en' ? 'sobre_en' : lang === 'de' ? 'sobre_de' : 'sobre_es';
                 let text = null;
                 try { text = await dropboxService.getSiteContent(langKey); } catch (_) {}
                 if (!text || !text.trim()) {
-                    text = await dropboxService.getSiteContent('sobre');
+                    try { text = await dropboxService.getSiteContent('sobre'); } catch (_) {}
                 }
-                if (!text || !text.trim()) return;
 
-                const paragraphsArray = text
-                    .split(/\n\s*\n/)
-                    .map(item => item.trim())
-                    .filter(Boolean);
+                const paragraphs = text
+                    ? text.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean)
+                    : [];
 
-                if (paragraphsArray.length === 0) return;
+                if (!paragraphs.length) {
+                    container.innerHTML = '';
+                    return;
+                }
 
-                const splitIndex = Math.ceil(paragraphsArray.length / 2);
-                const col1Html = paragraphsArray
-                    .slice(0, splitIndex)
-                    .map(item => `<p>${item.replace(/\n/g, '<br>')}</p>`)
-                    .join('');
-                const col2Html = paragraphsArray
-                    .slice(splitIndex)
-                    .map(item => `<p>${item.replace(/\n/g, '<br>')}</p>`)
-                    .join('');
-
-                col1.innerHTML = col1Html;
-                col2.innerHTML = col2Html || '<p></p>';
+                container.innerHTML = paragraphs.map((bio, i) => {
+                    const img = sobreImages[i];
+                    const photoHtml = img
+                        ? `<div class="person-photo"><img src="${img.temporaryLink}" alt=""></div>`
+                        : '';
+                    return `
+                        <div class="person-card">
+                            ${photoHtml}
+                            <div class="person-bio">${bio.split(/\n/).map(line => `<p>${line}</p>`).join('')}</div>
+                        </div>`;
+                }).join('');
             } catch (error) {
-                console.error('No se pudo cargar el contenido de Sobre desde Dropbox:', error);
+                console.error('No se pudo cargar el contenido de Sobre:', error);
             }
         }
 
@@ -333,10 +323,13 @@
             applyTranslations(savedLang);
         }
 
-        // Inicializar idioma
-        const _initLang = localStorage.getItem('selectedLanguage') || 'es';
-        initLanguage();
-        loadSobreContent(_initLang);
-    </script>    <script src="script.js"></script>
+        // Inicializar
+        window.addEventListener('load', async () => {
+            initLanguage();
+            const lang = localStorage.getItem('selectedLanguage') || 'es';
+            try { sobreImages = await dropboxService.getSobreImages(); } catch (_) {}
+            loadSobreContent(lang);
+        });
+    </script>
 </body>
 </html>

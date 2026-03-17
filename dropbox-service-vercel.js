@@ -333,6 +333,11 @@ class DropboxService {
         return data.content || '';
     }
 
+    async getSobreImages() {
+        const data = await this.callApi('get-sobre-images', {});
+        return data.images || [];
+    }
+
     async saveSiteContent(pageKey, content) {
         const data = await this.callApi('save-site-content', {
             pageKey,

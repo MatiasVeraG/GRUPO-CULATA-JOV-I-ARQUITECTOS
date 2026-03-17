@@ -73,6 +73,8 @@ export default async function handler(req, res) {
                 return await getSiteContent(params.pageKey, res);
             case 'save-site-content':
                 return await saveSiteContent(params.pageKey, params.content, res);
+            case 'get-sobre-images':
+                return await getSobreImages(res);
             case 'delete-file':
                 return await deleteFile(params.filePath, res);
             default:
@@ -683,6 +685,16 @@ async function createProject(projectName, res) {
             error: 'Failed to create project',
             message: error.message
         });
+    }
+}
+
+async function getSobreImages(res) {
+    try {
+        const token = await getValidAccessToken();
+        const images = await listMediaFromFolder('/ContenidoSitio/SobreImagenes', token);
+        return res.status(200).json({ success: true, images });
+    } catch (error) {
+        return res.status(500).json({ error: 'Failed to get sobre images', message: error.message });
     }
 }
 

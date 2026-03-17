@@ -153,10 +153,23 @@
     <!-- ══════════════ PESTAÑA SOBRE ══════════════ -->
     <div id="tab-sobre" class="tab-panel">
         <div class="text-section">
+            <div class="text-block" style="grid-column:1/-1;">
+                <h2>Fotos de personas</h2>
+                <p class="help" style="margin-bottom:14px;">
+                    Cada imagen se empareja con el bloque de texto correspondiente por orden (1ª foto → 1er párrafo, etc.).<br>
+                    Usa nombres como <code>01_nombre.jpg</code>, <code>02_nombre.jpg</code> para controlar el orden.
+                </p>
+                <div class="upload-row">
+                    <input id="sobreUploadFiles" type="file" accept=".jpg,.jpeg,.png,.webp" multiple>
+                    <button class="btn btn-primary" onclick="uploadSobreImages()">Subir fotos</button>
+                </div>
+                <div class="media-grid" id="sobreImageGrid" style="margin-top:14px;"></div>
+            </div>
+
             <div class="text-block">
                 <h2>Sobre – Español</h2>
                 <span class="lang-tag">es</span>
-                <textarea id="siteSobreEs" placeholder="Texto de la página Sobre en español. Separa párrafos con una línea en blanco."></textarea>
+                <textarea id="siteSobreEs" placeholder="Cada párrafo (separado por línea en blanco) corresponde a una persona."></textarea>
                 <div class="actions">
                     <button class="btn btn-primary" onclick="saveSiteText('sobre_es')">Guardar versión español</button>
                 </div>
@@ -165,7 +178,7 @@
             <div class="text-block">
                 <h2>Sobre – English</h2>
                 <span class="lang-tag">en</span>
-                <textarea id="siteSobreEn" placeholder="About page text in English. Separate paragraphs with a blank line."></textarea>
+                <textarea id="siteSobreEn" placeholder="Each paragraph (separated by blank line) corresponds to one person."></textarea>
                 <div class="actions">
                     <button class="btn btn-primary" onclick="saveSiteText('sobre_en')">Guardar versión inglés</button>
                 </div>
@@ -174,7 +187,7 @@
             <div class="text-block">
                 <h2>Sobre – Deutsch</h2>
                 <span class="lang-tag">de</span>
-                <textarea id="siteSobreDe" placeholder="Über-Seitentext auf Deutsch. Absätze mit einer Leerzeile trennen."></textarea>
+                <textarea id="siteSobreDe" placeholder="Jeder Absatz (durch Leerzeile getrennt) entspricht einer Person."></textarea>
                 <div class="actions">
                     <button class="btn btn-primary" onclick="saveSiteText('sobre_de')">Guardar versión alemán</button>
                 </div>
@@ -459,6 +472,46 @@
         }
 
         /* ── SOBRE / CONTACTO ── */
+        async function loadSobreImages() {
+            const grid = document.getElementById('sobreImageGrid');
+            if (!grid) return;
+            try {
+                const images = await dropboxService.getSobreImages();
+                if (!images.length) {
+                    grid.innerHTML = '<p class="help">Sin fotos aún.</p>';
+                    return;
+                }
+                grid.innerHTML = images.map(item => `
+                    <div class="media-item">
+                        <img src="${item.temporaryLink}" alt="${esc(item.name)}">
+                        <button onclick="deleteSobreImage('${encodeURIComponent(item.path)}')">✕</button>
+                    </div>`).join('');
+            } catch (_) {
+                grid.innerHTML = '<p class="help">Sin fotos aún.</p>';
+            }
+        }
+
+        async function uploadSobreImages() {
+            const input = document.getElementById('sobreUploadFiles');
+            const files = Array.from(input.files || []);
+            if (!files.length) { setStatus('Selecciona fotos para subir', true); return; }
+            setStatus(`Subiendo ${files.length} foto(s)…`);
+            for (const file of files) {
+                await dropboxService.uploadFile(file, `/ContenidoSitio/SobreImagenes/${file.name}`);
+            }
+            input.value = '';
+            setStatus('Fotos subidas');
+            await loadSobreImages();
+        }
+
+        async function deleteSobreImage(encodedPath) {
+            if (!confirm('¿Eliminar esta foto?')) return;
+            setStatus('Eliminando…');
+            await dropboxService.deleteFile(decodeURIComponent(encodedPath));
+            setStatus('Foto eliminada');
+            await loadSobreImages();
+        }
+
         async function loadSiteContentEditors() {
             try {
                 const [sobreEs, sobreEn, sobreDe, contactoEs, contactoEn, contactoDe] = await Promise.all([
@@ -511,7 +564,7 @@
         /* ── INIT ── */
         window.addEventListener('load', async () => {
             try {
-                await Promise.all([loadProjects(), loadSiteContentEditors()]);
+                await Promise.all([loadProjects(), loadSiteContentEditors(), loadSobreImages()]);
             } catch (error) {
                 console.error(error);
                 setStatus(error.message, true);
