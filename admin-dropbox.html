@@ -170,6 +170,15 @@
                     <button class="btn btn-primary" onclick="saveSiteText('sobre_en')">Guardar versión inglés</button>
                 </div>
             </div>
+
+            <div class="text-block">
+                <h2>Sobre – Deutsch</h2>
+                <span class="lang-tag">de</span>
+                <textarea id="siteSobreDe" placeholder="Über-Seitentext auf Deutsch. Absätze mit einer Leerzeile trennen."></textarea>
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="saveSiteText('sobre_de')">Guardar versión alemán</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -182,9 +191,32 @@
                     Cada bloque separado por línea en blanco se mostrará como un párrafo.<br>
                     La primera línea de cada bloque se mostrará en negrita (ej: EMAIL, TELÉFONO).
                 </p>
-                <textarea id="siteContactoText" placeholder="EMAIL&#10;contacto@culatajovai.com&#10;&#10;TELÉFONO&#10;+595 XXX XXX XXX&#10;&#10;UBICACIÓN&#10;Asunción, Paraguay"></textarea>
+            </div>
+
+            <div class="text-block">
+                <h2>Contacto – Español</h2>
+                <span class="lang-tag">es</span>
+                <textarea id="siteContactoEs" placeholder="EMAIL&#10;contacto@culatajovai.com&#10;&#10;TELÉFONO&#10;+595 XXX XXX XXX&#10;&#10;UBICACIÓN&#10;Asunción, Paraguay"></textarea>
                 <div class="actions">
-                    <button class="btn btn-primary" onclick="saveSiteText('contacto')">Guardar contacto</button>
+                    <button class="btn btn-primary" onclick="saveSiteText('contacto_es')">Guardar versión español</button>
+                </div>
+            </div>
+
+            <div class="text-block">
+                <h2>Contacto – English</h2>
+                <span class="lang-tag">en</span>
+                <textarea id="siteContactoEn" placeholder="EMAIL&#10;contact@culatajovai.com&#10;&#10;PHONE&#10;+595 XXX XXX XXX&#10;&#10;LOCATION&#10;Asunción, Paraguay"></textarea>
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="saveSiteText('contacto_en')">Guardar versión inglés</button>
+                </div>
+            </div>
+
+            <div class="text-block">
+                <h2>Kontakt – Deutsch</h2>
+                <span class="lang-tag">de</span>
+                <textarea id="siteContactoDe" placeholder="EMAIL&#10;kontakt@culatajovai.com&#10;&#10;TELEFON&#10;+595 XXX XXX XXX&#10;&#10;ORT&#10;Asunción, Paraguay"></textarea>
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="saveSiteText('contacto_de')">Guardar versión alemán</button>
                 </div>
             </div>
         </div>
@@ -238,9 +270,26 @@
                 <div class="row">
                     <div class="box">
                         <h3>Descripción</h3>
-                        <textarea id="descriptionText" placeholder="Narración del proyecto...">${esc(detail.description || '')}</textarea>
+                        <div style="display:flex;gap:6px;margin-bottom:6px;">
+                            <span class="lang-tag">es</span><span style="font-size:12px;color:#888;">Español</span>
+                        </div>
+                        <textarea id="descriptionEs" placeholder="Descripción en español..." style="margin-bottom:6px;">${esc(detail.description_es || '')}</textarea>
+                        <div class="actions" style="margin-bottom:12px;">
+                            <button class="btn btn-primary" onclick="saveDescriptionLang('es')">Guardar español</button>
+                        </div>
+                        <div style="display:flex;gap:6px;margin-bottom:6px;">
+                            <span class="lang-tag">en</span><span style="font-size:12px;color:#888;">English</span>
+                        </div>
+                        <textarea id="descriptionEn" placeholder="Project description in English..." style="margin-bottom:6px;">${esc(detail.description_en || '')}</textarea>
+                        <div class="actions" style="margin-bottom:12px;">
+                            <button class="btn btn-primary" onclick="saveDescriptionLang('en')">Guardar inglés</button>
+                        </div>
+                        <div style="display:flex;gap:6px;margin-bottom:6px;">
+                            <span class="lang-tag">de</span><span style="font-size:12px;color:#888;">Deutsch</span>
+                        </div>
+                        <textarea id="descriptionDe" placeholder="Projektbeschreibung auf Deutsch..." style="margin-bottom:6px;">${esc(detail.description_de || '')}</textarea>
                         <div class="actions">
-                            <button class="btn btn-primary" onclick="saveDescription()">Guardar descripción</button>
+                            <button class="btn btn-primary" onclick="saveDescriptionLang('de')">Guardar alemán</button>
                         </div>
                     </div>
 
@@ -357,12 +406,13 @@
         }
 
         async function saveDescription() {
+        async function saveDescriptionLang(lang) {
             if (!selectedProjectPath) return;
-            const content = document.getElementById('descriptionText').value;
-            setStatus('Guardando descripción…');
-            await dropboxService.saveDescription(selectedProjectPath, content);
-            setStatus('Descripción guardada');
-            await refreshDetail();
+            const fieldMap = { es: 'descriptionEs', en: 'descriptionEn', de: 'descriptionDe' };
+            const content = document.getElementById(fieldMap[lang]).value;
+            setStatus(`Guardando descripción (${lang})…`);
+            await dropboxService.saveDescriptionLang(selectedProjectPath, lang, content);
+            setStatus(`Descripción (${lang}) guardada`);
         }
 
         async function saveFeatures() {
@@ -412,17 +462,26 @@
         /* ── SOBRE / CONTACTO ── */
         async function loadSiteContentEditors() {
             try {
-                const [sobreEs, sobreEn, contacto] = await Promise.all([
+                const [sobreEs, sobreEn, sobreDe, contactoEs, contactoEn, contactoDe] = await Promise.all([
                     dropboxService.getSiteContent('sobre_es').catch(() => ''),
                     dropboxService.getSiteContent('sobre_en').catch(() => ''),
-                    dropboxService.getSiteContent('contacto').catch(() => '')
+                    dropboxService.getSiteContent('sobre_de').catch(() => ''),
+                    dropboxService.getSiteContent('contacto_es').catch(() => ''),
+                    dropboxService.getSiteContent('contacto_en').catch(() => ''),
+                    dropboxService.getSiteContent('contacto_de').catch(() => '')
                 ]);
                 const sobreEsEl  = document.getElementById('siteSobreEs');
                 const sobreEnEl  = document.getElementById('siteSobreEn');
-                const contactoEl = document.getElementById('siteContactoText');
+                const sobreDeEl  = document.getElementById('siteSobreDe');
+                const contactoEsEl = document.getElementById('siteContactoEs');
+                const contactoEnEl = document.getElementById('siteContactoEn');
+                const contactoDeEl = document.getElementById('siteContactoDe');
                 if (sobreEsEl)  sobreEsEl.value  = sobreEs  || '';
                 if (sobreEnEl)  sobreEnEl.value  = sobreEn  || '';
-                if (contactoEl) contactoEl.value = contacto || '';
+                if (sobreDeEl)  sobreDeEl.value  = sobreDe  || '';
+                if (contactoEsEl) contactoEsEl.value = contactoEs || '';
+                if (contactoEnEl) contactoEnEl.value = contactoEn || '';
+                if (contactoDeEl) contactoDeEl.value = contactoDe || '';
             } catch (error) {
                 console.error(error);
                 setStatus('Error cargando textos', true);
@@ -433,7 +492,10 @@
             const fieldMap = {
                 'sobre_es':  'siteSobreEs',
                 'sobre_en':  'siteSobreEn',
-                'contacto':  'siteContactoText'
+                'sobre_de':  'siteSobreDe',
+                'contacto_es': 'siteContactoEs',
+                'contacto_en': 'siteContactoEn',
+                'contacto_de': 'siteContactoDe'
             };
             const field = document.getElementById(fieldMap[pageKey]);
             if (!field) return;

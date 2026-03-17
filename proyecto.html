@@ -168,6 +168,12 @@
             }).join('');
 
             const descriptionText = (currentProject.description || '').trim();
+            const lang = localStorage.getItem('selectedLanguage') || 'es';
+            const descriptionText = (
+                lang === 'en' ? currentProject.description_en :
+                lang === 'de' ? currentProject.description_de :
+                currentProject.description_es
+            || currentProject.description || '').trim();
             const descriptionHTML = descriptionText
                 ? descriptionText.split(/\n\s*\n/).map(p => `<p>${escapeHtml(p).replace(/\n/g, '<br>')}</p>`).join('')
                 : '<p>Sin descripcion disponible.</p>';
@@ -204,7 +210,7 @@
                         <div class="project-datos">${datosHTML}</div>
                     </aside>
                     <div class="project-description-wrap">
-                        <div class="project-description">${descriptionHTML}</div>
+                        <div class="project-description" id="projectDescription">${descriptionHTML}</div>
                     </div>
                 </div>
                 ${drawingsHTML}
@@ -275,6 +281,18 @@
                 const key = el.getAttribute('data-i18n');
                 if (t[key]) el.textContent = t[key];
             });
+            if (currentProject) {
+                const raw = (
+                    lang === 'en' ? currentProject.description_en :
+                    lang === 'de' ? currentProject.description_de :
+                    currentProject.description_es
+                || currentProject.description || '').trim();
+                const html = raw
+                    ? raw.split(/\n\s*\n/).map(p => `<p>${escapeHtml(p).replace(/\n/g, '<br>')}</p>`).join('')
+                    : '<p>Sin descripcion disponible.</p>';
+                const el = document.getElementById('projectDescription');
+                if (el) el.innerHTML = html;
+            }
         }
 
         window.addEventListener('load', () => {

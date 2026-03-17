@@ -65,6 +65,8 @@ export default async function handler(req, res) {
                 return await createProject(params.projectName, res);
             case 'save-description':
                 return await saveDescription(params.projectPath, params.content, res);
+            case 'save-description-lang':
+                return await saveDescriptionLang(params.projectPath, params.lang, params.content, res);
             case 'save-features':
                 return await saveFeatures(params.projectPath, params.featuresText, res);
             case 'get-site-content':
@@ -113,7 +115,7 @@ function getSiteContentRootPath() {
 }
 
 function normalizePageKey(pageKey) {
-    const allowed = ['sobre', 'contacto', 'sobre_es', 'sobre_en'];
+    const allowed = ['sobre', 'contacto', 'sobre_es', 'sobre_en', 'sobre_de', 'contacto_es', 'contacto_en', 'contacto_de'];
     if (!pageKey || typeof pageKey !== 'string') return null;
     const normalized = pageKey.trim().toLowerCase();
     return allowed.includes(normalized) ? normalized : null;
@@ -425,13 +427,37 @@ async function getProjectDetail(projectPath, res) {
         await ensureProjectStructure(projectPath, token);
 
         const descriptionPath = `${projectPath}/Descripcion/descripcion.txt`;
+        const descriptionEsPath = `${projectPath}/Descripcion/descripcion_es.txt`;
+        const descriptionEnPath = `${projectPath}/Descripcion/descripcion_en.txt`;
+        const descriptionDePath = `${projectPath}/Descripcion/descripcion_de.txt`;
         const featuresPath = `${projectPath}/Caracteristicas/caracteristicas.txt`;
 
         let description = '';
         let featuresRaw = '';
+        let description_es = '';
+        let description_en = '';
+        let description_de = '';
 
         try {
             description = await downloadTextFile(descriptionPath, token);
+        } catch (error) {
+            if (!isPathNotFound(String(error.message))) throw error;
+        }
+
+        try {
+            description_es = await downloadTextFile(descriptionEsPath, token);
+        } catch (error) {
+            if (!isPathNotFound(String(error.message))) throw error;
+        }
+
+        try {
+            description_en = await downloadTextFile(descriptionEnPath, token);
+        } catch (error) {
+            if (!isPathNotFound(String(error.message))) throw error;
+        }
+
+        try {
+            description_de = await downloadTextFile(descriptionDePath, token);
         } catch (error) {
             if (!isPathNotFound(String(error.message))) throw error;
         }
@@ -453,6 +479,9 @@ async function getProjectDetail(projectPath, res) {
                 slug: slugify(projectName),
                 path: projectPath,
                 description,
+                description_es,
+                description_en,
+                description_de,
                 featuresRaw,
                 features: normalizeFeatures(featuresRaw),
                 images,
@@ -672,6 +701,35 @@ async function saveDescription(projectPath, content, res) {
         return res.status(200).json({
             success: true,
             message: 'Description updated',
+            path: targetPath
+        });
+    } catch (error) {
+        return res.status(500).json({
+            error: 'Failed to save description',
+            message: error.message
+        });
+    }
+}
+
+async function saveDescriptionLang(projectPath, lang, content, res) {
+    try {
+        if (!projectPath) {
+            return res.status(400).json({ error: 'projectPath is required' });
+        }
+        const allowedLangs = ['es', 'en', 'de'];
+        if (!lang || !allowedLangs.includes(lang)) {
+            return res.status(400).json({ error: 'lang must be es, en, or de' });
+        }
+
+        const token = await getValidAccessToken();
+        await ensureProjectStructure(projectPath, token);
+        const targetPath = `${projectPath}/Descripcion/descripcion_${lang}.txt`;
+
+        await uploadTextFile(targetPath, content || '', token);
+
+        return res.status(200).json({
+            success: true,
+            message: `Description (${lang}) updated`,
             path: targetPath
         });
     } catch (error) {

@@ -173,12 +173,18 @@
     <script src="dropbox-config.js"></script>
     <script src="dropbox-service-vercel.js"></script>
     <script>
-        async function loadContactoContent() {
+        async function loadContactoContent(lang) {
             const container = document.getElementById('contactoInfoEditable');
             if (!container) return;
 
             try {
-                const text = await dropboxService.getSiteContent('contacto');
+                const resolvedLang = lang || localStorage.getItem('selectedLanguage') || 'es';
+                const langKey = resolvedLang === 'en' ? 'contacto_en' : resolvedLang === 'de' ? 'contacto_de' : 'contacto_es';
+                let text = null;
+                try { text = await dropboxService.getSiteContent(langKey); } catch (_) {}
+                if (!text || !text.trim()) {
+                    text = await dropboxService.getSiteContent('contacto');
+                }
                 if (!text || !text.trim()) return;
 
                 const blocks = text
@@ -226,6 +232,7 @@
             localStorage.setItem('selectedLanguage', lang);
             updateLanguageUI(lang);
             applyTranslations(lang);
+            loadContactoContent(lang);
         }
 
         // Actualizar indicador visual del idioma seleccionado
@@ -257,7 +264,7 @@
 
         // Inicializar idioma
         initLanguage();
-        loadContactoContent();
+        loadContactoContent(localStorage.getItem('selectedLanguage') || 'es');
     </script>
 </body>
 </html>

@@ -309,6 +309,15 @@ class DropboxService {
         return data;
     }
 
+    async saveDescriptionLang(projectPath, lang, content) {
+        const data = await this.callApi('save-description-lang', {
+            projectPath,
+            lang,
+            content
+        });
+        return data;
+    }
+
     async saveFeatures(projectPath, featuresText) {
         const data = await this.callApi('save-features', {
             projectPath,
