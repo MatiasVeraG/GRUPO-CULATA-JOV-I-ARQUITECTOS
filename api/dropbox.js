@@ -51,14 +51,22 @@ export default async function handler(req, res) {
         switch (action) {
             case 'list-projects':
                 return await listProjects(res);
+            case 'get-project-detail':
+                return await getProjectDetail(params.projectPath, res);
             case 'get-project-images':
                 return await getProjectImages(params.projectPath, res);
+            case 'get-project-drawings':
+                return await getProjectDrawings(params.projectPath, res);
             case 'get-temporary-link':
                 return await getTemporaryLink(params.filePath, res);
             case 'upload-file':
                 return await uploadFile(params.destinationPath, params.fileContent, params.fileName, res);
             case 'create-project':
                 return await createProject(params.projectName, res);
+            case 'save-description':
+                return await saveDescription(params.projectPath, params.content, res);
+            case 'save-features':
+                return await saveFeatures(params.projectPath, params.featuresText, res);
             case 'delete-file':
                 return await deleteFile(params.filePath, res);
             default:
@@ -114,6 +122,149 @@ async function createFolderIfMissing(path, token) {
     }
 
     return response.json();
+}
+
+function slugify(value) {
+    return (value || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+}
+
+function normalizeFeatures(rawText) {
+    if (!rawText) return [];
+
+    return rawText
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map(line => {
+            const index = line.indexOf(':');
+            if (index === -1) {
+                return { key: line, value: '' };
+            }
+            const key = line.slice(0, index).trim();
+            const value = line.slice(index + 1).trim();
+            return { key, value };
+        });
+}
+
+function featuresToText(features) {
+    if (!Array.isArray(features)) return '';
+    return features
+        .filter(item => item && item.key)
+        .map(item => `${item.key}: ${item.value || ''}`.trim())
+        .join('\n');
+}
+
+async function ensureProjectStructure(projectPath, token) {
+    const subfolders = ['Descripcion', 'Caracteristicas', 'Imagenes', 'Dibujos'];
+
+    for (const name of subfolders) {
+        try {
+            await createFolderIfMissing(`${projectPath}/${name}`, token);
+        } catch (error) {
+            const message = String(error.message || '');
+            // Ignora "already exists"
+            if (!message.includes('conflict/folder')) {
+                throw error;
+            }
+        }
+    }
+}
+
+async function downloadTextFile(path, token) {
+    const response = await fetch('https://content.dropboxapi.com/2/files/download', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Dropbox-API-Arg': JSON.stringify({ path })
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error_summary || response.statusText);
+    }
+
+    return response.text();
+}
+
+async function uploadTextFile(path, text, token) {
+    const response = await fetch('https://content.dropboxapi.com/2/files/upload', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/octet-stream',
+            'Dropbox-API-Arg': JSON.stringify({
+                path,
+                mode: 'overwrite',
+                autorename: false,
+                mute: true,
+                strict_conflict: false
+            })
+        },
+        body: Buffer.from(text || '', 'utf8')
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error_summary || response.statusText);
+    }
+
+    return response.json();
+}
+
+async function listMediaFromFolder(folderPath, token) {
+    const response = await fetch('https://api.dropboxapi.com/2/files/list_folder', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            path: folderPath,
+            recursive: false,
+            include_media_info: true,
+            include_deleted: false
+        })
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        if (isPathNotFound(errorData.error_summary)) {
+            return [];
+        }
+        throw new Error(errorData.error_summary || response.statusText);
+    }
+
+    const data = await response.json();
+    const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp'];
+
+    const imageFiles = data.entries.filter(entry => {
+        if (entry['.tag'] !== 'file') return false;
+        const ext = entry.name.toLowerCase().substring(entry.name.lastIndexOf('.'));
+        return ALLOWED_EXTENSIONS.includes(ext);
+    });
+
+    const files = await Promise.all(
+        imageFiles.map(async (file) => {
+            const link = await getTemporaryLinkInternal(file.path_lower, token);
+            return {
+                id: file.id,
+                name: file.name,
+                path: file.path_lower,
+                size: file.size,
+                modified: file.server_modified,
+                temporaryLink: link
+            };
+        })
+    );
+
+    files.sort((a, b) => a.name.localeCompare(b.name, 'es', { numeric: true }));
+    return files;
 }
 
 /**
@@ -210,6 +361,7 @@ async function listProjects(res) {
             .map(folder => ({
                 id: folder.id,
                 name: folder.name,
+                slug: slugify(folder.name),
                 path: folder.path_lower,
                 pathDisplay: folder.path_display
             }))
@@ -229,6 +381,59 @@ async function listProjects(res) {
     }
 }
 
+async function getProjectDetail(projectPath, res) {
+    try {
+        if (!projectPath) {
+            return res.status(400).json({ error: 'projectPath is required' });
+        }
+
+        const token = await getValidAccessToken();
+        await ensureProjectStructure(projectPath, token);
+
+        const descriptionPath = `${projectPath}/Descripcion/descripcion.txt`;
+        const featuresPath = `${projectPath}/Caracteristicas/caracteristicas.txt`;
+
+        let description = '';
+        let featuresRaw = '';
+
+        try {
+            description = await downloadTextFile(descriptionPath, token);
+        } catch (error) {
+            if (!isPathNotFound(String(error.message))) throw error;
+        }
+
+        try {
+            featuresRaw = await downloadTextFile(featuresPath, token);
+        } catch (error) {
+            if (!isPathNotFound(String(error.message))) throw error;
+        }
+
+        const images = await listMediaFromFolder(`${projectPath}/Imagenes`, token);
+        const drawings = await listMediaFromFolder(`${projectPath}/Dibujos`, token);
+        const projectName = projectPath.split('/').filter(Boolean).pop() || 'Proyecto';
+
+        return res.status(200).json({
+            success: true,
+            project: {
+                name: projectName,
+                slug: slugify(projectName),
+                path: projectPath,
+                description,
+                featuresRaw,
+                features: normalizeFeatures(featuresRaw),
+                images,
+                drawings,
+                cover: images.length > 0 ? images[0].temporaryLink : null
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({
+            error: 'Failed to get project detail',
+            message: error.message
+        });
+    }
+}
+
 /**
  * Obtiene las imágenes de un proyecto específico
  */
@@ -239,63 +444,7 @@ async function getProjectImages(projectPath, res) {
         }
 
         const token = await getValidAccessToken();
-
-        // Listar archivos en la carpeta del proyecto
-        const listResponse = await fetch('https://api.dropboxapi.com/2/files/list_folder', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                path: projectPath,
-                recursive: false,
-                include_media_info: true,
-                include_deleted: false
-            })
-        });
-
-        if (!listResponse.ok) {
-            const errorData = await listResponse.json();
-            throw new Error(errorData.error_summary || listResponse.statusText);
-        }
-
-        const listData = await listResponse.json();
-
-        // Filtrar imagen
-        const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp'];
-        const imageFiles = listData.entries.filter(entry => {
-            if (entry['.tag'] !== 'file') return false;
-            const ext = entry.name.toLowerCase().substring(entry.name.lastIndexOf('.'));
-            return ALLOWED_EXTENSIONS.includes(ext);
-        });
-
-        if (imageFiles.length === 0) {
-            return res.status(200).json({
-                success: true,
-                images: [],
-                count: 0
-            });
-        }
-
-        // Obtener temporary links para todas las imágenes
-        const images = await Promise.all(
-            imageFiles.map(async (file) => {
-                const link = await getTemporaryLinkInternal(file.path_lower, token);
-                return {
-                    id: file.id,
-                    name: file.name,
-                    path: file.path_lower,
-                    size: file.size,
-                    modified: file.server_modified,
-                    temporaryLink: link,
-                    mediaInfo: file.media_info
-                };
-            })
-        );
-
-        // Ordenar por nombre
-        images.sort((a, b) => a.name.localeCompare(b.name, 'es', { numeric: true }));
+        const images = await listMediaFromFolder(`${projectPath}/Imagenes`, token);
 
         return res.status(200).json({
             success: true,
@@ -306,6 +455,28 @@ async function getProjectImages(projectPath, res) {
     } catch (error) {
         return res.status(500).json({
             error: 'Failed to get project images',
+            message: error.message
+        });
+    }
+}
+
+async function getProjectDrawings(projectPath, res) {
+    try {
+        if (!projectPath) {
+            return res.status(400).json({ error: 'projectPath is required' });
+        }
+
+        const token = await getValidAccessToken();
+        const drawings = await listMediaFromFolder(`${projectPath}/Dibujos`, token);
+
+        return res.status(200).json({
+            success: true,
+            drawings,
+            count: drawings.length
+        });
+    } catch (error) {
+        return res.status(500).json({
+            error: 'Failed to get project drawings',
             message: error.message
         });
     }
@@ -432,24 +603,8 @@ async function createProject(projectName, res) {
         const projectsRoot = getProjectsRootPath();
         const projectPath = `${projectsRoot}/${projectName}`;
 
-        const response = await fetch('https://api.dropboxapi.com/2/files/create_folder_v2', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                path: projectPath,
-                autorename: false
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error_summary || response.statusText);
-        }
-
-        const data = await response.json();
+        const data = await createFolderIfMissing(projectPath, token);
+        await ensureProjectStructure(projectPath, token);
 
         return res.status(200).json({
             success: true,
@@ -463,6 +618,61 @@ async function createProject(projectName, res) {
     } catch (error) {
         return res.status(500).json({
             error: 'Failed to create project',
+            message: error.message
+        });
+    }
+}
+
+async function saveDescription(projectPath, content, res) {
+    try {
+        if (!projectPath) {
+            return res.status(400).json({ error: 'projectPath is required' });
+        }
+
+        const token = await getValidAccessToken();
+        await ensureProjectStructure(projectPath, token);
+        const targetPath = `${projectPath}/Descripcion/descripcion.txt`;
+
+        await uploadTextFile(targetPath, content || '', token);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Description updated',
+            path: targetPath
+        });
+    } catch (error) {
+        return res.status(500).json({
+            error: 'Failed to save description',
+            message: error.message
+        });
+    }
+}
+
+async function saveFeatures(projectPath, featuresText, res) {
+    try {
+        if (!projectPath) {
+            return res.status(400).json({ error: 'projectPath is required' });
+        }
+
+        const token = await getValidAccessToken();
+        await ensureProjectStructure(projectPath, token);
+        const targetPath = `${projectPath}/Caracteristicas/caracteristicas.txt`;
+
+        let textToSave = featuresText || '';
+        if (typeof featuresText !== 'string' && Array.isArray(featuresText)) {
+            textToSave = featuresToText(featuresText);
+        }
+
+        await uploadTextFile(targetPath, textToSave, token);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Features updated',
+            path: targetPath
+        });
+    } catch (error) {
+        return res.status(500).json({
+            error: 'Failed to save features',
             message: error.message
         });
     }

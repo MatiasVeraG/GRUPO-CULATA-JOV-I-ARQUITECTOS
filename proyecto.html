@@ -1,455 +1,71 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proyecto - Grupo Culata Jovái Arquitectos</title>
+    <title>Proyecto - Grupo Culata Jovai Arquitectos</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* HEADER MINIMALISTA */
-        .landing-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            padding: 30px 60px;
-            z-index: 100;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #FFFFFF;
-        }
+        .landing-header { position: fixed; top: 0; left: 0; right: 0; padding: 30px 60px; z-index: 100; display: flex; justify-content: space-between; align-items: center; background-color: #fff; }
+        .logo-text { cursor: pointer; height: 35px; display: flex; align-items: center; }
+        .logo-text img { height: 100%; width: auto; }
+        .nav-link { font-size: 10px; letter-spacing: 2px; color: #000; text-decoration: none; text-transform: lowercase; }
+        .nav-link:hover { color: #DC143C; }
 
-        .logo-text {
-            cursor: pointer;
-            height: 35px;
-            display: flex;
-            align-items: center;
-        }
+        .project-page { margin-top: 100px; }
+        .loading { text-align: center; padding: 120px 20px; letter-spacing: 2px; color: #777; }
 
-        .logo-text img {
-            height: 100%;
-            width: auto;
-            transition: opacity 0.3s ease;
-        }
+        .project-slideshow, .planos-slideshow { width: 100%; position: relative; overflow: hidden; background: #fff; }
+        .slideshow-track, .planos-track { display: flex; transition: transform 0.5s ease; }
+        .slideshow-slide, .planos-slide { min-width: 100%; display: flex; align-items: center; justify-content: center; }
+        .slideshow-slide img { width: 100%; height: 88vh; object-fit: contain; cursor: zoom-in; }
+        .planos-slide img { width: 100%; height: 78vh; object-fit: contain; cursor: zoom-in; }
 
-        .logo-text:hover img {
-            opacity: 0.7;
-        }
-
-        .nav-link {
-            font-size: 10px;
-            letter-spacing: 2px;
-            color: #000000;
-            text-decoration: none;
-            text-transform: lowercase;
-            transition: color 0.3s ease;
-        }
-
-        .nav-link:hover {
-            color: #DC143C;
-        }
-
-        /* CONTENEDOR PRINCIPAL DEL PROYECTO */
-        .project-page {
-            margin-top: 100px;
-            padding: 0;
-        }
-
-        /* SLIDESHOW PRINCIPAL - ARRIBA */
-        .project-slideshow {
-            width: 100%;
-            position: relative;
-            background: #fff;
-            overflow: hidden;
-        }
-
-        .slideshow-track {
-            display: flex;
-            transition: transform 0.5s ease;
-        }
-
-        .slideshow-slide {
-            min-width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .slideshow-slide img {
-            width: 100%;
-            height: 90vh;
-            object-fit: contain;
-            object-position: center;
-            display: block;
-        }
-
-        /* CONTROLES DEL SLIDE */
-        .slideshow-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #000;
-            font-size: 52px;
-            font-weight: 200;
-            cursor: pointer;
-            padding: 10px 20px;
-            z-index: 10;
-            transition: opacity 0.3s;
-            user-select: none;
-            line-height: 1;
-        }
-
-        .slideshow-btn:hover { opacity: 0.4; }
+        .slideshow-btn { position: absolute; top: 50%; transform: translateY(-50%); background: none; border: none; color: #000; font-size: 46px; cursor: pointer; padding: 10px 20px; }
         .slideshow-prev { left: 0; }
         .slideshow-next { right: 0; }
+        .slideshow-counter { position: absolute; bottom: 20px; right: 30px; color: rgba(0,0,0,0.5); font-size: 11px; letter-spacing: 2px; }
 
-        .slideshow-counter {
-            position: absolute;
-            bottom: 20px;
-            right: 30px;
-            color: rgba(0,0,0,0.4);
-            font-size: 11px;
-            letter-spacing: 2px;
-        }
+        .project-info { display: flex; max-width: 1400px; margin: 0 auto; padding: 60px 80px; }
+        .project-sidebar { flex: 0 0 33.333%; max-width: 33.333%; padding-right: 55px; border-right: 1px solid #eee; }
+        .project-description-wrap { flex: 0 0 66.666%; max-width: 66.666%; padding-left: 55px; }
+        .project-title { font-size: 26px; font-weight: 300; letter-spacing: 3px; margin-bottom: 35px; text-transform: uppercase; }
+        .project-datos-item { margin-bottom: 14px; }
+        .project-datos-label { display: block; color: #999; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+        .project-datos-value { color: #000; font-size: 11px; letter-spacing: 1px; }
+        .project-description { font-size: 13px; line-height: 1.9; color: #333; text-align: justify; }
+        .project-description p { margin-bottom: 20px; }
 
-        /* INFO ABAJO - LAYOUT 1/3 + 2/3 */
-        .project-info {
-            display: flex;
-            gap: 0;
-            padding: 60px 80px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+        .planos-title { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: #999; padding: 40px 80px 24px; border-top: 1px solid #eee; }
 
-        /* BARRA DE INFORMACIÓN - 1/3 */
-        .project-sidebar {
-            flex: 0 0 33.333%;
-            max-width: 33.333%;
-            padding-right: 60px;
-            border-right: 1px solid #eee;
-        }
+        .back-wrap { padding: 20px 80px 10px; }
+        .back-button { display: inline-flex; align-items: center; gap: 8px; font-size: 10px; letter-spacing: 2px; color: #000; text-decoration: none; text-transform: lowercase; }
 
-        .project-title {
-            font-size: 26px;
-            font-weight: 300;
-            letter-spacing: 3px;
-            margin-bottom: 40px;
-            text-transform: uppercase;
-        }
+        .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000; align-items: center; justify-content: center; }
+        .lightbox.active { display: flex; }
+        .lightbox-content img { max-width: 90vw; max-height: 90vh; object-fit: contain; }
+        .lightbox-close, .lightbox-nav { position: absolute; color: #fff; cursor: pointer; user-select: none; }
+        .lightbox-close { top: 20px; right: 30px; font-size: 40px; }
+        .lightbox-nav { top: 50%; transform: translateY(-50%); font-size: 50px; padding: 20px; }
+        .lightbox-prev { left: 20px; }
+        .lightbox-next { right: 20px; }
+        .lightbox-counter { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 12px; letter-spacing: 2px; }
 
-        .project-datos {
-            margin-bottom: 0;
-        }
+        .language-selector { position: fixed; bottom: 30px; right: 30px; z-index: 200; display: flex; gap: 10px; }
+        .lang-option { font-size: 10px; letter-spacing: 1px; color: #999; cursor: pointer; text-transform: lowercase; }
+        .lang-option.active { color: #000; text-decoration: underline; }
 
-        .project-datos-item {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 16px;
-            font-size: 11px;
-            letter-spacing: 1px;
-        }
-
-        .project-datos-label {
-            color: #999;
-            text-transform: uppercase;
-            margin-bottom: 2px;
-            font-size: 9px;
-        }
-
-        .project-datos-value {
-            color: #000;
-        }
-
-        /* TEXTO DE DESCRIPCIÓN - 2/3 */
-        .project-description-wrap {
-            flex: 0 0 66.666%;
-            max-width: 66.666%;
-            padding-left: 60px;
-        }
-
-        .project-description {
-            font-size: 13px;
-            line-height: 1.9;
-            color: #333;
-            text-align: justify;
-        }
-
-        .project-description p {
-            margin-bottom: 22px;
-        }
-
-        /* SECCIÓN DE PLANOS */
-        .project-planos {
-            padding: 0 0 80px;
-            border-top: 1px solid #eee;
-        }
-
-        .planos-title {
-            font-size: 12px;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            margin: 0;
-            padding: 40px 80px 30px;
-            color: #999;
-        }
-
-        /* SLIDESHOW PLANOS */
-        .planos-slideshow {
-            width: 100%;
-            position: relative;
-            background: #fff;
-            overflow: hidden;
-        }
-
-        .planos-track {
-            display: flex;
-            transition: transform 0.5s ease;
-        }
-
-        .planos-slide {
-            min-width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .planos-slide img {
-            width: 100%;
-            height: 80vh;
-            object-fit: contain;
-            object-position: center;
-            display: block;
-            cursor: zoom-in;
-        }
-
-        /* LIGHTBOX */
-        .lightbox {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
-            z-index: 10000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .lightbox.active {
-            display: flex;
-        }
-
-        .lightbox-content {
-            max-width: 90vw;
-            max-height: 90vh;
-            position: relative;
-        }
-
-        .lightbox-content img {
-            max-width: 100%;
-            max-height: 90vh;
-            object-fit: contain;
-        }
-
-        .lightbox-close {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            color: #fff;
-            font-size: 40px;
-            cursor: pointer;
-            z-index: 10001;
-            transition: opacity 0.3s;
-        }
-
-        .lightbox-close:hover {
-            opacity: 0.7;
-        }
-
-        .lightbox-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #fff;
-            font-size: 50px;
-            cursor: pointer;
-            padding: 20px;
-            transition: opacity 0.3s;
-            user-select: none;
-        }
-
-        .lightbox-nav:hover {
-            opacity: 0.7;
-        }
-
-        .lightbox-prev {
-            left: 20px;
-        }
-
-        .lightbox-next {
-            right: 20px;
-        }
-
-        .lightbox-counter {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #fff;
-            font-size: 12px;
-            letter-spacing: 2px;
-        }
-
-        /* BOTÓN VOLVER */
-        .back-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 10px;
-            letter-spacing: 2px;
-            color: #000;
-            text-decoration: none;
-            text-transform: lowercase;
-            margin-bottom: 40px;
-            transition: color 0.3s ease;
-        }
-
-        .back-button:hover {
-            color: #DC143C;
-        }
-
-        .back-button svg {
-            width: 16px;
-            height: 16px;
-        }
-
-        /* SELECTOR DE IDIOMA */
-        .language-selector {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 200;
-            display: flex;
-            gap: 10px;
-        }
-
-        .lang-option {
-            font-size: 10px;
-            letter-spacing: 1px;
-            color: #999999;
-            text-decoration: none;
-            text-transform: lowercase;
-            cursor: pointer;
-            transition: color 0.3s ease;
-            font-weight: 400;
-        }
-
-        .lang-option:hover {
-            color: #000000;
-        }
-
-        .lang-option.active {
-            color: #000000;
-            text-decoration: underline;
-        }
-
-        /* LOADING */
-        .loading {
-            text-align: center;
-            padding: 100px;
-            font-size: 12px;
-            letter-spacing: 2px;
-            color: #999;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 1024px) {
-            .project-info {
-                flex-direction: column;
-                padding: 40px;
-            }
-
-            .project-sidebar {
-                flex: 0 0 100%;
-                max-width: 100%;
-                padding-right: 0;
-                border-right: none;
-                border-bottom: 1px solid #eee;
-                padding-bottom: 40px;
-                margin-bottom: 40px;
-            }
-
-            .project-description-wrap {
-                flex: 0 0 100%;
-                max-width: 100%;
-                padding-left: 0;
-            }
-
-            .planos-title {
-                padding: 30px 40px 20px;
-            }
-
-            .slideshow-slide img,
-            .planos-slide img {
-                height: 60vh;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .landing-header {
-                padding: 20px 30px;
-            }
-
-            .project-info {
-                padding: 30px 20px;
-            }
-
-            .planos-title {
-                padding: 30px 20px 20px;
-            }
-
-            .project-title {
-                font-size: 20px;
-            }
-
-            .slideshow-slide img,
-            .planos-slide img {
-                height: 50vh;
-            }
-
-            .language-selector {
-                bottom: 20px;
-                right: 20px;
-            }
-
-            .slideshow-btn {
-                font-size: 36px;
-                padding: 8px 14px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .landing-header {
-                padding: 15px 20px;
-            }
-
-            .logo-text {
-                height: 24px;
-            }
-
-            .slideshow-slide img,
-            .planos-slide img {
-                height: 40vh;
-            }
+        @media (max-width: 900px) {
+            .landing-header { padding: 20px 25px; }
+            .project-info { display: block; padding: 40px 24px; }
+            .project-sidebar { max-width: none; border-right: none; padding-right: 0; margin-bottom: 24px; }
+            .project-description-wrap { max-width: none; padding-left: 0; }
+            .slideshow-slide img, .planos-slide img { height: 60vh; }
+            .back-wrap, .planos-title { padding-left: 24px; padding-right: 24px; }
         }
     </style>
 </head>
 <body>
-    <!-- HEADER -->
     <header class="landing-header">
         <nav style="display: flex; gap: 30px;">
             <a href="trabajos.html" class="nav-link" data-i18n="nav-trabajos">trabajos</a>
@@ -457,238 +73,167 @@
             <a href="contacto.html" class="nav-link" data-i18n="nav-contacto">contacto</a>
         </nav>
         <div class="logo-text" onclick="window.location.href='index.html'">
-            <img src="images/logo.png" alt="Grupo Culata Jovái Arquitectos">
+            <img src="images/logo.png" alt="Grupo Culata Jovai Arquitectos">
         </div>
     </header>
 
-    <!-- CONTENIDO DEL PROYECTO -->
-    <main id="projectContent">
+    <main class="project-page" id="projectContent">
         <div class="loading">Cargando proyecto...</div>
     </main>
 
-    <!-- LIGHTBOX -->
     <div class="lightbox" id="lightbox">
         <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
         <span class="lightbox-nav lightbox-prev" onclick="navigateLightbox(-1)">&#8249;</span>
-        <div class="lightbox-content">
-            <img id="lightboxImage" src="" alt="">
-        </div>
+        <div class="lightbox-content"><img id="lightboxImage" src="" alt=""></div>
         <span class="lightbox-nav lightbox-next" onclick="navigateLightbox(1)">&#8250;</span>
         <span class="lightbox-counter" id="lightboxCounter"></span>
     </div>
 
-    <!-- FOOTER -->
-    <footer style="background-color: #000; color: #fff; text-align: center; padding: 40px 20px; font-size: 10px; letter-spacing: 2px; margin-top: 80px;">
-        <p>© 2026 GRUPO CULATA JOVÁI ARQUITECTOS</p>
+    <footer style="background-color:#000;color:#fff;text-align:center;padding:40px 20px;font-size:10px;letter-spacing:2px;margin-top:80px;">
+        <p>© 2026 GRUPO CULATA JOVAI ARQUITECTOS</p>
     </footer>
 
-    <!-- SELECTOR DE IDIOMA -->
     <div class="language-selector">
         <span class="lang-option active" data-lang="es" onclick="changeLanguage('es')">es</span>
         <span class="lang-option" data-lang="en" onclick="changeLanguage('en')">en</span>
         <span class="lang-option" data-lang="de" onclick="changeLanguage('de')">de</span>
     </div>
 
+    <script src="dropbox-config.js"></script>
+    <script src="dropbox-service-vercel.js"></script>
     <script>
-        // Variables globales
         let currentProject = null;
         let allImages = [];
         let currentImageIndex = 0;
+        let slideshowIndex = 0;
+        let planosIndex = 0;
 
-        // Obtener slug del proyecto desde la URL
-        function getProjectSlug() {
-            const params = new URLSearchParams(window.location.search);
-            return params.get('proyecto') || params.get('slug');
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
         }
 
-        // Cargar datos del proyecto desde JSON
+        function getPathFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const path = params.get('path');
+            return path ? decodeURIComponent(path) : null;
+        }
+
+        async function resolveProjectPath() {
+            const directPath = getPathFromUrl();
+            if (directPath) return directPath;
+
+            const params = new URLSearchParams(window.location.search);
+            const slug = params.get('proyecto') || params.get('slug');
+            if (!slug) return null;
+            const projects = await dropboxService.listProjects();
+            const found = projects.find(p => p.slug === slug);
+            return found ? found.path : null;
+        }
+
         async function loadProjectData() {
             try {
-                const response = await fetch('data/projects.json');
-                const projects = await response.json();
-                const slug = getProjectSlug();
-                
-                currentProject = projects.find(p => p.slug === slug);
-                
-                if (currentProject) {
-                    renderProject();
-                    document.title = `${currentProject.title} - Grupo Culata Jovái Arquitectos`;
-                } else {
-                    document.getElementById('projectContent').innerHTML = `
-                        <div class="loading">Proyecto no encontrado</div>
-                        <a href="trabajos.html" class="back-button" style="display: block; text-align: center; margin-top: 20px;">
-                            ← volver a trabajos
-                        </a>
-                    `;
+                const projectPath = await resolveProjectPath();
+                if (!projectPath) {
+                    document.getElementById('projectContent').innerHTML = '<div class="loading">Proyecto no encontrado</div>';
+                    return;
                 }
+
+                currentProject = await dropboxService.getProjectDetail(projectPath);
+                renderProject();
+                document.title = `${currentProject.name} - Grupo Culata Jovai Arquitectos`;
             } catch (error) {
-                console.error('Error cargando proyecto:', error);
-                document.getElementById('projectContent').innerHTML = `
-                    <div class="loading">Error al cargar el proyecto</div>
-                `;
+                console.error(error);
+                document.getElementById('projectContent').innerHTML = `<div class="loading">Error al cargar el proyecto: ${escapeHtml(error.message)}</div>`;
             }
         }
 
-        // Estado del slideshow
-        let slideshowIndex = 0;
-
-        // Renderizar el proyecto
         function renderProject() {
             const content = document.getElementById('projectContent');
-            
-            // Combinar todas las imágenes para el lightbox
-            allImages = [...currentProject.images];
-            if (currentProject.planos) {
-                allImages = [...allImages, ...currentProject.planos];
-            }
+            const images = currentProject.images || [];
+            const drawings = currentProject.drawings || [];
 
-            // Generar datos
-            let datosHTML = '';
-            const datos = currentProject.datos;
-            if (datos.arquitectos) datosHTML += `<div class="project-datos-item"><span class="project-datos-label">Arquitectos</span><span class="project-datos-value">${datos.arquitectos}</span></div>`;
-            if (datos.ubicacion) datosHTML += `<div class="project-datos-item"><span class="project-datos-label">Ubicación</span><span class="project-datos-value">${datos.ubicacion}</span></div>`;
-            if (datos.tipo) datosHTML += `<div class="project-datos-item"><span class="project-datos-label">Tipo</span><span class="project-datos-value">${datos.tipo}</span></div>`;
-            if (datos.area) datosHTML += `<div class="project-datos-item"><span class="project-datos-label">Área</span><span class="project-datos-value">${datos.area}</span></div>`;
-            if (datos.año) datosHTML += `<div class="project-datos-item"><span class="project-datos-label">Año</span><span class="project-datos-value">${datos.año}</span></div>`;
-            if (datos.fotografias) datosHTML += `<div class="project-datos-item"><span class="project-datos-label">Fotografías</span><span class="project-datos-value">${datos.fotografias}</span></div>`;
-            if (datos.proveedores) datosHTML += `<div class="project-datos-item"><span class="project-datos-label">Proveedores</span><span class="project-datos-value">${datos.proveedores}</span></div>`;
-            if (datos.curado) datosHTML += `<div class="project-datos-item"><span class="project-datos-label">Curado por</span><span class="project-datos-value">${datos.curado}</span></div>`;
+            allImages = [
+                ...images.map(i => i.temporaryLink),
+                ...drawings.map(d => d.temporaryLink)
+            ];
 
-            // Generar descripción con párrafos
-            const descripcionHTML = currentProject.descripcion
-                .split('\n\n')
-                .map(p => `<p>${p}</p>`)
-                .join('');
+            const datosHTML = (currentProject.features || []).map(item => {
+                return `<div class="project-datos-item"><span class="project-datos-label">${escapeHtml(item.key)}</span><span class="project-datos-value">${escapeHtml(item.value || '')}</span></div>`;
+            }).join('');
 
-            // Generar slides del slideshow
-            const slidesHTML = currentProject.images
-                .map((img, index) => `
-                    <div class="slideshow-slide">
-                        <img src="${img}" alt="${currentProject.title}" loading="${index === 0 ? 'eager' : 'lazy'}" onclick="openLightbox(${index})" style="cursor:zoom-in">
-                    </div>
-                `)
-                .join('');
+            const descriptionText = (currentProject.description || '').trim();
+            const descriptionHTML = descriptionText
+                ? descriptionText.split(/\n\s*\n/).map(p => `<p>${escapeHtml(p).replace(/\n/g, '<br>')}</p>`).join('')
+                : '<p>Sin descripcion disponible.</p>';
 
-            // Generar planos si existen
-            let planosHTML = '';
-            if (currentProject.planos && currentProject.planos.length > 0) {
-                const planosItemsHTML = currentProject.planos
-                    .map((plano, index) => `
-                        <div class="planos-slide">
-                            <img src="${plano}" alt="Plano" loading="lazy" onclick="openLightbox(${currentProject.images.length + index})">
+            const slidesHTML = images.length
+                ? images.map((img, index) => `<div class="slideshow-slide"><img src="${img.temporaryLink}" alt="${escapeHtml(currentProject.name)}" loading="${index === 0 ? 'eager' : 'lazy'}" onclick="openLightbox(${index})"></div>`).join('')
+                : '<div class="slideshow-slide"><div style="height:88vh;display:flex;align-items:center;justify-content:center;color:#999;letter-spacing:1px;">Sin imagenes</div></div>';
+
+            let drawingsHTML = '';
+            if (drawings.length) {
+                drawingsHTML = `
+                    <h3 class="planos-title">Dibujos</h3>
+                    <div class="planos-slideshow">
+                        <div class="planos-track" id="planosTrack">
+                            ${drawings.map((item, idx) => `<div class="planos-slide"><img src="${item.temporaryLink}" alt="Dibujo" loading="lazy" onclick="openLightbox(${images.length + idx})"></div>`).join('')}
                         </div>
-                    `)
-                    .join('');
-
-                const totalPlanos = currentProject.planos.length;
-                
-                planosHTML = `
-                    <div class="project-planos">
-                        <h3 class="planos-title">Planos</h3>
-                        <div class="planos-slideshow" id="planosSlideshow">
-                            <div class="planos-track" id="planosTrack">
-                                ${planosItemsHTML}
-                            </div>
-                            ${totalPlanos > 1 ? `
+                        ${drawings.length > 1 ? `
                             <button class="slideshow-btn slideshow-prev" onclick="planosMove(-1)">&#8249;</button>
                             <button class="slideshow-btn slideshow-next" onclick="planosMove(1)">&#8250;</button>
-                            <span class="slideshow-counter" id="planosCounter">1 / ${totalPlanos}</span>
-                            ` : ''}
-                        </div>
+                            <span class="slideshow-counter" id="planosCounter">1 / ${drawings.length}</span>
+                        ` : ''}
                     </div>
                 `;
             }
 
-            const totalSlides = currentProject.images.length;
-
             content.innerHTML = `
-                <!-- BACK BUTTON -->
-                <div style="padding: 20px 80px 10px;">
-                    <a href="trabajos.html" class="back-button">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M19 12H5M12 19l-7-7 7-7"/>
-                        </svg>
-                        volver a trabajos
-                    </a>
-                </div>
-
-                <!-- SLIDESHOW -->
-                <div class="project-slideshow" id="projectSlideshow">
-                    <div class="slideshow-track" id="slideshowTrack">
-                        ${slidesHTML}
-                    </div>
-                    ${totalSlides > 1 ? `
-                    <button class="slideshow-btn slideshow-prev" onclick="slideshowMove(-1)">&#8249;</button>
-                    <button class="slideshow-btn slideshow-next" onclick="slideshowMove(1)">&#8250;</button>
-                    <span class="slideshow-counter" id="slideshowCounter">1 / ${totalSlides}</span>
+                <div class="back-wrap"><a href="trabajos.html" class="back-button">&larr; volver a trabajos</a></div>
+                <div class="project-slideshow">
+                    <div class="slideshow-track" id="slideshowTrack">${slidesHTML}</div>
+                    ${images.length > 1 ? `
+                        <button class="slideshow-btn slideshow-prev" onclick="slideshowMove(-1)">&#8249;</button>
+                        <button class="slideshow-btn slideshow-next" onclick="slideshowMove(1)">&#8250;</button>
+                        <span class="slideshow-counter" id="slideshowCounter">1 / ${images.length}</span>
                     ` : ''}
                 </div>
-
-                <!-- INFO ABAJO -->
                 <div class="project-info">
                     <aside class="project-sidebar">
-                        <h1 class="project-title">${currentProject.title}</h1>
+                        <h1 class="project-title">${escapeHtml(currentProject.name)}</h1>
                         <div class="project-datos">${datosHTML}</div>
                     </aside>
                     <div class="project-description-wrap">
-                        <div class="project-description">${descripcionHTML}</div>
+                        <div class="project-description">${descriptionHTML}</div>
                     </div>
                 </div>
-
-                ${planosHTML}
+                ${drawingsHTML}
             `;
 
-            // Inicializar slideshows
             slideshowIndex = 0;
             planosIndex = 0;
-            initSlideshow();
-        }
-
-        function initSlideshow() {
-            // Gestos táctiles - imágenes
-            const track = document.getElementById('slideshowTrack');
-            if (track) {
-                let txStart = 0;
-                track.addEventListener('touchstart', e => { txStart = e.changedTouches[0].screenX; });
-                track.addEventListener('touchend', e => {
-                    const diff = txStart - e.changedTouches[0].screenX;
-                    if (Math.abs(diff) > 40) slideshowMove(diff > 0 ? 1 : -1);
-                });
-            }
-            // Gestos táctiles - planos
-            const ptrack = document.getElementById('planosTrack');
-            if (ptrack) {
-                let ptxStart = 0;
-                ptrack.addEventListener('touchstart', e => { ptxStart = e.changedTouches[0].screenX; });
-                ptrack.addEventListener('touchend', e => {
-                    const diff = ptxStart - e.changedTouches[0].screenX;
-                    if (Math.abs(diff) > 40) planosMove(diff > 0 ? 1 : -1);
-                });
-            }
         }
 
         function slideshowMove(dir) {
-            const images = currentProject.images;
+            const images = currentProject.images || [];
+            if (images.length < 2) return;
             slideshowIndex = (slideshowIndex + dir + images.length) % images.length;
-            const track = document.getElementById('slideshowTrack');
-            if (track) track.style.transform = `translateX(-${slideshowIndex * 100}%)`;
-            const counter = document.getElementById('slideshowCounter');
-            if (counter) counter.textContent = `${slideshowIndex + 1} / ${images.length}`;
+            document.getElementById('slideshowTrack').style.transform = `translateX(-${slideshowIndex * 100}%)`;
+            document.getElementById('slideshowCounter').textContent = `${slideshowIndex + 1} / ${images.length}`;
         }
-
-        let planosIndex = 0;
 
         function planosMove(dir) {
-            const planos = currentProject.planos;
-            planosIndex = (planosIndex + dir + planos.length) % planos.length;
-            const track = document.getElementById('planosTrack');
-            if (track) track.style.transform = `translateX(-${planosIndex * 100}%)`;
+            const drawings = currentProject.drawings || [];
+            if (drawings.length < 2) return;
+            planosIndex = (planosIndex + dir + drawings.length) % drawings.length;
+            document.getElementById('planosTrack').style.transform = `translateX(-${planosIndex * 100}%)`;
             const counter = document.getElementById('planosCounter');
-            if (counter) counter.textContent = `${planosIndex + 1} / ${planos.length}`;
+            if (counter) counter.textContent = `${planosIndex + 1} / ${drawings.length}`;
         }
 
-        // Lightbox functions
         function openLightbox(index) {
+            if (!allImages.length) return;
             currentImageIndex = index;
             updateLightbox();
             document.getElementById('lightbox').classList.add('active');
@@ -701,6 +246,7 @@
         }
 
         function navigateLightbox(direction) {
+            if (!allImages.length) return;
             currentImageIndex += direction;
             if (currentImageIndex < 0) currentImageIndex = allImages.length - 1;
             if (currentImageIndex >= allImages.length) currentImageIndex = 0;
@@ -712,61 +258,39 @@
             document.getElementById('lightboxCounter').textContent = `${currentImageIndex + 1} / ${allImages.length}`;
         }
 
-        // Keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            const lightbox = document.getElementById('lightbox');
-            if (lightbox.classList.contains('active')) {
-                if (e.key === 'Escape') closeLightbox();
-                if (e.key === 'ArrowLeft') navigateLightbox(-1);
-                if (e.key === 'ArrowRight') navigateLightbox(1);
-            } else {
-                // Foco en planos si el scroll está en esa zona
-                if (e.key === 'ArrowLeft') { slideshowMove(-1); planosMove(-1); }
-                if (e.key === 'ArrowRight') { slideshowMove(1); planosMove(1); }
-            }
-        });
-
-        // Click outside to close
         document.getElementById('lightbox').addEventListener('click', (e) => {
             if (e.target.id === 'lightbox') closeLightbox();
         });
 
-        // Sistema de traducción
+        document.addEventListener('keydown', (e) => {
+            if (document.getElementById('lightbox').classList.contains('active')) {
+                if (e.key === 'Escape') closeLightbox();
+                if (e.key === 'ArrowLeft') navigateLightbox(-1);
+                if (e.key === 'ArrowRight') navigateLightbox(1);
+            }
+        });
+
         const translations = {
             es: { 'nav-trabajos': 'trabajos', 'nav-sobre': 'sobre', 'nav-contacto': 'contacto' },
             en: { 'nav-trabajos': 'works', 'nav-sobre': 'about', 'nav-contacto': 'contact' },
-            de: { 'nav-trabajos': 'arbeiten', 'nav-sobre': 'über', 'nav-contacto': 'kontakt' }
+            de: { 'nav-trabajos': 'arbeiten', 'nav-sobre': 'uber', 'nav-contacto': 'kontakt' }
         };
 
         function changeLanguage(lang) {
             localStorage.setItem('selectedLanguage', lang);
-            updateLanguageUI(lang);
-            applyTranslations(lang);
-        }
-
-        function updateLanguageUI(lang) {
-            document.querySelectorAll('.lang-option').forEach(option => {
-                option.classList.remove('active');
-                if (option.getAttribute('data-lang') === lang) {
-                    option.classList.add('active');
-                }
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                opt.classList.toggle('active', opt.getAttribute('data-lang') === lang);
             });
-        }
-
-        function applyTranslations(lang) {
-            const t = translations[lang];
+            const t = translations[lang] || translations.es;
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (t[key]) el.textContent = t[key];
             });
         }
 
-        // Inicialización
         window.addEventListener('load', () => {
             loadProjectData();
-            const savedLang = localStorage.getItem('selectedLanguage') || 'es';
-            updateLanguageUI(savedLang);
-            applyTranslations(savedLang);
+            changeLanguage(localStorage.getItem('selectedLanguage') || 'es');
         });
     </script>
 </body>

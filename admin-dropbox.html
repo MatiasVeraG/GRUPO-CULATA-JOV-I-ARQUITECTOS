@@ -1,1122 +1,306 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dropbox - Grupo Culata Jovái</title>
+    <title>Admin Dropbox - Grupo Culata Jovai</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* ============================================
-           PANEL DE ADMINISTRACIÓN CON DROPBOX
-           ============================================ */
-        
-        .admin-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 40px 60px;
-            min-height: 100vh;
-        }
-
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 50px;
-            padding-bottom: 30px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .admin-header h1 {
-            font-size: 24px;
-            letter-spacing: 3px;
-            font-weight: 300;
-            text-transform: uppercase;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 15px;
-        }
-
-        .btn {
-            padding: 12px 30px;
-            font-family: 'Futura', sans-serif;
-            font-size: 11px;
-            letter-spacing: 2px;
-            cursor: pointer;
-            border: none;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-        }
-
-        .btn-primary {
-            background-color: #DC143C;
-            color: #FFFFFF;
-        }
-
-        .btn-primary:hover {
-            background-color: #B01030;
-        }
-
-        .btn-secondary {
-            background-color: #000000;
-            color: #FFFFFF;
-        }
-
-        .btn-secondary:hover {
-            background-color: #333333;
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            color: #000000;
-            border: 1px solid #000000;
-        }
-
-        .btn-outline:hover {
-            background-color: #000000;
-            color: #FFFFFF;
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Status Connection */
-        .connection-status {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 20px;
-            background-color: #f5f5f5;
-            border-radius: 4px;
-            font-size: 11px;
-            letter-spacing: 1px;
-        }
-
-        .status-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: #ccc;
-        }
-
-        .status-indicator.connected {
-            background-color: #4CAF50;
-        }
-
-        .status-indicator.error {
-            background-color: #DC143C;
-        }
-
-        /* Main Content Grid */
-        .admin-content {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 40px;
-        }
-
-        /* Sidebar - Lista de Proyectos */
-        .projects-sidebar {
-            border: 1px solid #eee;
-            background-color: #fafafa;
-        }
-
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .sidebar-header h2 {
-            font-size: 12px;
-            letter-spacing: 2px;
-            font-weight: 400;
-            text-transform: uppercase;
-        }
-
-        .btn-new-project {
-            padding: 8px 15px;
-            font-size: 10px;
-        }
-
-        .projects-list {
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .project-item {
-            padding: 15px 20px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .project-item:hover {
-            background-color: #f0f0f0;
-        }
-
-        .project-item.active {
-            background-color: #000000;
-            color: #FFFFFF;
-        }
-
-        .project-item-name {
-            font-size: 12px;
-            letter-spacing: 1px;
-        }
-
-        .project-item-count {
-            font-size: 10px;
-            color: #999;
-        }
-
-        .project-item.active .project-item-count {
-            color: rgba(255,255,255,0.7);
-        }
-
-        /* Main Panel - Upload Area */
-        .main-panel {
-            border: 1px solid #eee;
-            background-color: #FFFFFF;
-        }
-
-        .panel-header {
-            padding: 20px 30px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .panel-header h2 {
-            font-size: 14px;
-            letter-spacing: 2px;
-            font-weight: 400;
-        }
-
-        .panel-content {
-            padding: 30px;
-        }
-
-        /* Upload Area */
-        .upload-zone {
-            border: 2px dashed #ddd;
-            padding: 60px;
-            text-align: center;
-            transition: all 0.3s ease;
-            margin-bottom: 30px;
-        }
-
-        .upload-zone.drag-over {
-            border-color: #DC143C;
-            background-color: rgba(220, 20, 60, 0.05);
-        }
-
-        .upload-zone-icon {
-            font-size: 48px;
-            margin-bottom: 20px;
-            color: #ccc;
-        }
-
-        .upload-zone-text {
-            font-size: 14px;
-            letter-spacing: 1px;
-            color: #666;
-            margin-bottom: 10px;
-        }
-
-        .upload-zone-hint {
-            font-size: 11px;
-            color: #999;
-            letter-spacing: 1px;
-        }
-
-        .upload-input {
-            display: none;
-        }
-
-        .btn-upload {
-            margin-top: 20px;
-        }
-
-        /* File Preview List */
-        .file-preview-list {
-            margin-top: 30px;
-        }
-
-        .file-preview-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .file-preview-header h3 {
-            font-size: 12px;
-            letter-spacing: 2px;
-            font-weight: 400;
-            text-transform: uppercase;
-        }
-
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            border: 1px solid #eee;
-            margin-bottom: 10px;
-            background-color: #fafafa;
-        }
-
-        .file-item-preview {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            background-color: #eee;
-        }
-
-        .file-item-info {
-            flex: 1;
-        }
-
-        .file-item-name {
-            font-size: 12px;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-        }
-
-        .file-item-size {
-            font-size: 10px;
-            color: #999;
-        }
-
-        .file-item-status {
-            font-size: 10px;
-            letter-spacing: 1px;
-            padding: 5px 10px;
-            border-radius: 3px;
-        }
-
-        .file-item-status.pending {
-            background-color: #f5f5f5;
-            color: #666;
-        }
-
-        .file-item-status.uploading {
-            background-color: #FFF3CD;
-            color: #856404;
-        }
-
-        .file-item-status.success {
-            background-color: #D4EDDA;
-            color: #155724;
-        }
-
-        .file-item-status.error {
-            background-color: #F8D7DA;
-            color: #721C24;
-        }
-
-        .file-item-remove {
-            padding: 8px 12px;
-            background: none;
-            border: 1px solid #ddd;
-            cursor: pointer;
-            font-size: 14px;
-            color: #999;
-            transition: all 0.3s ease;
-        }
-
-        .file-item-remove:hover {
-            border-color: #DC143C;
-            color: #DC143C;
-        }
-
-        /* Progress Bar */
-        .upload-progress {
-            margin-top: 20px;
-            display: none;
-        }
-
-        .upload-progress.active {
-            display: block;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background-color: #eee;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background-color: #DC143C;
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        .progress-text {
-            font-size: 11px;
-            letter-spacing: 1px;
-            color: #666;
-            margin-top: 10px;
-            text-align: center;
-        }
-
-        /* Images Grid (existing project images) */
-        .project-images-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .project-image-item {
-            position: relative;
-            aspect-ratio: 1;
-            overflow: hidden;
-            background-color: #f5f5f5;
-        }
-
-        .project-image-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .project-image-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0,0,0,0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .project-image-item:hover .project-image-overlay {
-            opacity: 1;
-        }
-
-        .btn-delete-image {
-            padding: 10px 20px;
-            background-color: #DC143C;
-            color: #FFFFFF;
-            border: none;
-            font-size: 10px;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-delete-image:hover {
-            background-color: #B01030;
-        }
-
-        /* Modal New Project */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background-color: #FFFFFF;
-            padding: 40px;
-            max-width: 500px;
-            width: 90%;
-        }
-
-        .modal-content h2 {
-            font-size: 18px;
-            letter-spacing: 2px;
-            font-weight: 300;
-            margin-bottom: 30px;
-            text-transform: uppercase;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 11px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            color: #666;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            font-family: 'Futura', sans-serif;
-            font-size: 13px;
-            letter-spacing: 1px;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #000000;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        /* Toast Notifications */
-        .toast-container {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 2000;
-        }
-
-        .toast {
-            padding: 15px 25px;
-            margin-top: 10px;
-            font-size: 12px;
-            letter-spacing: 1px;
-            animation: slideIn 0.3s ease;
-        }
-
-        .toast.success {
-            background-color: #000000;
-            color: #FFFFFF;
-        }
-
-        .toast.error {
-            background-color: #DC143C;
-            color: #FFFFFF;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 60px;
-            color: #999;
-        }
-
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 20px;
-        }
-
-        .empty-state-text {
-            font-size: 12px;
-            letter-spacing: 1px;
-        }
-
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .admin-content {
-                grid-template-columns: 1fr;
-            }
-
-            .projects-sidebar {
-                max-height: 300px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .admin-container {
-                padding: 20px;
-            }
-
-            .admin-header {
-                flex-direction: column;
-                gap: 20px;
-                align-items: flex-start;
-            }
-
-            .header-actions {
-                width: 100%;
-                flex-wrap: wrap;
-            }
+        .admin-container { max-width: 1440px; margin: 0 auto; padding: 36px 28px; }
+        .admin-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:26px; border-bottom:1px solid #eee; padding-bottom:16px; }
+        .admin-header h1 { font-size: 20px; letter-spacing: 2px; text-transform: uppercase; font-weight: 400; }
+        .status { font-size: 11px; letter-spacing: 1px; color:#666; }
+
+        .layout { display:grid; grid-template-columns: 320px 1fr; gap: 22px; }
+        .panel { border:1px solid #ececec; background:#fff; }
+        .panel-title { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; padding: 14px 16px; border-bottom:1px solid #ececec; }
+
+        .projects-list { max-height: 72vh; overflow: auto; }
+        .project-item { padding: 12px 16px; border-bottom:1px solid #f2f2f2; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
+        .project-item:hover { background:#fafafa; }
+        .project-item.active { background:#000; color:#fff; }
+        .project-item small { color:#999; }
+        .project-item.active small { color:#ccc; }
+
+        .content { padding: 16px; }
+        .row { display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .box { border:1px solid #efefef; padding: 14px; }
+        .box h3 { margin:0 0 10px; font-size:11px; letter-spacing:2px; text-transform:uppercase; }
+
+        textarea, input[type="text"], select { width:100%; border:1px solid #ddd; padding:10px; font-family:inherit; font-size:13px; }
+        textarea { min-height: 180px; resize: vertical; line-height: 1.5; }
+
+        .features-list { display:flex; flex-direction:column; gap:8px; margin-bottom:8px; }
+        .feature-row { display:grid; grid-template-columns: 1fr 1fr auto; gap:8px; }
+
+        .actions { display:flex; gap:8px; flex-wrap: wrap; margin-top: 10px; }
+        .btn { border:none; padding:10px 14px; font-size:11px; letter-spacing:1px; text-transform:uppercase; cursor:pointer; }
+        .btn-primary { background:#000; color:#fff; }
+        .btn-danger { background:#DC143C; color:#fff; }
+        .btn-light { background:#f3f3f3; color:#333; }
+
+        .upload-row { display:grid; grid-template-columns: 160px 1fr auto; gap:8px; align-items:center; margin:12px 0; }
+        .help { font-size: 11px; color:#777; }
+
+        .media-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap:10px; margin-top:12px; }
+        .media-item { border:1px solid #eee; position: relative; }
+        .media-item img { width:100%; aspect-ratio:1; object-fit:cover; display:block; }
+        .media-item button { position:absolute; top:6px; right:6px; border:none; background:rgba(220,20,60,.95); color:#fff; cursor:pointer; padding:4px 6px; font-size:10px; }
+
+        .new-project { display:flex; gap:8px; padding:12px 16px; border-bottom:1px solid #eee; }
+
+        @media (max-width: 980px) {
+            .layout { grid-template-columns: 1fr; }
+            .row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <div class="admin-container">
-        <!-- Header -->
-        <header class="admin-header">
-            <h1>Administrador de Proyectos</h1>
-            <div class="header-actions">
-                <div class="connection-status">
-                    <span class="status-indicator" id="connectionStatus"></span>
-                    <span id="connectionText">Conectando...</span>
-                </div>
-                <button class="btn btn-outline" onclick="refreshProjects()">
-                    Actualizar
-                </button>
-                <a href="galeria-dropbox.html" class="btn btn-secondary">
-                    Ver Galería
-                </a>
-            </div>
-        </header>
+        <div class="admin-header">
+            <h1>Administrador Dropbox</h1>
+            <div class="status" id="statusText">Conectando...</div>
+        </div>
 
-        <!-- Main Content -->
-        <div class="admin-content">
-            <!-- Sidebar - Lista de Proyectos -->
-            <aside class="projects-sidebar">
-                <div class="sidebar-header">
-                    <h2>Proyectos</h2>
-                    <button class="btn btn-primary btn-new-project" onclick="openNewProjectModal()">
-                        + Nuevo
-                    </button>
+        <div class="layout">
+            <aside class="panel">
+                <div class="panel-title">Proyectos</div>
+                <div class="new-project">
+                    <input id="newProjectName" type="text" placeholder="Nuevo proyecto">
+                    <button class="btn btn-primary" onclick="createProject()">Crear</button>
                 </div>
-                <div class="projects-list" id="projectsList">
-                    <div class="empty-state">
-                        <div class="loading-spinner" style="margin: 0 auto;"></div>
-                        <p class="empty-state-text" style="margin-top: 15px;">Cargando...</p>
-                    </div>
-                </div>
+                <div id="projectsList" class="projects-list"></div>
             </aside>
 
-            <!-- Main Panel -->
-            <main class="main-panel">
-                <div class="panel-header">
-                    <h2 id="panelTitle">Selecciona un proyecto</h2>
-                    <span id="panelSubtitle"></span>
+            <section class="panel">
+                <div class="panel-title" id="editorTitle">Selecciona un proyecto</div>
+                <div class="content" id="editorContent">
+                    <p class="help">Elige un proyecto de la lista para editar Descripcion, Caracteristicas, Imagenes y Dibujos.</p>
                 </div>
-                <div class="panel-content">
-                    <!-- Estado inicial: ningún proyecto seleccionado -->
-                    <div id="noProjectSelected" class="empty-state">
-                        <div class="empty-state-icon">📁</div>
-                        <p class="empty-state-text">Selecciona un proyecto de la lista para gestionar sus imágenes</p>
-                    </div>
-
-                    <!-- Contenido del proyecto seleccionado -->
-                    <div id="projectContent" style="display: none;">
-                        <!-- Upload Zone -->
-                        <div class="upload-zone" id="uploadZone">
-                            <div class="upload-zone-icon">📤</div>
-                            <p class="upload-zone-text">Arrastra imágenes aquí o haz clic para seleccionar</p>
-                            <p class="upload-zone-hint">JPG, PNG o WebP • Máximo 10MB por archivo</p>
-                            <input type="file" id="fileInput" class="upload-input" 
-                                   accept=".jpg,.jpeg,.png,.webp" multiple>
-                            <button class="btn btn-primary btn-upload" onclick="document.getElementById('fileInput').click()">
-                                Seleccionar Archivos
-                            </button>
-                        </div>
-
-                        <!-- File Preview List -->
-                        <div class="file-preview-list" id="filePreviewList" style="display: none;">
-                            <div class="file-preview-header">
-                                <h3>Archivos seleccionados</h3>
-                                <button class="btn btn-primary" id="btnUploadAll" onclick="uploadAllFiles()">
-                                    Subir Todo
-                                </button>
-                            </div>
-                            <div id="fileItems"></div>
-                        </div>
-
-                        <!-- Upload Progress -->
-                        <div class="upload-progress" id="uploadProgress">
-                            <div class="progress-bar">
-                                <div class="progress-bar-fill" id="progressBarFill"></div>
-                            </div>
-                            <p class="progress-text" id="progressText">Subiendo...</p>
-                        </div>
-
-                        <!-- Existing Images -->
-                        <div style="margin-top: 40px;">
-                            <h3 style="font-size: 12px; letter-spacing: 2px; margin-bottom: 20px; text-transform: uppercase;">
-                                Imágenes del Proyecto
-                            </h3>
-                            <div class="project-images-grid" id="projectImagesGrid">
-                                <!-- Las imágenes se cargan dinámicamente -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
+            </section>
         </div>
     </div>
 
-    <!-- Modal: Nuevo Proyecto -->
-    <div class="modal" id="newProjectModal">
-        <div class="modal-content">
-            <h2>Crear Nuevo Proyecto</h2>
-            <div class="form-group">
-                <label for="projectName">Nombre del Proyecto</label>
-                <input type="text" id="projectName" placeholder="Ej: Casa del Bosque">
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-outline" onclick="closeNewProjectModal()">Cancelar</button>
-                <button class="btn btn-primary" onclick="createNewProject()">Crear Proyecto</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toast Container -->
-    <div class="toast-container" id="toastContainer"></div>
-
-    <!-- Scripts -->
     <script src="dropbox-config.js"></script>
     <script src="dropbox-service-vercel.js"></script>
     <script>
-        // ============================================
-        // ADMIN PANEL - INTEGRACIÓN CON DROPBOX
-        // ============================================
+        let projects = [];
+        let selectedProjectPath = null;
+        let selectedDetail = null;
 
-        let currentProjectPath = null;
-        let selectedFiles = [];
-        let projectImages = [];
-
-        // Inicializar
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeAdmin();
-            setupDragAndDrop();
-            setupFileInput();
-        });
-
-        /**
-         * Inicializa el panel de administración
-         */
-        async function initializeAdmin() {
-            const statusIndicator = document.getElementById('connectionStatus');
-            const statusText = document.getElementById('connectionText');
-
-            try {
-                // Intentar conectar con Dropbox
-                await dropboxService.refreshAccessToken();
-                
-                statusIndicator.classList.add('connected');
-                statusText.textContent = 'Conectado a Dropbox';
-                
-                // Cargar proyectos
-                await loadProjects();
-                showToast('Conectado a Dropbox exitosamente', 'success');
-
-            } catch (error) {
-                console.error('Error de conexión:', error);
-                statusIndicator.classList.add('error');
-                statusText.textContent = 'Error de conexión';
-                showToast('Error al conectar con Dropbox: ' + error.message, 'error');
-            }
+        function esc(text) {
+            const d = document.createElement('div');
+            d.textContent = text || '';
+            return d.innerHTML;
         }
 
-        /**
-         * Carga la lista de proyectos
-         */
-        async function loadProjects() {
-            const listContainer = document.getElementById('projectsList');
-            
-            try {
-                const projects = await dropboxService.listProjects();
+        function setStatus(text, isError = false) {
+            const el = document.getElementById('statusText');
+            el.textContent = text;
+            el.style.color = isError ? '#DC143C' : '#666';
+        }
 
-                if (projects.length === 0) {
-                    listContainer.innerHTML = `
-                        <div class="empty-state">
-                            <p class="empty-state-text">No hay proyectos</p>
+        function featureRowsHtml(features) {
+            const rows = (features && features.length ? features : [{ key: '', value: '' }]);
+            return rows.map((item, index) => `
+                <div class="feature-row" data-row="${index}">
+                    <input type="text" placeholder="Clave (Ej: Ubicacion)" value="${esc(item.key)}">
+                    <input type="text" placeholder="Valor (Ej: Asuncion, Paraguay)" value="${esc(item.value)}">
+                    <button class="btn btn-light" onclick="removeFeatureRow(${index})">X</button>
+                </div>
+            `).join('');
+        }
+
+        function renderEditor(detail) {
+            const content = document.getElementById('editorContent');
+            const title = document.getElementById('editorTitle');
+            title.textContent = `Editando: ${detail.name}`;
+
+            content.innerHTML = `
+                <div class="row">
+                    <div class="box">
+                        <h3>Descripcion</h3>
+                        <textarea id="descriptionText" placeholder="Narracion del proyecto...">${esc(detail.description || '')}</textarea>
+                        <div class="actions">
+                            <button class="btn btn-primary" onclick="saveDescription()">Guardar descripcion</button>
                         </div>
-                    `;
-                    return;
-                }
-
-                listContainer.innerHTML = projects.map(project => `
-                    <div class="project-item" data-path="${project.path}" onclick="selectProject('${project.path}', '${escapeHtml(project.name)}')">
-                        <span class="project-item-name">${escapeHtml(project.name)}</span>
                     </div>
-                `).join('');
 
-            } catch (error) {
-                console.error('Error al cargar proyectos:', error);
-                listContainer.innerHTML = `
-                    <div class="empty-state">
-                        <p class="empty-state-text" style="color: #DC143C;">Error al cargar</p>
+                    <div class="box">
+                        <h3>Caracteristicas</h3>
+                        <div id="featuresList" class="features-list">${featureRowsHtml(detail.features || [])}</div>
+                        <div class="actions">
+                            <button class="btn btn-light" onclick="addFeatureRow()">Agregar fila</button>
+                            <button class="btn btn-primary" onclick="saveFeatures()">Guardar caracteristicas</button>
+                        </div>
                     </div>
-                `;
-            }
-        }
+                </div>
 
-        /**
-         * Refresca la lista de proyectos
-         */
-        async function refreshProjects() {
-            dropboxService.clearCache();
-            await loadProjects();
-            
-            if (currentProjectPath) {
-                await loadProjectImages(currentProjectPath);
-            }
-            
-            showToast('Lista actualizada', 'success');
-        }
+                <div class="box" style="margin-top:16px;">
+                    <h3>Subir Archivos</h3>
+                    <div class="upload-row">
+                        <select id="uploadType">
+                            <option value="Imagenes">Imagenes</option>
+                            <option value="Dibujos">Dibujos</option>
+                        </select>
+                        <input id="uploadFiles" type="file" accept=".jpg,.jpeg,.png,.webp" multiple>
+                        <button class="btn btn-primary" onclick="uploadFiles()">Subir</button>
+                    </div>
+                    <p class="help">Solo JPG/PNG/WebP. Maximo 10MB por archivo.</p>
+                </div>
 
-        /**
-         * Selecciona un proyecto para gestionar
-         */
-        async function selectProject(projectPath, projectName) {
-            currentProjectPath = projectPath;
-            selectedFiles = [];
-
-            // Actualizar UI
-            document.querySelectorAll('.project-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            document.querySelector(`[data-path="${projectPath}"]`).classList.add('active');
-
-            document.getElementById('panelTitle').textContent = projectName;
-            document.getElementById('noProjectSelected').style.display = 'none';
-            document.getElementById('projectContent').style.display = 'block';
-            document.getElementById('filePreviewList').style.display = 'none';
-            document.getElementById('fileItems').innerHTML = '';
-
-            // Cargar imágenes del proyecto
-            await loadProjectImages(projectPath);
-        }
-
-        /**
-         * Carga las imágenes de un proyecto
-         */
-        async function loadProjectImages(projectPath) {
-            const grid = document.getElementById('projectImagesGrid');
-            
-            grid.innerHTML = `
-                <div class="empty-state" style="grid-column: 1/-1;">
-                    <div class="loading-spinner" style="margin: 0 auto;"></div>
+                <div class="row" style="margin-top:16px;">
+                    <div class="box">
+                        <h3>Imagenes</h3>
+                        <div class="media-grid">
+                            ${detail.images.map(item => `<div class="media-item"><img src="${item.temporaryLink}" alt="${esc(item.name)}"><button onclick="deleteMedia('${encodeURIComponent(item.path)}')">Eliminar</button></div>`).join('') || '<p class="help">Sin imagenes.</p>'}
+                        </div>
+                    </div>
+                    <div class="box">
+                        <h3>Dibujos</h3>
+                        <div class="media-grid">
+                            ${detail.drawings.map(item => `<div class="media-item"><img src="${item.temporaryLink}" alt="${esc(item.name)}"><button onclick="deleteMedia('${encodeURIComponent(item.path)}')">Eliminar</button></div>`).join('') || '<p class="help">Sin dibujos.</p>'}
+                        </div>
+                    </div>
                 </div>
             `;
+        }
 
+        async function loadProjects() {
+            setStatus('Cargando proyectos...');
+            const list = document.getElementById('projectsList');
+            list.innerHTML = '<div style="padding:12px 16px;color:#777;">Cargando...</div>';
             try {
-                const images = await dropboxService.getProjectImages(projectPath);
-                projectImages = images;
-
-                if (images.length === 0) {
-                    grid.innerHTML = `
-                        <div class="empty-state" style="grid-column: 1/-1;">
-                            <p class="empty-state-text">No hay imágenes en este proyecto</p>
-                        </div>
-                    `;
+                projects = await dropboxService.listProjects();
+                if (!projects.length) {
+                    list.innerHTML = '<div style="padding:12px 16px;color:#777;">Sin proyectos</div>';
+                    setStatus('Sin proyectos');
                     return;
                 }
-
-                grid.innerHTML = images.map(image => `
-                    <div class="project-image-item">
-                        <img src="${image.temporaryLink}" alt="${escapeHtml(image.name)}" loading="lazy">
-                        <div class="project-image-overlay">
-                            <button class="btn-delete-image" onclick="deleteImage('${image.path}')">
-                                Eliminar
-                            </button>
-                        </div>
+                list.innerHTML = projects.map(project => `
+                    <div class="project-item ${selectedProjectPath === project.path ? 'active' : ''}" onclick="selectProject('${encodeURIComponent(project.path)}')">
+                        <span>${esc(project.name)}</span>
+                        <small>${esc(project.slug)}</small>
                     </div>
                 `).join('');
-
-                document.getElementById('panelSubtitle').textContent = `${images.length} imágenes`;
-
+                setStatus('Conectado a Dropbox');
             } catch (error) {
-                console.error('Error al cargar imágenes:', error);
-                grid.innerHTML = `
-                    <div class="empty-state" style="grid-column: 1/-1;">
-                        <p class="empty-state-text" style="color: #DC143C;">Error al cargar imágenes</p>
-                    </div>
-                `;
+                console.error(error);
+                list.innerHTML = `<div style="padding:12px 16px;color:#DC143C;">Error: ${esc(error.message)}</div>`;
+                setStatus('Error de conexion', true);
             }
         }
 
-        /**
-         * Configura el drag and drop
-         */
-        function setupDragAndDrop() {
-            const uploadZone = document.getElementById('uploadZone');
-
-            uploadZone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                uploadZone.classList.add('drag-over');
-            });
-
-            uploadZone.addEventListener('dragleave', () => {
-                uploadZone.classList.remove('drag-over');
-            });
-
-            uploadZone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                uploadZone.classList.remove('drag-over');
-                handleFiles(e.dataTransfer.files);
-            });
+        async function selectProject(encodedPath) {
+            selectedProjectPath = decodeURIComponent(encodedPath);
+            await loadProjects();
+            await refreshDetail();
         }
 
-        /**
-         * Configura el input de archivos
-         */
-        function setupFileInput() {
-            const fileInput = document.getElementById('fileInput');
-            
-            fileInput.addEventListener('change', (e) => {
-                handleFiles(e.target.files);
-                fileInput.value = ''; // Reset para permitir seleccionar el mismo archivo
-            });
+        async function refreshDetail() {
+            if (!selectedProjectPath) return;
+            setStatus('Cargando detalle del proyecto...');
+            selectedDetail = await dropboxService.getProjectDetail(selectedProjectPath);
+            renderEditor(selectedDetail);
+            setStatus('Conectado a Dropbox');
         }
 
-        /**
-         * Procesa los archivos seleccionados
-         */
-        function handleFiles(files) {
-            if (!currentProjectPath) {
-                showToast('Selecciona un proyecto primero', 'error');
-                return;
-            }
-
-            const fileArray = Array.from(files);
-            const fileItems = document.getElementById('fileItems');
-            const previewList = document.getElementById('filePreviewList');
-
-            fileArray.forEach(file => {
-                // Validar archivo
-                const validation = dropboxService.validateFile(file);
-                
-                if (!validation.valid) {
-                    showToast(validation.error, 'error');
-                    return;
-                }
-
-                // Verificar si ya está en la lista
-                if (selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
-                    return;
-                }
-
-                selectedFiles.push(file);
-
-                // Crear preview
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const fileItem = document.createElement('div');
-                    fileItem.className = 'file-item';
-                    fileItem.dataset.fileName = file.name;
-                    fileItem.innerHTML = `
-                        <img src="${e.target.result}" alt="${escapeHtml(file.name)}" class="file-item-preview">
-                        <div class="file-item-info">
-                            <p class="file-item-name">${escapeHtml(file.name)}</p>
-                            <p class="file-item-size">${dropboxService.formatFileSize(file.size)}</p>
-                        </div>
-                        <span class="file-item-status pending">Pendiente</span>
-                        <button class="file-item-remove" onclick="removeFile('${escapeHtml(file.name)}')">✕</button>
-                    `;
-                    fileItems.appendChild(fileItem);
+        function collectFeaturesRows() {
+            const container = document.getElementById('featuresList');
+            const rows = Array.from(container.querySelectorAll('.feature-row'));
+            return rows.map(row => {
+                const inputs = row.querySelectorAll('input');
+                return {
+                    key: (inputs[0].value || '').trim(),
+                    value: (inputs[1].value || '').trim()
                 };
-                reader.readAsDataURL(file);
-            });
-
-            if (selectedFiles.length > 0) {
-                previewList.style.display = 'block';
-            }
+            }).filter(item => item.key || item.value);
         }
 
-        /**
-         * Elimina un archivo de la lista de seleccionados
-         */
-        function removeFile(fileName) {
-            selectedFiles = selectedFiles.filter(f => f.name !== fileName);
-            
-            const fileItem = document.querySelector(`[data-file-name="${fileName}"]`);
-            if (fileItem) {
-                fileItem.remove();
-            }
-
-            if (selectedFiles.length === 0) {
-                document.getElementById('filePreviewList').style.display = 'none';
-            }
+        function addFeatureRow() {
+            const container = document.getElementById('featuresList');
+            const row = document.createElement('div');
+            row.className = 'feature-row';
+            row.innerHTML = `
+                <input type="text" placeholder="Clave (Ej: Ubicacion)">
+                <input type="text" placeholder="Valor (Ej: Asuncion, Paraguay)">
+                <button class="btn btn-light" onclick="this.parentElement.remove()">X</button>
+            `;
+            container.appendChild(row);
         }
 
-        /**
-         * Sube todos los archivos seleccionados
-         */
-        async function uploadAllFiles() {
-            if (selectedFiles.length === 0) {
-                showToast('No hay archivos para subir', 'error');
+        function removeFeatureRow(index) {
+            const rows = document.querySelectorAll('#featuresList .feature-row');
+            if (rows[index]) rows[index].remove();
+        }
+
+        async function saveDescription() {
+            if (!selectedProjectPath) return;
+            const content = document.getElementById('descriptionText').value;
+            setStatus('Guardando descripcion...');
+            await dropboxService.saveDescription(selectedProjectPath, content);
+            setStatus('Descripcion guardada');
+            await refreshDetail();
+        }
+
+        async function saveFeatures() {
+            if (!selectedProjectPath) return;
+            const rows = collectFeaturesRows();
+            const text = rows.map(item => `${item.key}: ${item.value}`).join('\n');
+            setStatus('Guardando caracteristicas...');
+            await dropboxService.saveFeatures(selectedProjectPath, text);
+            setStatus('Caracteristicas guardadas');
+            await refreshDetail();
+        }
+
+        async function uploadFiles() {
+            if (!selectedProjectPath) return;
+            const input = document.getElementById('uploadFiles');
+            const type = document.getElementById('uploadType').value;
+            const files = Array.from(input.files || []);
+            if (!files.length) {
+                setStatus('Selecciona archivos para subir', true);
                 return;
             }
-
-            const btnUpload = document.getElementById('btnUploadAll');
-            const progressContainer = document.getElementById('uploadProgress');
-            const progressBar = document.getElementById('progressBarFill');
-            const progressText = document.getElementById('progressText');
-
-            btnUpload.disabled = true;
-            progressContainer.classList.add('active');
-
-            let uploaded = 0;
-            const total = selectedFiles.length;
-
-            for (const file of selectedFiles) {
-                const fileItem = document.querySelector(`[data-file-name="${file.name}"]`);
-                const statusEl = fileItem.querySelector('.file-item-status');
-                
-                statusEl.className = 'file-item-status uploading';
-                statusEl.textContent = 'Subiendo...';
-
-                try {
-                    const destinationPath = `${currentProjectPath}/${file.name}`;
-                    await dropboxService.uploadFile(file, destinationPath);
-                    
-                    statusEl.className = 'file-item-status success';
-                    statusEl.textContent = 'Completado';
-                    
-                    uploaded++;
-                    
-                } catch (error) {
-                    statusEl.className = 'file-item-status error';
-                    statusEl.textContent = 'Error';
-                    console.error(`Error subiendo ${file.name}:`, error);
-                }
-
-                // Actualizar progreso
-                const progress = Math.round((uploaded / total) * 100);
-                progressBar.style.width = `${progress}%`;
-                progressText.textContent = `Subiendo ${uploaded} de ${total} archivos...`;
+            setStatus(`Subiendo ${files.length} archivo(s)...`);
+            for (const file of files) {
+                const destinationPath = `${selectedProjectPath}/${type}/${file.name}`;
+                await dropboxService.uploadFile(file, destinationPath);
             }
-
-            // Finalizar
-            progressText.textContent = `¡${uploaded} de ${total} archivos subidos!`;
-            btnUpload.disabled = false;
-
-            // Limpiar después de 2 segundos
-            setTimeout(() => {
-                selectedFiles = [];
-                document.getElementById('fileItems').innerHTML = '';
-                document.getElementById('filePreviewList').style.display = 'none';
-                progressContainer.classList.remove('active');
-                progressBar.style.width = '0%';
-            }, 2000);
-
-            // Recargar imágenes del proyecto
-            await loadProjectImages(currentProjectPath);
-            showToast(`${uploaded} archivos subidos exitosamente`, 'success');
+            input.value = '';
+            setStatus('Archivos subidos');
+            await refreshDetail();
         }
 
-        /**
-         * Elimina una imagen del proyecto
-         */
-        async function deleteImage(imagePath) {
-            if (!confirm('¿Estás seguro de que deseas eliminar esta imagen?')) {
+        async function deleteMedia(encodedPath) {
+            const path = decodeURIComponent(encodedPath);
+            if (!confirm('Eliminar este archivo de Dropbox?')) return;
+            setStatus('Eliminando archivo...');
+            await dropboxService.deleteFile(path);
+            setStatus('Archivo eliminado');
+            await refreshDetail();
+        }
+
+        async function createProject() {
+            const input = document.getElementById('newProjectName');
+            const name = (input.value || '').trim();
+            if (!name) {
+                setStatus('Ingresa nombre del proyecto', true);
                 return;
             }
+            setStatus('Creando proyecto...');
+            await dropboxService.createProject(name);
+            input.value = '';
+            setStatus('Proyecto creado');
+            await loadProjects();
+        }
 
+        window.addEventListener('load', async () => {
             try {
-                await dropboxService.deleteFile(imagePath);
-                await loadProjectImages(currentProjectPath);
-                showToast('Imagen eliminada', 'success');
-            } catch (error) {
-                console.error('Error al eliminar imagen:', error);
-                showToast('Error al eliminar imagen: ' + error.message, 'error');
-            }
-        }
-
-        /**
-         * Abre el modal de nuevo proyecto
-         */
-        function openNewProjectModal() {
-            document.getElementById('newProjectModal').classList.add('active');
-            document.getElementById('projectName').value = '';
-            document.getElementById('projectName').focus();
-        }
-
-        /**
-         * Cierra el modal de nuevo proyecto
-         */
-        function closeNewProjectModal() {
-            document.getElementById('newProjectModal').classList.remove('active');
-        }
-
-        /**
-         * Crea un nuevo proyecto
-         */
-        async function createNewProject() {
-            const projectName = document.getElementById('projectName').value.trim();
-            
-            if (!projectName) {
-                showToast('Ingresa un nombre para el proyecto', 'error');
-                return;
-            }
-
-            try {
-                await dropboxService.createProject(projectName);
-                closeNewProjectModal();
                 await loadProjects();
-                showToast(`Proyecto "${projectName}" creado exitosamente`, 'success');
             } catch (error) {
-                console.error('Error al crear proyecto:', error);
-                showToast('Error al crear proyecto: ' + error.message, 'error');
-            }
-        }
-
-        /**
-         * Muestra un toast de notificación
-         */
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            container.appendChild(toast);
-
-            setTimeout(() => {
-                toast.remove();
-            }, 4000);
-        }
-
-        /**
-         * Escapa caracteres HTML
-         */
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // Cerrar modal con Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeNewProjectModal();
-            }
-        });
-
-        // Cerrar modal al hacer clic fuera
-        document.getElementById('newProjectModal').addEventListener('click', (e) => {
-            if (e.target.id === 'newProjectModal') {
-                closeNewProjectModal();
+                console.error(error);
+                setStatus(error.message, true);
             }
         });
     </script>

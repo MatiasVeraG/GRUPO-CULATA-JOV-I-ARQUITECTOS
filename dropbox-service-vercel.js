@@ -113,6 +113,20 @@ class DropboxService {
         return data.images;
     }
 
+    async getProjectDrawings(projectPath) {
+        const data = await this.callApi('get-project-drawings', {
+            projectPath
+        });
+        return data.drawings;
+    }
+
+    async getProjectDetail(projectPath) {
+        const data = await this.callApi('get-project-detail', {
+            projectPath
+        });
+        return data.project;
+    }
+
     /**
      * Obtiene un temporary link
      */
@@ -131,11 +145,14 @@ class DropboxService {
         
         const projectsWithCovers = await Promise.all(
             projects.map(async (project) => {
-                const images = await this.getProjectImages(project.path);
+                const detail = await this.getProjectDetail(project.path);
                 return {
                     ...project,
-                    cover: images.length > 0 ? images[0].temporaryLink : null,
-                    imageCount: images.length
+                    cover: detail.cover,
+                    imageCount: detail.images.length,
+                    drawingCount: detail.drawings.length,
+                    description: detail.description,
+                    features: detail.features
                 };
             })
         );
@@ -282,6 +299,22 @@ class DropboxService {
             success: true,
             project: data.project
         };
+    }
+
+    async saveDescription(projectPath, content) {
+        const data = await this.callApi('save-description', {
+            projectPath,
+            content
+        });
+        return data;
+    }
+
+    async saveFeatures(projectPath, featuresText) {
+        const data = await this.callApi('save-features', {
+            projectPath,
+            featuresText
+        });
+        return data;
     }
 
     /**

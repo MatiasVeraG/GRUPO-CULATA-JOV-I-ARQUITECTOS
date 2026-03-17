@@ -223,35 +223,42 @@
         <span class="lang-option" data-lang="de" onclick="changeLanguage('de')">de</span>
     </div>
 
+    <script src="dropbox-config.js"></script>
+    <script src="dropbox-service-vercel.js"></script>
     <script>
-        // Cargar proyectos desde JSON
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Cargar proyectos desde Dropbox
         async function loadProjects() {
             const grid = document.getElementById('projectsGrid');
             
             try {
-                const response = await fetch('data/projects.json');
-                const projects = await response.json();
+                const projects = await dropboxService.getAllProjectsWithCovers();
                 
                 if (projects.length === 0) {
                     grid.innerHTML = '<div class="loading">No hay proyectos disponibles</div>';
                     return;
                 }
 
-                // Ordenar por order
-                projects.sort((a, b) => (a.order || 0) - (b.order || 0));
-
                 // Mostrar solo la portada de cada proyecto
                 grid.innerHTML = projects.map(project => `
-                    <div class="project-item" onclick="window.location.href='proyecto.html?proyecto=${project.slug}'">
-                        <img src="${project.cover}" alt="${project.title}" loading="lazy">
+                    <div class="project-item" onclick="window.location.href='proyecto.html?path=${encodeURIComponent(project.path)}'">
+                        ${project.cover
+                            ? `<img src="${project.cover}" alt="${escapeHtml(project.name)}" loading="lazy">`
+                            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f5f5f5;color:#999;font-size:11px;letter-spacing:1px;">Sin portada</div>`
+                        }
                         <div class="project-overlay">
-                            <span>${project.title}</span>
+                            <span>${escapeHtml(project.name)}</span>
                         </div>
                     </div>
                 `).join('');
             } catch (error) {
                 console.error('Error cargando proyectos:', error);
-                grid.innerHTML = '<div class="loading">Error al cargar proyectos</div>';
+                grid.innerHTML = `<div class="loading">Error al cargar proyectos: ${escapeHtml(error.message)}</div>`;
             }
         }
 
