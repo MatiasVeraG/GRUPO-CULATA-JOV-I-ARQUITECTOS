@@ -1,0 +1,23 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "echo 'Static site with serverless API'",
+  "outputDirectory": ".",
+  "devCommand": "echo 'Ready for development'",
+  "installCommand": "npm install",
+  "env": [
+    "DROPBOX_APP_KEY",
+    "DROPBOX_APP_SECRET",
+    "DROPBOX_REFRESH_TOKEN"
+  ],
+  "functions": {
+    "api/dropbox.js": {
+      "memory": 1024,
+      "maxDuration": 30
+    }
+  },
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  }
+}

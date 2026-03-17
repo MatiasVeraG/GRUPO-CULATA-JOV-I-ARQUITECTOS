@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyectos - Grupo Culata Jovái Arquitectos</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* ============================================
+           ESTILOS PARA GALERÍA DINÁMICA CON DROPBOX
+           ============================================ */
+        
+        .gallery-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 120px 60px 80px;
+        }
+
+        .gallery-header {
+            margin-bottom: 60px;
+        }
+
+        .gallery-header h1 {
+            font-size: 32px;
+            letter-spacing: 4px;
+            font-weight: 300;
+            text-transform: uppercase;
+        }
+
+        .gallery-subtitle {
+            font-size: 12px;
+            letter-spacing: 2px;
+            color: #666;
+            margin-top: 15px;
+        }
+
+        /* Grid de Proyectos */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 40px;
+        }
+
+        .project-card {
+            position: relative;
+            aspect-ratio: 4/3;
+            overflow: hidden;
+            cursor: pointer;
+            background-color: #f5f5f5;
+        }
+
+        .project-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease, filter 0.3s ease;
+        }
+
+        .project-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .project-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 30px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .project-card:hover .project-overlay {
+            opacity: 1;
+        }
+
+        .project-title {
+            color: #FFFFFF;
+            font-size: 16px;
+            letter-spacing: 2px;
+            font-weight: 300;
+            text-transform: uppercase;
+        }
+
+        .project-count {
+            color: rgba(255,255,255,0.7);
+            font-size: 11px;
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+
+        /* Loading State */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 0;
+            grid-column: 1 / -1;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #000000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: #666;
+        }
+
+        /* Error State */
+        .error-container {
+            text-align: center;
+            padding: 100px 0;
+            grid-column: 1 / -1;
+        }
+
+        .error-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .error-message {
+            font-size: 14px;
+            letter-spacing: 1px;
+            color: #DC143C;
+            margin-bottom: 30px;
+        }
+
+        .btn-retry {
+            padding: 15px 40px;
+            background-color: #000000;
+            color: #FFFFFF;
+            border: none;
+            font-family: 'Futura', sans-serif;
+            font-size: 11px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-retry:hover {
+            background-color: #DC143C;
+        }
+
+        /* ============================================
+           MODAL DE PROYECTO
+           ============================================ */
+        
+        .project-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.95);
+            z-index: 2000;
+            overflow-y: auto;
+        }
+
+        .project-modal.active {
+            display: block;
+        }
+
+        .modal-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 30px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 2001;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%);
+        }
+
+        .modal-title {
+            color: #FFFFFF;
+            font-size: 14px;
+            letter-spacing: 3px;
+            font-weight: 300;
+            text-transform: uppercase;
+        }
+
+        .modal-close {
+            color: #FFFFFF;
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 10px;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #DC143C;
+        }
+
+        .modal-gallery {
+            padding: 100px 60px 60px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .modal-image {
+            width: 100%;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-image:hover {
+            opacity: 0.9;
+        }
+
+        /* Lightbox para imagen individual */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.98);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 30px;
+            right: 60px;
+            color: #FFFFFF;
+            font-size: 30px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            z-index: 3001;
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #FFFFFF;
+            font-size: 40px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 20px;
+            transition: color 0.3s ease;
+        }
+
+        .lightbox-nav:hover {
+            color: #DC143C;
+        }
+
+        .lightbox-prev {
+            left: 20px;
+        }
+
+        .lightbox-next {
+            right: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .gallery-container {
+                padding: 100px 30px 60px;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .modal-gallery {
+                padding: 80px 20px 40px;
+                grid-template-columns: 1fr;
+            }
+
+            .modal-header {
+                padding: 20px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header id="header">
+        <div class="header-content">
+            <a href="index.html" class="logo-text">
+                <img src="images/logo.png" alt="Grupo Culata Jovái">
+            </a>
+            <nav>
+                <a href="trabajos.html" class="nav-link">trabajos</a>
+                <a href="nosotros.html" class="nav-link">nosotros</a>
+                <a href="contacto.html" class="nav-link">contacto</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- GALERÍA DE PROYECTOS -->
+    <main class="gallery-container">
+        <div class="gallery-header">
+            <h1>Proyectos</h1>
+            <p class="gallery-subtitle">Arquitectura que transforma espacios</p>
+        </div>
+
+        <div class="projects-grid" id="projectsGrid">
+            <!-- Los proyectos se cargan dinámicamente desde Dropbox -->
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <p class="loading-text">Cargando proyectos...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL DE PROYECTO -->
+    <div class="project-modal" id="projectModal">
+        <div class="modal-header">
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <button class="modal-close" onclick="closeProjectModal()">✕</button>
+        </div>
+        <div class="modal-gallery" id="modalGallery">
+            <!-- Las imágenes se cargan dinámicamente -->
+        </div>
+    </div>
+
+    <!-- LIGHTBOX -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+        <button class="lightbox-nav lightbox-prev" onclick="prevImage()">‹</button>
+        <img src="" alt="" id="lightboxImage">
+        <button class="lightbox-nav lightbox-next" onclick="nextImage()">›</button>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="dropbox-config.js"></script>
+    <script src="dropbox-service-vercel.js"></script>
+    <script>
+        // ============================================
+        // GALERÍA DINÁMICA CON DROPBOX
+        // ============================================
+
+        let currentProject = null;
+        let currentImages = [];
+        let currentImageIndex = 0;
+
+        // Cargar proyectos al iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProjectsFromDropbox();
+        });
+
+        /**
+         * Carga todos los proyectos desde Dropbox
+         */
+        async function loadProjectsFromDropbox() {
+            const grid = document.getElementById('projectsGrid');
+            
+            try {
+                // Mostrar loading
+                grid.innerHTML = `
+                    <div class="loading-container">
+                        <div class="loading-spinner"></div>
+                        <p class="loading-text">Conectando con Dropbox...</p>
+                    </div>
+                `;
+
+                // Obtener proyectos con portadas
+                const projects = await dropboxService.getAllProjectsWithCovers();
+
+                if (projects.length === 0) {
+                    grid.innerHTML = `
+                        <div class="error-container">
+                            <p class="error-message">No se encontraron proyectos en la carpeta /Proyectos</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Renderizar proyectos
+                grid.innerHTML = projects.map(project => `
+                    <div class="project-card" onclick="openProject('${project.path}', '${escapeHtml(project.name)}')">
+                        ${project.cover 
+                            ? `<img src="${project.cover}" alt="${escapeHtml(project.name)}" loading="lazy">`
+                            : `<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#f0f0f0;color:#999;font-size:12px;letter-spacing:1px;">Sin imágenes</div>`
+                        }
+                        <div class="project-overlay">
+                            <h3 class="project-title">${escapeHtml(project.name)}</h3>
+                            <p class="project-count">${project.imageCount} ${project.imageCount === 1 ? 'imagen' : 'imágenes'}</p>
+                        </div>
+                    </div>
+                `).join('');
+
+                console.log(`✓ ${projects.length} proyectos cargados desde Dropbox`);
+
+            } catch (error) {
+                console.error('Error al cargar proyectos:', error);
+                grid.innerHTML = `
+                    <div class="error-container">
+                        <div class="error-icon">⚠️</div>
+                        <p class="error-message">${escapeHtml(error.message)}</p>
+                        <button class="btn-retry" onclick="loadProjectsFromDropbox()">Reintentar</button>
+                    </div>
+                `;
+            }
+        }
+
+        /**
+         * Abre el modal con las imágenes de un proyecto
+         */
+        async function openProject(projectPath, projectName) {
+            const modal = document.getElementById('projectModal');
+            const gallery = document.getElementById('modalGallery');
+            const title = document.getElementById('modalTitle');
+
+            currentProject = projectPath;
+            title.textContent = projectName;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Mostrar loading en el modal
+            gallery.innerHTML = `
+                <div class="loading-container" style="grid-column: 1/-1;">
+                    <div class="loading-spinner"></div>
+                    <p class="loading-text">Cargando imágenes...</p>
+                </div>
+            `;
+
+            try {
+                const images = await dropboxService.getProjectImages(projectPath);
+                currentImages = images;
+
+                if (images.length === 0) {
+                    gallery.innerHTML = `
+                        <div class="error-container" style="grid-column: 1/-1;">
+                            <p class="error-message">No hay imágenes en este proyecto</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                gallery.innerHTML = images.map((image, index) => `
+                    <img 
+                        src="${image.temporaryLink}" 
+                        alt="${escapeHtml(image.name)}"
+                        class="modal-image"
+                        loading="lazy"
+                        onclick="openLightbox(${index})"
+                    >
+                `).join('');
+
+            } catch (error) {
+                console.error('Error al cargar imágenes del proyecto:', error);
+                gallery.innerHTML = `
+                    <div class="error-container" style="grid-column: 1/-1;">
+                        <div class="error-icon">⚠️</div>
+                        <p class="error-message">${escapeHtml(error.message)}</p>
+                    </div>
+                `;
+            }
+        }
+
+        /**
+         * Cierra el modal de proyecto
+         */
+        function closeProjectModal() {
+            const modal = document.getElementById('projectModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            currentProject = null;
+            currentImages = [];
+        }
+
+        /**
+         * Abre el lightbox con una imagen específica
+         */
+        function openLightbox(index) {
+            currentImageIndex = index;
+            const lightbox = document.getElementById('lightbox');
+            const img = document.getElementById('lightboxImage');
+            
+            img.src = currentImages[index].temporaryLink;
+            img.alt = currentImages[index].name;
+            lightbox.classList.add('active');
+        }
+
+        /**
+         * Cierra el lightbox
+         */
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+        }
+
+        /**
+         * Navega a la imagen anterior
+         */
+        function prevImage() {
+            if (currentImages.length === 0) return;
+            currentImageIndex = (currentImageIndex - 1 + currentImages.length) % currentImages.length;
+            document.getElementById('lightboxImage').src = currentImages[currentImageIndex].temporaryLink;
+        }
+
+        /**
+         * Navega a la imagen siguiente
+         */
+        function nextImage() {
+            if (currentImages.length === 0) return;
+            currentImageIndex = (currentImageIndex + 1) % currentImages.length;
+            document.getElementById('lightboxImage').src = currentImages[currentImageIndex].temporaryLink;
+        }
+
+        /**
+         * Escapa caracteres HTML para prevenir XSS
+         */
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Cerrar modales con tecla Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (document.getElementById('lightbox').classList.contains('active')) {
+                    closeLightbox();
+                } else if (document.getElementById('projectModal').classList.contains('active')) {
+                    closeProjectModal();
+                }
+            }
+            
+            // Navegación con flechas en lightbox
+            if (document.getElementById('lightbox').classList.contains('active')) {
+                if (e.key === 'ArrowLeft') prevImage();
+                if (e.key === 'ArrowRight') nextImage();
+            }
+        });
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('projectModal').addEventListener('click', (e) => {
+            if (e.target.id === 'projectModal') {
+                closeProjectModal();
+            }
+        });
+
+        document.getElementById('lightbox').addEventListener('click', (e) => {
+            if (e.target.id === 'lightbox') {
+                closeLightbox();
+            }
+        });
+    </script>
+</body>
+</html>

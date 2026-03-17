@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grupo Culata Jovái Arquitectos</title>
+    <title>Trabajos - Grupo Culata Jovái Arquitectos</title>
     <link rel="stylesheet" href="styles.css">
     <style>
         /* HEADER MINIMALISTA */
@@ -50,6 +50,60 @@
             color: #DC143C;
         }
 
+        /* GRID DE PROYECTOS - SOLO PORTADAS */
+        #proyectos {
+            margin-top: 100px;
+            padding: 20px;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3px;
+        }
+
+        .project-item {
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+            cursor: pointer;
+        }
+
+        .project-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease, opacity 0.3s ease;
+        }
+
+        .project-item:hover img {
+            transform: scale(1.02);
+            opacity: 0.9;
+        }
+
+        .project-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 30px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .project-item:hover .project-overlay {
+            opacity: 1;
+        }
+
+        .project-overlay span {
+            color: #fff;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
         /* SELECTOR DE IDIOMA */
         .language-selector {
             position: fixed;
@@ -80,6 +134,23 @@
             text-decoration: underline;
         }
 
+        /* LOADING */
+        .loading {
+            text-align: center;
+            padding: 100px;
+            font-size: 12px;
+            letter-spacing: 2px;
+            color: #999;
+            grid-column: 1 / -1;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .projects-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
         @media (max-width: 768px) {
             .landing-header {
                 padding: 20px 30px;
@@ -91,6 +162,10 @@
 
             .nav-link {
                 font-size: 8px;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
             }
 
             .language-selector {
@@ -131,35 +206,16 @@
     <!-- PROYECTOS -->
     <section id="proyectos">
         <div class="projects-grid" id="projectsGrid">
-            <!-- Projects will be loaded dynamically -->
+            <div class="loading">Cargando proyectos...</div>
         </div>
     </section>
-
-    <!-- MODAL PROYECTO -->
-    <div id="projectModal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close">&times;</span>
-            <div class="modal-body">
-                <div class="modal-image-container">
-                    <img id="modalImage" src="" alt="">
-                    <button class="modal-prev" id="modalPrev">‹</button>
-                    <button class="modal-next" id="modalNext">›</button>
-                    <div class="modal-indicators" id="modalIndicators"></div>
-                </div>
-                <div class="modal-info">
-                    <h3 id="modalTitle"></h3>
-                    <p id="modalDescription"></p>
-                    <span class="modal-counter" id="modalCounter">1 / 1</span>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- FOOTER -->
     <footer>
         <p>© 2026 GRUPO CULATA JOVÁI ARQUITECTOS</p>
         <p style="margin-top: 10px; font-size: 9px;"><a href="admin.html" style="color: #FFFFFF; text-decoration: none; opacity: 0.5;">ADMIN</a></p>
     </footer>
+
     <!-- SELECTOR DE IDIOMA -->
     <div class="language-selector">
         <span class="lang-option active" data-lang="es" onclick="changeLanguage('es')">es</span>
@@ -168,6 +224,37 @@
     </div>
 
     <script>
+        // Cargar proyectos desde JSON
+        async function loadProjects() {
+            const grid = document.getElementById('projectsGrid');
+            
+            try {
+                const response = await fetch('data/projects.json');
+                const projects = await response.json();
+                
+                if (projects.length === 0) {
+                    grid.innerHTML = '<div class="loading">No hay proyectos disponibles</div>';
+                    return;
+                }
+
+                // Ordenar por order
+                projects.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+                // Mostrar solo la portada de cada proyecto
+                grid.innerHTML = projects.map(project => `
+                    <div class="project-item" onclick="window.location.href='proyecto.html?proyecto=${project.slug}'">
+                        <img src="${project.cover}" alt="${project.title}" loading="lazy">
+                        <div class="project-overlay">
+                            <span>${project.title}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error cargando proyectos:', error);
+                grid.innerHTML = '<div class="loading">Error al cargar proyectos</div>';
+            }
+        }
+
         // Sistema de traducción
         const translations = {
             es: {
@@ -187,14 +274,12 @@
             }
         };
 
-        // Función para cambiar idioma
         function changeLanguage(lang) {
             localStorage.setItem('selectedLanguage', lang);
             updateLanguageUI(lang);
             applyTranslations(lang);
         }
 
-        // Actualizar indicador visual del idioma seleccionado
         function updateLanguageUI(lang) {
             document.querySelectorAll('.lang-option').forEach(option => {
                 option.classList.remove('active');
@@ -204,7 +289,6 @@
             });
         }
 
-        // Aplicar traducciones a todos los elementos con data-i18n
         function applyTranslations(lang) {
             document.querySelectorAll('[data-i18n]').forEach(element => {
                 const key = element.dataset.i18n;
@@ -214,22 +298,17 @@
             });
         }
 
-        // Inicializar idioma al cargar la página
         function initLanguage() {
             const savedLang = localStorage.getItem('selectedLanguage') || 'es';
             updateLanguageUI(savedLang);
             applyTranslations(savedLang);
         }
 
-        // Inicializar idioma
-        initLanguage();
+        // Inicializar
+        window.addEventListener('load', () => {
+            loadProjects();
+            initLanguage();
+        });
     </script>
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    
-    <script src="script.js"></script>
 </body>
 </html>

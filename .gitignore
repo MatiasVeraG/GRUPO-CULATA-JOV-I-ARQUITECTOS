@@ -30,3 +30,9 @@ yarn-error.log*
 firebase-config.js
 cors.json
 FIREBASE-SETUP.md
+
+# Dropbox (credenciales y tokens)
+dropbox-tokens.txt
+dropbox-tokens.json
+# NOTA: dropbox-config.js contiene credenciales
+# Solo subir con valores de ejemplo, no reales

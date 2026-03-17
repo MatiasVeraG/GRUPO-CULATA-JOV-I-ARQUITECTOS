@@ -324,41 +324,45 @@
             applyTranslations(savedLang);
         }
 
-        // Obtener las primeras 10 imágenes de los proyectos
-        function getCarouselImages() {
-            const projects = localStorage.getItem('projects');
-            if (!projects) {
-                // Sin imágenes por defecto, devolver array vacío
+        // Obtener portadas de los proyectos desde JSON
+        async function getCarouselImages() {
+            try {
+                const response = await fetch('data/projects.json');
+                const projects = await response.json();
+                
+                // Ordenar por order
+                projects.sort((a, b) => (a.order || 0) - (b.order || 0));
+                
+                // Devolver array de objetos con cover, title y slug
+                return projects.map(project => ({
+                    cover: project.cover,
+                    title: project.title,
+                    slug: project.slug
+                }));
+            } catch (error) {
+                console.error('Error cargando proyectos:', error);
                 return [];
             }
-
-            const projectsArray = JSON.parse(projects);
-            const images = [];
-
-            // Obtener primera imagen de cada proyecto (máximo 10)
-            for (let i = 0; i < Math.min(projectsArray.length, 10); i++) {
-                const project = projectsArray[i];
-                if (project.images && project.images.length > 0) {
-                    images.push(project.images[0]);
-                } else if (project.image) {
-                    images.push(project.image);
-                }
-            }
-
-            return images.slice(0, 10); // Máximo 10 imágenes
         }
 
         // Crear slides del carousel
-        function createCarousel() {
-            const images = getCarouselImages();
+        async function createCarousel() {
+            const projects = await getCarouselImages();
             const container = document.getElementById('carouselContainer');
 
-            images.forEach((imgSrc, index) => {
-                // Crear slide
+            if (projects.length === 0) {
+                container.innerHTML = '<p style="text-align: center; padding: 100px; color: #999;">No hay proyectos disponibles</p>';
+                return;
+            }
+
+            projects.forEach((project, index) => {
+                // Crear slide con enlace al proyecto
                 const slide = document.createElement('div');
                 slide.className = 'carousel-slide' + (index === 0 ? ' active' : '');
+                slide.style.cursor = 'pointer';
+                slide.onclick = () => window.location.href = `proyecto.html?proyecto=${project.slug}`;
                 slide.innerHTML = `
-                    <img src="${imgSrc}" alt="Proyecto ${index + 1}">
+                    <img src="${project.cover}" alt="${project.title}">
                 `;
                 
                 container.appendChild(slide);
