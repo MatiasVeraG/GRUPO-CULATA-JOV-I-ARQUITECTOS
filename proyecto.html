@@ -94,7 +94,7 @@
         <span class="lightbox-counter" id="lightboxCounter"></span>
     </div>
 
-    <footer style="background-color:#000;color:#fff;text-align:center;padding:40px 20px;font-size:10px;letter-spacing:2px;margin-top:80px;">
+    <footer id="projectFooter" style="background-color:#000;color:#fff;text-align:center;padding:40px 20px;font-size:10px;letter-spacing:2px;margin-top:80px;">
         <p>© 2026 GRUPO CULATA JOVAI ARQUITECTOS</p>
     </footer>
 
@@ -124,6 +124,11 @@
             return path ? decodeURIComponent(path) : null;
         }
 
+        function getSourceFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('source') || '';
+        }
+
         async function resolveProjectPath() {
             const directPath = getPathFromUrl();
             if (directPath) return directPath;
@@ -142,6 +147,12 @@
                 if (!projectPath) {
                     document.getElementById('projectContent').innerHTML = '<div class="loading">Proyecto no encontrado</div>';
                     return;
+                }
+
+                const source = getSourceFromUrl();
+                const footer = document.getElementById('projectFooter');
+                if (footer) {
+                    footer.style.display = source === 'trabajos' ? 'none' : '';
                 }
 
                 currentProject = await dropboxService.getProjectDetail(projectPath);
@@ -167,7 +178,6 @@
                 return `<div class="project-datos-item"><span class="project-datos-label">${escapeHtml(item.key)}</span><span class="project-datos-value">${escapeHtml(item.value || '')}</span></div>`;
             }).join('');
 
-            const descriptionText = (currentProject.description || '').trim();
             const lang = localStorage.getItem('selectedLanguage') || 'es';
             const descriptionText = (
                 lang === 'en' ? currentProject.description_en :

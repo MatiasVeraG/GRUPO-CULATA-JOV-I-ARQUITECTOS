@@ -381,11 +381,10 @@
             }
 
             projects.forEach((project, index) => {
-                // Crear slide con enlace al proyecto
+                // Crear slide visual (sin redireccion por click)
                 const slide = document.createElement('div');
                 slide.className = 'carousel-slide' + (index === 0 ? ' active' : '');
-                slide.style.cursor = 'pointer';
-                slide.onclick = () => window.location.href = `proyecto.html?path=${encodeURIComponent(project.path)}`;
+                slide.style.cursor = 'default';
                 slide.innerHTML = `
                     ${project.cover
                         ? `<img src="${project.cover}" alt="${project.title}">`
