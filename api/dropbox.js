@@ -80,6 +80,42 @@ export default async function handler(req, res) {
 let accessToken = null;
 let tokenExpiry = null;
 
+function getProjectsRootPath() {
+    const configured = process.env.DROPBOX_PROJECTS_FOLDER || '/Proyectos';
+    const trimmed = configured.trim();
+    if (!trimmed) return '/Proyectos';
+    const withLeadingSlash = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+    return withLeadingSlash.endsWith('/') && withLeadingSlash.length > 1
+        ? withLeadingSlash.slice(0, -1)
+        : withLeadingSlash;
+}
+
+function isPathNotFound(errorSummary) {
+    if (!errorSummary || typeof errorSummary !== 'string') return false;
+    return errorSummary.includes('path/not_found');
+}
+
+async function createFolderIfMissing(path, token) {
+    const response = await fetch('https://api.dropboxapi.com/2/files/create_folder_v2', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            path,
+            autorename: false
+        })
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error_summary || response.statusText);
+    }
+
+    return response.json();
+}
+
 /**
  * Obtiene un access token válido, usando el refresh token
  */
@@ -132,6 +168,7 @@ async function getValidAccessToken() {
 async function listProjects(res) {
     try {
         const token = await getValidAccessToken();
+        const projectsRoot = getProjectsRootPath();
 
         const response = await fetch('https://api.dropboxapi.com/2/files/list_folder', {
             method: 'POST',
@@ -140,7 +177,7 @@ async function listProjects(res) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                path: '/Proyectos',
+                path: projectsRoot,
                 recursive: false,
                 include_media_info: false,
                 include_deleted: false,
@@ -150,6 +187,18 @@ async function listProjects(res) {
 
         if (!response.ok) {
             const errorData = await response.json();
+
+            // Si la carpeta base no existe, la creamos y devolvemos lista vacía.
+            if (isPathNotFound(errorData.error_summary)) {
+                await createFolderIfMissing(projectsRoot, token);
+                return res.status(200).json({
+                    success: true,
+                    projects: [],
+                    count: 0,
+                    message: `Se creó automáticamente la carpeta base ${projectsRoot}`
+                });
+            }
+
             throw new Error(errorData.error_summary || response.statusText);
         }
 
@@ -380,7 +429,8 @@ async function createProject(projectName, res) {
         }
 
         const token = await getValidAccessToken();
-        const projectPath = `/Proyectos/${projectName}`;
+        const projectsRoot = getProjectsRootPath();
+        const projectPath = `${projectsRoot}/${projectName}`;
 
         const response = await fetch('https://api.dropboxapi.com/2/files/create_folder_v2', {
             method: 'POST',
