@@ -39,16 +39,46 @@ class DropboxService {
      */
     async callApi(action, params = {}) {
         try {
-            const response = await fetch(this.apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    action,
-                    ...params
-                })
-            });
+            const readActions = new Set([
+                'list-projects',
+                'get-project-summaries',
+                'get-project-detail',
+                'get-project-images',
+                'get-project-drawings',
+                'get-temporary-link',
+                'get-site-content',
+                'get-sobre-images'
+            ]);
+
+            const isReadAction = readActions.has(action);
+            let response;
+
+            if (isReadAction) {
+                const url = new URL(this.apiUrl, window.location.origin);
+                url.searchParams.set('action', action);
+                Object.entries(params || {}).forEach(([key, value]) => {
+                    if (value === undefined || value === null) return;
+                    url.searchParams.set(key, String(value));
+                });
+
+                response = await fetch(url.toString(), {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+            } else {
+                response = await fetch(this.apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action,
+                        ...params
+                    })
+                });
+            }
 
             if (!response.ok) {
                 const errorData = await response.json();

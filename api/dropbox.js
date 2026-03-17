@@ -19,10 +19,51 @@
  */
 
 export default async function handler(req, res) {
+    const READ_ACTIONS = new Set([
+        'list-projects',
+        'get-project-summaries',
+        'get-project-detail',
+        'get-project-images',
+        'get-project-drawings',
+        'get-temporary-link',
+        'get-site-content',
+        'get-sobre-images'
+    ]);
+
+    const WRITE_ACTIONS = new Set([
+        'upload-file',
+        'create-project',
+        'save-description',
+        'save-description-lang',
+        'save-features',
+        'save-site-content',
+        'delete-file'
+    ]);
+
+    function setCacheHeaders(action) {
+        // TTL conservador para no servir enlaces temporales demasiado viejos
+        const cacheMap = {
+            'list-projects': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
+            'get-project-summaries': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
+            'get-project-detail': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
+            'get-project-images': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
+            'get-project-drawings': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
+            'get-temporary-link': 'public, max-age=30, s-maxage=120, stale-while-revalidate=120',
+            'get-site-content': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
+            'get-sobre-images': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600'
+        };
+
+        const value = cacheMap[action] || 'no-store';
+        res.setHeader('Cache-Control', value);
+        res.setHeader('CDN-Cache-Control', value);
+        res.setHeader('Cloudflare-CDN-Cache-Control', value);
+        res.setHeader('Vary', 'Accept-Encoding');
+    }
+
     // CORS headers
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
     res.setHeader(
         'Access-Control-Allow-Headers',
         'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
@@ -33,11 +74,35 @@ export default async function handler(req, res) {
         return;
     }
 
-    if (req.method !== 'POST') {
+    if (req.method !== 'POST' && req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { action, ...params } = req.body;
+    const sourceParams = req.method === 'GET' ? (req.query || {}) : (req.body || {});
+    const { action, ...params } = sourceParams;
+
+    if (!action) {
+        return res.status(400).json({ error: 'Missing action' });
+    }
+
+    if (req.method === 'GET' && !READ_ACTIONS.has(action)) {
+        return res.status(405).json({ error: 'Action requires POST', action });
+    }
+
+    if (req.method === 'POST' && READ_ACTIONS.has(action)) {
+        // Permitimos POST por compatibilidad, pero recomendamos GET para cache CDN.
+        setCacheHeaders(action);
+    }
+
+    if (req.method === 'GET') {
+        setCacheHeaders(action);
+    }
+
+    if (WRITE_ACTIONS.has(action)) {
+        res.setHeader('Cache-Control', 'no-store');
+        res.setHeader('CDN-Cache-Control', 'no-store');
+        res.setHeader('Cloudflare-CDN-Cache-Control', 'no-store');
+    }
 
     try {
         // Verificar que existan las variables de entorno
