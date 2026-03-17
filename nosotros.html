@@ -324,7 +324,7 @@
         }
 
         // Inicializar
-        window.addEventListener('load', async () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             initLanguage();
             const lang = localStorage.getItem('selectedLanguage') || 'es';
             try { sobreImages = await dropboxService.getSobreImages(); } catch (_) {}

@@ -51,6 +51,8 @@ export default async function handler(req, res) {
         switch (action) {
             case 'list-projects':
                 return await listProjects(res);
+            case 'get-project-summaries':
+                return await getProjectSummaries(res);
             case 'get-project-detail':
                 return await getProjectDetail(params.projectPath, res);
             case 'get-project-images':
@@ -357,53 +359,7 @@ async function getValidAccessToken() {
 async function listProjects(res) {
     try {
         const token = await getValidAccessToken();
-        const projectsRoot = getProjectsRootPath();
-
-        const response = await fetch('https://api.dropboxapi.com/2/files/list_folder', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                path: projectsRoot,
-                recursive: false,
-                include_media_info: false,
-                include_deleted: false,
-                include_has_explicit_shared_members: false
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-
-            // Si la carpeta base no existe, la creamos y devolvemos lista vacía.
-            if (isPathNotFound(errorData.error_summary)) {
-                await createFolderIfMissing(projectsRoot, token);
-                return res.status(200).json({
-                    success: true,
-                    projects: [],
-                    count: 0,
-                    message: `Se creó automáticamente la carpeta base ${projectsRoot}`
-                });
-            }
-
-            throw new Error(errorData.error_summary || response.statusText);
-        }
-
-        const data = await response.json();
-
-        // Filtrar solo carpetas
-        const projects = data.entries
-            .filter(entry => entry['.tag'] === 'folder')
-            .map(folder => ({
-                id: folder.id,
-                name: folder.name,
-                slug: slugify(folder.name),
-                path: folder.path_lower,
-                pathDisplay: folder.path_display
-            }))
-            .sort((a, b) => a.name.localeCompare(b.name, 'es'));
+        const projects = await listProjectsInternal(token);
 
         return res.status(200).json({
             success: true,
@@ -414,6 +370,126 @@ async function listProjects(res) {
     } catch (error) {
         return res.status(500).json({
             error: 'Failed to list projects',
+            message: error.message
+        });
+    }
+}
+
+async function listProjectsInternal(token) {
+    const projectsRoot = getProjectsRootPath();
+
+    const response = await fetch('https://api.dropboxapi.com/2/files/list_folder', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            path: projectsRoot,
+            recursive: false,
+            include_media_info: false,
+            include_deleted: false,
+            include_has_explicit_shared_members: false
+        })
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+
+        // Si la carpeta base no existe, la creamos y devolvemos lista vacía.
+        if (isPathNotFound(errorData.error_summary)) {
+            await createFolderIfMissing(projectsRoot, token);
+            return [];
+        }
+
+        throw new Error(errorData.error_summary || response.statusText);
+    }
+
+    const data = await response.json();
+
+    return data.entries
+        .filter(entry => entry['.tag'] === 'folder')
+        .map(folder => ({
+            id: folder.id,
+            name: folder.name,
+            slug: slugify(folder.name),
+            path: folder.path_lower,
+            pathDisplay: folder.path_display
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name, 'es'));
+}
+
+async function getProjectImageSummary(projectPath, token) {
+    const folderPath = `${projectPath}/Imagenes`;
+
+    const response = await fetch('https://api.dropboxapi.com/2/files/list_folder', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            path: folderPath,
+            recursive: false,
+            include_media_info: false,
+            include_deleted: false
+        })
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        if (isPathNotFound(errorData.error_summary)) {
+            return { cover: null, imageCount: 0 };
+        }
+        throw new Error(errorData.error_summary || response.statusText);
+    }
+
+    const data = await response.json();
+    const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp'];
+
+    const imageFiles = data.entries
+        .filter(entry => {
+            if (entry['.tag'] !== 'file') return false;
+            const ext = entry.name.toLowerCase().substring(entry.name.lastIndexOf('.'));
+            return ALLOWED_EXTENSIONS.includes(ext);
+        })
+        .sort((a, b) => a.name.localeCompare(b.name, 'es', { numeric: true }));
+
+    let cover = null;
+    if (imageFiles.length > 0) {
+        cover = await getTemporaryLinkInternal(imageFiles[0].path_lower, token);
+    }
+
+    return {
+        cover,
+        imageCount: imageFiles.length
+    };
+}
+
+async function getProjectSummaries(res) {
+    try {
+        const token = await getValidAccessToken();
+        const projects = await listProjectsInternal(token);
+
+        const summaries = await Promise.all(
+            projects.map(async (project) => {
+                const imageSummary = await getProjectImageSummary(project.path, token);
+                return {
+                    ...project,
+                    cover: imageSummary.cover,
+                    imageCount: imageSummary.imageCount
+                };
+            })
+        );
+
+        return res.status(200).json({
+            success: true,
+            projects: summaries,
+            count: summaries.length
+        });
+    } catch (error) {
+        return res.status(500).json({
+            error: 'Failed to get project summaries',
             message: error.message
         });
     }

@@ -295,7 +295,7 @@
             }
         }
 
-        window.addEventListener('load', () => {
+        document.addEventListener('DOMContentLoaded', () => {
             loadProjectData();
             changeLanguage(localStorage.getItem('selectedLanguage') || 'es');
         });

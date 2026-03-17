@@ -11,8 +11,10 @@
 class DropboxService {
     constructor(config) {
         this.config = config;
+        this.storageKeyPrefix = 'dropbox_service_cache_v1';
         this.cache = {
             projects: null,
+            projectSummaries: null,
             projectImages: {},
             lastUpdate: null
         };
@@ -82,10 +84,19 @@ class DropboxService {
             return this.cache.projects;
         }
 
+        const cachedProjects = this.readSessionCache('projects');
+        if (cachedProjects) {
+            this.cache.projects = cachedProjects;
+            this.cache.lastUpdate = Date.now();
+            console.log('📦 Usando proyectos desde sessionStorage');
+            return cachedProjects;
+        }
+
         const data = await this.callApi('list-projects');
         
         this.cache.projects = data.projects;
         this.cache.lastUpdate = Date.now();
+        this.writeSessionCache('projects', data.projects);
 
         console.log(`✓ ${data.count} proyectos encontrados`);
         return data.projects;
@@ -141,23 +152,86 @@ class DropboxService {
      * Obtiene todos los proyectos con sus portadas
      */
     async getAllProjectsWithCovers() {
-        const projects = await this.listProjects();
-        
-        const projectsWithCovers = await Promise.all(
-            projects.map(async (project) => {
-                const detail = await this.getProjectDetail(project.path);
-                return {
-                    ...project,
-                    cover: detail.cover,
-                    imageCount: detail.images.length,
-                    drawingCount: detail.drawings.length,
-                    description: detail.description,
-                    features: detail.features
-                };
-            })
-        );
+        if (this.cache.projectSummaries && this.cache.lastUpdate &&
+            (Date.now() - this.cache.lastUpdate) < this.config.CACHE_TTL) {
+            console.log('📦 Usando resumen de proyectos desde caché');
+            return this.cache.projectSummaries;
+        }
 
-        return projectsWithCovers;
+        const cachedSummaries = this.readSessionCache('project_summaries');
+        if (cachedSummaries) {
+            this.cache.projectSummaries = cachedSummaries;
+            this.cache.lastUpdate = Date.now();
+            console.log('📦 Usando resumen de proyectos desde sessionStorage');
+            return cachedSummaries;
+        }
+
+        try {
+            const data = await this.callApi('get-project-summaries');
+            const summaries = data.projects || [];
+
+            this.cache.projectSummaries = summaries;
+            this.cache.projects = summaries;
+            this.cache.lastUpdate = Date.now();
+            this.writeSessionCache('project_summaries', summaries);
+            this.writeSessionCache('projects', summaries);
+
+            return summaries;
+        } catch (error) {
+            // Fallback para mantener compatibilidad en despliegues sin el nuevo endpoint
+            const projects = await this.listProjects();
+            const projectsWithCovers = await Promise.all(
+                projects.map(async (project) => {
+                    const detail = await this.getProjectDetail(project.path);
+                    return {
+                        ...project,
+                        cover: detail.cover,
+                        imageCount: detail.images.length,
+                        drawingCount: detail.drawings.length,
+                        description: detail.description,
+                        features: detail.features
+                    };
+                })
+            );
+
+            this.cache.projectSummaries = projectsWithCovers;
+            this.cache.lastUpdate = Date.now();
+            this.writeSessionCache('project_summaries', projectsWithCovers);
+            return projectsWithCovers;
+        }
+    }
+
+    readSessionCache(key) {
+        try {
+            const raw = sessionStorage.getItem(`${this.storageKeyPrefix}:${key}`);
+            if (!raw) return null;
+
+            const parsed = JSON.parse(raw);
+            if (!parsed || !parsed.timestamp || !('value' in parsed)) return null;
+
+            if ((Date.now() - parsed.timestamp) > this.config.CACHE_TTL) {
+                sessionStorage.removeItem(`${this.storageKeyPrefix}:${key}`);
+                return null;
+            }
+
+            return parsed.value;
+        } catch (_) {
+            return null;
+        }
+    }
+
+    writeSessionCache(key, value) {
+        try {
+            sessionStorage.setItem(
+                `${this.storageKeyPrefix}:${key}`,
+                JSON.stringify({
+                    timestamp: Date.now(),
+                    value
+                })
+            );
+        } catch (_) {
+            // Ignorar errores de sessionStorage (modo privado/cuota)
+        }
     }
 
     // ============================================
@@ -372,9 +446,17 @@ class DropboxService {
     clearCache() {
         this.cache = {
             projects: null,
+            projectSummaries: null,
             projectImages: {},
             lastUpdate: null
         };
+        try {
+            Object.keys(sessionStorage)
+                .filter(key => key.startsWith(`${this.storageKeyPrefix}:`))
+                .forEach(key => sessionStorage.removeItem(key));
+        } catch (_) {
+            // Ignorar errores de sessionStorage
+        }
         console.log('✓ Caché limpiada');
     }
 
