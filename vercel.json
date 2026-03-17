@@ -4,7 +4,7 @@
   "outputDirectory": ".",
   "devCommand": "echo 'Ready for development'",
   "installCommand": "npm install",
-  "env": [
+  "requiredEnv": [
     "DROPBOX_APP_KEY",
     "DROPBOX_APP_SECRET",
     "DROPBOX_REFRESH_TOKEN"
