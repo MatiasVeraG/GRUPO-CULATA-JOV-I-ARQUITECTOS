@@ -247,8 +247,7 @@
             if (!col1 || !col2) return;
 
             try {
-                const langKey = lang === 'en' ? 'sobre_en' : 'sobre_es';
-                                const langKey = lang === 'en' ? 'sobre_en' : lang === 'de' ? 'sobre_de' : 'sobre_es';
+                const langKey = lang === 'en' ? 'sobre_en' : lang === 'de' ? 'sobre_de' : 'sobre_es';
                 let text = null;
                 try { text = await dropboxService.getSiteContent(langKey); } catch (_) {}
                 if (!text || !text.trim()) {
