@@ -47,7 +47,8 @@ class DropboxService {
                 'get-project-drawings',
                 'get-temporary-link',
                 'get-site-content',
-                'get-sobre-images'
+                'get-sobre-images',
+                'get-contacto-images'
             ]);
 
             const isReadAction = readActions.has(action);
@@ -439,6 +440,11 @@ class DropboxService {
 
     async getSobreImages() {
         const data = await this.callApi('get-sobre-images', {});
+        return data.images || [];
+    }
+
+    async getContactoImages() {
+        const data = await this.callApi('get-contacto-images', {});
         return data.images || [];
     }
 

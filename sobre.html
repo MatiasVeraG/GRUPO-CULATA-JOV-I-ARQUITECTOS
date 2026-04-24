@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nosotros - Grupo Culata Jovái Arquitectos</title>
+    <title>Sobre - Grupo Culata Jovái Arquitectos</title>
     <link rel="stylesheet" href="styles.css">
     <style>
         /* HEADER MINIMALISTA */
@@ -115,7 +115,7 @@
         }
     </style>
     <style>
-        /* ESTILOS ESPECÍFICOS PARA NOSOTROS */
+        /* ESTILOS ESPECÍFICOS PARA SOBRE */
         #nosotros {
             background-color: #FFFFFF;
             padding: 140px 60px 100px;
@@ -136,39 +136,36 @@
             text-align: center;
         }
 
-        .person-card {
+        .about-stack {
+            max-width: 760px;
+            margin: 0 auto;
             display: flex;
-            gap: 50px;
-            margin-bottom: 70px;
-            align-items: flex-start;
+            flex-direction: column;
+            gap: 28px;
         }
 
-        .person-card:nth-child(even) {
-            flex-direction: row-reverse;
-        }
-
-        .person-photo {
-            width: 200px;
-            flex-shrink: 0;
-        }
-
-        .person-photo img {
+        .about-block {
             width: 100%;
-            height: 260px;
-            object-fit: cover;
-            display: block;
+            display: flex;
+            justify-content: center;
         }
 
-        .person-bio {
-            flex: 1;
-        }
-
-        .person-bio p {
+        .about-block.text p {
+            width: 100%;
             font-size: 15px;
             line-height: 1.9;
-            letter-spacing: 0.5px;
-            margin-bottom: 16px;
+            letter-spacing: 0.4px;
+            margin: 0;
             font-weight: 300;
+            text-align: center;
+        }
+
+        .about-block.image img {
+            width: min(420px, 100%);
+            height: auto;
+            max-height: 520px;
+            object-fit: cover;
+            display: block;
         }
 
         @media (max-width: 768px) {
@@ -176,18 +173,12 @@
                 padding: 100px 30px 80px;
             }
 
-            .person-card,
-            .person-card:nth-child(even) {
-                flex-direction: column;
-                gap: 24px;
+            .about-stack {
+                gap: 22px;
             }
 
-            .person-photo {
+            .about-block.image img {
                 width: 100%;
-            }
-
-            .person-photo img {
-                height: 240px;
             }
         }
 
@@ -203,7 +194,7 @@
     <header class="landing-header">
         <nav style="display: flex; gap: 30px;">
             <a href="trabajos.html" class="nav-link" data-i18n="nav-trabajos">trabajos</a>
-            <a href="nosotros.html" class="nav-link" data-i18n="nav-sobre">sobre</a>
+            <a href="sobre.html" class="nav-link" data-i18n="nav-sobre">sobre</a>
             <a href="contacto.html" class="nav-link" data-i18n="nav-contacto">contacto</a>
         </nav>
         <div class="logo-text" onclick="window.location.href='index.html'">
@@ -214,8 +205,8 @@
     <!-- NOSOTROS -->
     <section id="nosotros">
         <div class="nosotros-container">
-            <h2 class="nosotros-title">NOSOTROS</h2>
-            <div id="personCards">
+            <h2 class="nosotros-title" data-i18n="about-title">Sobre</h2>
+            <div id="personCards" class="about-stack">
                 <!-- Se llena dinámicamente desde Dropbox -->
             </div>
         </div>
@@ -233,6 +224,45 @@
     <script>
         let sobreImages = [];
 
+        function esc(text) {
+            const d = document.createElement('div');
+            d.textContent = text || '';
+            return d.innerHTML;
+        }
+
+        function parseStructuredBlocks(text) {
+            const lines = (text || '').split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+            const blocks = [];
+
+            for (const line of lines) {
+                if (/^image\s*:/i.test(line)) {
+                    const value = line.replace(/^image\s*:/i, '').trim();
+                    if (value) blocks.push({ type: 'image', value });
+                } else if (/^text\s*:/i.test(line)) {
+                    const value = line.replace(/^text\s*:/i, '').trim();
+                    if (value) blocks.push({ type: 'text', value });
+                }
+            }
+
+            return blocks;
+        }
+
+        function renderStructuredBlocks(container, blocks) {
+            const imageByName = new Map(
+                (sobreImages || []).map(item => [String(item.name || '').toLowerCase(), item])
+            );
+
+            container.innerHTML = blocks.map(block => {
+                if (block.type === 'image') {
+                    const img = imageByName.get(String(block.value || '').toLowerCase());
+                    if (!img) return '';
+                    return `<div class="about-block image"><img src="${img.temporaryLink}" alt="${esc(img.name)}"></div>`;
+                }
+
+                return `<div class="about-block text"><p>${esc(block.value)}</p></div>`;
+            }).join('');
+        }
+
         async function loadSobreContent(lang) {
             const container = document.getElementById('personCards');
             if (!container) return;
@@ -243,6 +273,12 @@
                 try { text = await dropboxService.getSiteContent(langKey); } catch (_) {}
                 if (!text || !text.trim()) {
                     try { text = await dropboxService.getSiteContent('sobre'); } catch (_) {}
+                }
+
+                const structuredBlocks = parseStructuredBlocks(text || '');
+                if (structuredBlocks.length) {
+                    renderStructuredBlocks(container, structuredBlocks);
+                    return;
                 }
 
                 const paragraphs = text
@@ -257,13 +293,10 @@
                 container.innerHTML = paragraphs.map((bio, i) => {
                     const img = sobreImages[i];
                     const photoHtml = img
-                        ? `<div class="person-photo"><img src="${img.temporaryLink}" alt=""></div>`
+                        ? `<div class="about-block image"><img src="${img.temporaryLink}" alt=""></div>`
                         : '';
-                    return `
-                        <div class="person-card">
-                            ${photoHtml}
-                            <div class="person-bio">${bio.split(/\n/).map(line => `<p>${line}</p>`).join('')}</div>
-                        </div>`;
+                    const textHtml = bio.split(/\n/).map(line => `<div class="about-block text"><p>${esc(line)}</p></div>`).join('');
+                    return `${photoHtml}${textHtml}`;
                 }).join('');
             } catch (error) {
                 console.error('No se pudo cargar el contenido de Sobre:', error);
@@ -275,17 +308,20 @@
             es: {
                 'nav-trabajos': 'trabajos',
                 'nav-sobre': 'sobre',
-                'nav-contacto': 'contacto'
+                'nav-contacto': 'contacto',
+                'about-title': 'Sobre'
             },
             en: {
                 'nav-trabajos': 'works',
                 'nav-sobre': 'about',
-                'nav-contacto': 'contact'
+                'nav-contacto': 'contact',
+                'about-title': 'About'
             },
             de: {
                 'nav-trabajos': 'arbeiten',
                 'nav-sobre': 'über',
-                'nav-contacto': 'kontakt'
+                'nav-contacto': 'kontakt',
+                'about-title': 'Über'
             }
         };
 

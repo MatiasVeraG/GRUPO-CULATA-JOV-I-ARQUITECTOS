@@ -27,7 +27,8 @@ export default async function handler(req, res) {
         'get-project-drawings',
         'get-temporary-link',
         'get-site-content',
-        'get-sobre-images'
+        'get-sobre-images',
+        'get-contacto-images'
     ]);
 
     const WRITE_ACTIONS = new Set([
@@ -50,7 +51,8 @@ export default async function handler(req, res) {
             'get-project-drawings': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
             'get-temporary-link': 'public, max-age=30, s-maxage=120, stale-while-revalidate=120',
             'get-site-content': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
-            'get-sobre-images': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600'
+            'get-sobre-images': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
+            'get-contacto-images': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600'
         };
 
         const value = cacheMap[action] || 'no-store';
@@ -142,6 +144,8 @@ export default async function handler(req, res) {
                 return await saveSiteContent(params.pageKey, params.content, res);
             case 'get-sobre-images':
                 return await getSobreImages(res);
+            case 'get-contacto-images':
+                return await getContactoImages(res);
             case 'delete-file':
                 return await deleteFile(params.filePath, res);
             default:
@@ -812,6 +816,14 @@ async function createProject(projectName, res) {
         const data = await createFolderIfMissing(projectPath, token);
         await ensureProjectStructure(projectPath, token);
 
+        // Inicializa todos los archivos de descripción para los idiomas soportados.
+        await Promise.all([
+            uploadTextFile(`${projectPath}/Descripcion/descripcion.txt`, '', token),
+            uploadTextFile(`${projectPath}/Descripcion/descripcion_es.txt`, '', token),
+            uploadTextFile(`${projectPath}/Descripcion/descripcion_en.txt`, '', token),
+            uploadTextFile(`${projectPath}/Descripcion/descripcion_de.txt`, '', token)
+        ]);
+
         return res.status(200).json({
             success: true,
             project: {
@@ -832,10 +844,40 @@ async function createProject(projectName, res) {
 async function getSobreImages(res) {
     try {
         const token = await getValidAccessToken();
-        const images = await listMediaFromFolder('/ContenidoSitio/SobreImagenes', token);
+        const root = getSiteContentRootPath();
+        const folder = `${root}/SobreImagenes`;
+        try {
+            await createFolderIfMissing(folder, token);
+        } catch (error) {
+            const message = String(error.message || '');
+            if (!message.includes('conflict/folder')) {
+                throw error;
+            }
+        }
+        const images = await listMediaFromFolder(folder, token);
         return res.status(200).json({ success: true, images });
     } catch (error) {
         return res.status(500).json({ error: 'Failed to get sobre images', message: error.message });
+    }
+}
+
+async function getContactoImages(res) {
+    try {
+        const token = await getValidAccessToken();
+        const root = getSiteContentRootPath();
+        const folder = `${root}/ContactoImagenes`;
+        try {
+            await createFolderIfMissing(folder, token);
+        } catch (error) {
+            const message = String(error.message || '');
+            if (!message.includes('conflict/folder')) {
+                throw error;
+            }
+        }
+        const images = await listMediaFromFolder(folder, token);
+        return res.status(200).json({ success: true, images });
+    } catch (error) {
+        return res.status(500).json({ error: 'Failed to get contacto images', message: error.message });
     }
 }
 

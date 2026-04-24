@@ -15,7 +15,7 @@ Portfolio minimalista para estudio de arquitectura con sistema de administració
 ## 📂 Archivos Principales
 
 - `index.html` - Página principal con galería de proyectos
-- `nosotros.html` - Página "Nosotros" / Estudio
+- `sobre.html` - Página "Sobre" / Estudio
 - `admin.html` - Página de login de administrador
 - `admin-panel.html` - Panel de administración de proyectos
 - `styles.css` - Estilos globales

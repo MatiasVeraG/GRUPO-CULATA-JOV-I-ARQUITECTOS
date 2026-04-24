@@ -4,7 +4,7 @@
   "description": "Portfolio de arquitectura dinámico con integración de Dropbox",
   "private": true,
   "scripts": {
-    "dev": "vercel dev",
+    "local": "vercel dev",
     "build": "vercel build"
   },
   "keywords": [

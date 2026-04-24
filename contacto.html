@@ -122,9 +122,44 @@
             min-height: 100vh;
         }
 
+        .contacto-content {
+            max-width: 760px;
+            margin: 40px auto 0;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .contacto-line {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .contacto-line.text p {
+            margin: 0;
+            font-size: 16px;
+            line-height: 1.9;
+            letter-spacing: 0.4px;
+            font-weight: 300;
+            text-align: center;
+        }
+
+        .contacto-line.image img {
+            width: min(420px, 100%);
+            height: auto;
+            max-height: 520px;
+            object-fit: cover;
+            display: block;
+        }
+
         @media (max-width: 768px) {
             #contacto {
                 padding: 120px 30px 80px;
+            }
+
+            .contacto-line.image img {
+                width: 100%;
             }
         }
 
@@ -140,7 +175,7 @@
     <header class="landing-header">
         <nav style="display: flex; gap: 30px;">
             <a href="trabajos.html" class="nav-link" data-i18n="nav-trabajos">trabajos</a>
-            <a href="nosotros.html" class="nav-link" data-i18n="nav-sobre">sobre</a>
+            <a href="sobre.html" class="nav-link" data-i18n="nav-sobre">sobre</a>
             <a href="contacto.html" class="nav-link" data-i18n="nav-contacto">contacto</a>
         </nav>
         <div class="logo-text" onclick="window.location.href='index.html'">
@@ -150,17 +185,8 @@
 
     <!-- CONTACTO -->
     <section id="contacto">
-        <h2>CONTACTO</h2>
-        <div class="contacto-content">
-            <div class="contacto-info" id="contactoInfoEditable">
-                <p><strong>EMAIL</strong><br>contacto@culatajovai.com</p>
-                <p><strong>TELÉFONO</strong><br>+595 XXX XXX XXX</p>
-                <p><strong>UBICACIÓN</strong><br>Asunción, Paraguay</p>
-            </div>
-            <div class="contacto-social">
-                <a href="https://www.instagram.com/culatajovai.arq" target="_blank" rel="noopener" class="btn-instagram">SÍGUENOS EN INSTAGRAM</a>
-            </div>
-        </div>
+        <h2 data-i18n="contact-title">Contacto</h2>
+        <div class="contacto-content" id="contactoInfoEditable"></div>
     </section>
 
     <!-- SELECTOR DE IDIOMA -->
@@ -173,6 +199,44 @@
     <script src="dropbox-config.js"></script>
     <script src="dropbox-service-vercel.js"></script>
     <script>
+        let contactoImages = [];
+
+        function esc(text) {
+            const d = document.createElement('div');
+            d.textContent = text || '';
+            return d.innerHTML;
+        }
+
+        function parseStructuredBlocks(text) {
+            const lines = (text || '').split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+            const blocks = [];
+
+            for (const line of lines) {
+                if (/^image\s*:/i.test(line)) {
+                    const value = line.replace(/^image\s*:/i, '').trim();
+                    if (value) blocks.push({ type: 'image', value });
+                } else if (/^text\s*:/i.test(line)) {
+                    const value = line.replace(/^text\s*:/i, '').trim();
+                    if (value) blocks.push({ type: 'text', value });
+                }
+            }
+
+            return blocks;
+        }
+
+        function renderStructuredBlocks(container, blocks) {
+            const imageByName = new Map((contactoImages || []).map(item => [String(item.name || '').toLowerCase(), item]));
+            container.innerHTML = blocks.map(block => {
+                if (block.type === 'image') {
+                    const img = imageByName.get(String(block.value || '').toLowerCase());
+                    if (!img) return '';
+                    return `<div class="contacto-line image"><img src="${img.temporaryLink}" alt="${esc(img.name)}"></div>`;
+                }
+
+                return `<div class="contacto-line text"><p>${esc(block.value)}</p></div>`;
+            }).join('');
+        }
+
         async function loadContactoContent(lang) {
             const container = document.getElementById('contactoInfoEditable');
             if (!container) return;
@@ -186,6 +250,12 @@
                     text = await dropboxService.getSiteContent('contacto');
                 }
                 if (!text || !text.trim()) return;
+
+                const structuredBlocks = parseStructuredBlocks(text || '');
+                if (structuredBlocks.length) {
+                    renderStructuredBlocks(container, structuredBlocks);
+                    return;
+                }
 
                 const blocks = text
                     .split(/\n\s*\n/)
@@ -208,30 +278,51 @@
             }
         }
 
+        async function loadContactoImages() {
+            try {
+                contactoImages = await dropboxService.getContactoImages();
+            } catch (_) {
+                contactoImages = [];
+            }
+        }
+
         // Sistema de traducción
         const translations = {
             es: {
                 'nav-trabajos': 'trabajos',
                 'nav-sobre': 'sobre',
-                'nav-contacto': 'contacto'
+                'nav-contacto': 'contacto',
+                'contact-title': 'Contacto'
             },
             en: {
                 'nav-trabajos': 'works',
                 'nav-sobre': 'about',
-                'nav-contacto': 'contact'
+                'nav-contacto': 'contact',
+                'contact-title': 'Contact'
             },
             de: {
                 'nav-trabajos': 'arbeiten',
                 'nav-sobre': 'über',
-                'nav-contacto': 'kontakt'
+                'nav-contacto': 'kontakt',
+                'contact-title': 'Kontakt'
             }
         };
+
+        function updateDocumentTitle(lang) {
+            const titles = {
+                es: 'Contacto - Grupo Culata Jovái Arquitectos',
+                en: 'Contact - Grupo Culata Jovái Arquitectos',
+                de: 'Kontakt - Grupo Culata Jovái Arquitectos'
+            };
+            document.title = titles[lang] || titles.es;
+        }
 
         // Función para cambiar idioma
         function changeLanguage(lang) {
             localStorage.setItem('selectedLanguage', lang);
             updateLanguageUI(lang);
             applyTranslations(lang);
+            updateDocumentTitle(lang);
             loadContactoContent(lang);
         }
 
@@ -260,11 +351,15 @@
             const savedLang = localStorage.getItem('selectedLanguage') || 'es';
             updateLanguageUI(savedLang);
             applyTranslations(savedLang);
+            updateDocumentTitle(savedLang);
         }
 
         // Inicializar idioma
-        initLanguage();
-        loadContactoContent(localStorage.getItem('selectedLanguage') || 'es');
+        document.addEventListener('DOMContentLoaded', async () => {
+            initLanguage();
+            await loadContactoImages();
+            loadContactoContent(localStorage.getItem('selectedLanguage') || 'es');
+        });
     </script>
 </body>
 </html>

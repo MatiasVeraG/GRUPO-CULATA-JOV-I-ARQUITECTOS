@@ -109,10 +109,24 @@
         .text-block textarea { min-height:260px; }
         .lang-tag { display:inline-block; font-size:10px; letter-spacing:1px; text-transform:uppercase; background:#111; color:#fff; padding:2px 7px; margin-bottom:10px; }
 
+        .line-blocks { display:flex; flex-direction:column; gap:8px; }
+        .line-block-row {
+            display:grid;
+            grid-template-columns:130px 1fr 1fr auto auto auto;
+            gap:8px;
+            align-items:center;
+        }
+        .line-block-row input,
+        .line-block-row select { padding:9px 10px; }
+        .line-block-row .btn { padding:9px 10px; }
+
         @media (max-width:980px) {
             .layout { grid-template-columns:1fr; }
             .row { grid-template-columns:1fr; }
             .tab-panel { padding:20px 16px; }
+            .line-block-row {
+                grid-template-columns:1fr;
+            }
         }
     </style>
 </head>
@@ -154,10 +168,10 @@
     <div id="tab-sobre" class="tab-panel">
         <div class="text-section">
             <div class="text-block" style="grid-column:1/-1;">
-                <h2>Fotos de personas</h2>
+                <h2>Bloques de imagen</h2>
                 <p class="help" style="margin-bottom:14px;">
-                    Cada imagen se empareja con el bloque de texto correspondiente por orden (1ª foto → 1er párrafo, etc.).<br>
-                    Usa nombres como <code>01_nombre.jpg</code>, <code>02_nombre.jpg</code> para controlar el orden.
+                    Sube imágenes y luego selecciónalas en cada línea de contenido.<br>
+                    Formato en el editor: una línea = un bloque (texto o imagen).
                 </p>
                 <div class="upload-row">
                     <input id="sobreUploadFiles" type="file" accept=".jpg,.jpeg,.png,.webp" multiple>
@@ -169,27 +183,33 @@
             <div class="text-block">
                 <h2>Sobre – Español</h2>
                 <span class="lang-tag">es</span>
-                <textarea id="siteSobreEs" placeholder="Cada párrafo (separado por línea en blanco) corresponde a una persona."></textarea>
+                <div id="sobreBlocksEs" class="line-blocks"></div>
                 <div class="actions">
-                    <button class="btn btn-primary" onclick="saveSiteText('sobre_es')">Guardar versión español</button>
+                    <button class="btn btn-light" onclick="addSobreBlock('es', 'text')">+ Línea texto</button>
+                    <button class="btn btn-light" onclick="addSobreBlock('es', 'image')">+ Línea imagen</button>
+                    <button class="btn btn-primary" onclick="saveSobreBlocks('es')">Guardar versión español</button>
                 </div>
             </div>
 
             <div class="text-block">
                 <h2>Sobre – English</h2>
                 <span class="lang-tag">en</span>
-                <textarea id="siteSobreEn" placeholder="Each paragraph (separated by blank line) corresponds to one person."></textarea>
+                <div id="sobreBlocksEn" class="line-blocks"></div>
                 <div class="actions">
-                    <button class="btn btn-primary" onclick="saveSiteText('sobre_en')">Guardar versión inglés</button>
+                    <button class="btn btn-light" onclick="addSobreBlock('en', 'text')">+ Text line</button>
+                    <button class="btn btn-light" onclick="addSobreBlock('en', 'image')">+ Image line</button>
+                    <button class="btn btn-primary" onclick="saveSobreBlocks('en')">Guardar versión inglés</button>
                 </div>
             </div>
 
             <div class="text-block">
                 <h2>Sobre – Deutsch</h2>
                 <span class="lang-tag">de</span>
-                <textarea id="siteSobreDe" placeholder="Jeder Absatz (durch Leerzeile getrennt) entspricht einer Person."></textarea>
+                <div id="sobreBlocksDe" class="line-blocks"></div>
                 <div class="actions">
-                    <button class="btn btn-primary" onclick="saveSiteText('sobre_de')">Guardar versión alemán</button>
+                    <button class="btn btn-light" onclick="addSobreBlock('de', 'text')">+ Textzeile</button>
+                    <button class="btn btn-light" onclick="addSobreBlock('de', 'image')">+ Bildzeile</button>
+                    <button class="btn btn-primary" onclick="saveSobreBlocks('de')">Guardar versión alemán</button>
                 </div>
             </div>
         </div>
@@ -198,38 +218,49 @@
     <!-- ══════════════ PESTAÑA CONTACTO ══════════════ -->
     <div id="tab-contacto" class="tab-panel">
         <div class="text-section">
-            <div class="text-block">
-                <h2>Contacto</h2>
+            <div class="text-block" style="grid-column:1/-1;">
+                <h2>Bloques de imagen</h2>
                 <p class="help" style="margin-bottom:14px;">
-                    Cada bloque separado por línea en blanco se mostrará como un párrafo.<br>
-                    La primera línea de cada bloque se mostrará en negrita (ej: EMAIL, TELÉFONO).
+                    Sube imágenes y luego selecciónalas en cada línea de contenido.<br>
+                    Formato en el editor: una línea = un bloque (texto o imagen).
                 </p>
+                <div class="upload-row">
+                    <input id="contactoUploadFiles" type="file" accept=".jpg,.jpeg,.png,.webp" multiple>
+                    <button class="btn btn-primary" onclick="uploadContactoImages()">Subir fotos</button>
+                </div>
+                <div class="media-grid" id="contactoImageGrid" style="margin-top:14px;"></div>
             </div>
 
             <div class="text-block">
                 <h2>Contacto – Español</h2>
                 <span class="lang-tag">es</span>
-                <textarea id="siteContactoEs" placeholder="EMAIL&#10;contacto@culatajovai.com&#10;&#10;TELÉFONO&#10;+595 XXX XXX XXX&#10;&#10;UBICACIÓN&#10;Asunción, Paraguay"></textarea>
+                <div id="contactoBlocksEs" class="line-blocks"></div>
                 <div class="actions">
-                    <button class="btn btn-primary" onclick="saveSiteText('contacto_es')">Guardar versión español</button>
+                    <button class="btn btn-light" onclick="addContactoBlock('es', 'text')">+ Línea texto</button>
+                    <button class="btn btn-light" onclick="addContactoBlock('es', 'image')">+ Línea imagen</button>
+                    <button class="btn btn-primary" onclick="saveContactoBlocks('es')">Guardar versión español</button>
                 </div>
             </div>
 
             <div class="text-block">
                 <h2>Contacto – English</h2>
                 <span class="lang-tag">en</span>
-                <textarea id="siteContactoEn" placeholder="EMAIL&#10;contact@culatajovai.com&#10;&#10;PHONE&#10;+595 XXX XXX XXX&#10;&#10;LOCATION&#10;Asunción, Paraguay"></textarea>
+                <div id="contactoBlocksEn" class="line-blocks"></div>
                 <div class="actions">
-                    <button class="btn btn-primary" onclick="saveSiteText('contacto_en')">Guardar versión inglés</button>
+                    <button class="btn btn-light" onclick="addContactoBlock('en', 'text')">+ Text line</button>
+                    <button class="btn btn-light" onclick="addContactoBlock('en', 'image')">+ Image line</button>
+                    <button class="btn btn-primary" onclick="saveContactoBlocks('en')">Guardar versión inglés</button>
                 </div>
             </div>
 
             <div class="text-block">
                 <h2>Kontakt – Deutsch</h2>
                 <span class="lang-tag">de</span>
-                <textarea id="siteContactoDe" placeholder="EMAIL&#10;kontakt@culatajovai.com&#10;&#10;TELEFON&#10;+595 XXX XXX XXX&#10;&#10;ORT&#10;Asunción, Paraguay"></textarea>
+                <div id="contactoBlocksDe" class="line-blocks"></div>
                 <div class="actions">
-                    <button class="btn btn-primary" onclick="saveSiteText('contacto_de')">Guardar versión alemán</button>
+                    <button class="btn btn-light" onclick="addContactoBlock('de', 'text')">+ Textzeile</button>
+                    <button class="btn btn-light" onclick="addContactoBlock('de', 'image')">+ Bildzeile</button>
+                    <button class="btn btn-primary" onclick="saveContactoBlocks('de')">Guardar versión alemán</button>
                 </div>
             </div>
         </div>
@@ -279,6 +310,11 @@
             const content = document.getElementById('editorContent');
             document.getElementById('editorTitle').textContent = `Editando: ${detail.name}`;
 
+            const baseDescription = detail.description || '';
+            const descriptionEs = detail.description_es || baseDescription;
+            const descriptionEn = detail.description_en || baseDescription;
+            const descriptionDe = detail.description_de || baseDescription;
+
             content.innerHTML = `
                 <div class="row">
                     <div class="box">
@@ -286,21 +322,21 @@
                         <div style="display:flex;gap:6px;margin-bottom:6px;">
                             <span class="lang-tag">es</span><span style="font-size:12px;color:#888;">Español</span>
                         </div>
-                        <textarea id="descriptionEs" placeholder="Descripción en español..." style="margin-bottom:6px;">${esc(detail.description_es || '')}</textarea>
+                        <textarea id="descriptionEs" placeholder="Descripción en español..." style="margin-bottom:6px;">${esc(descriptionEs)}</textarea>
                         <div class="actions" style="margin-bottom:12px;">
                             <button class="btn btn-primary" onclick="saveDescriptionLang('es')">Guardar español</button>
                         </div>
                         <div style="display:flex;gap:6px;margin-bottom:6px;">
                             <span class="lang-tag">en</span><span style="font-size:12px;color:#888;">English</span>
                         </div>
-                        <textarea id="descriptionEn" placeholder="Project description in English..." style="margin-bottom:6px;">${esc(detail.description_en || '')}</textarea>
+                        <textarea id="descriptionEn" placeholder="Project description in English..." style="margin-bottom:6px;">${esc(descriptionEn)}</textarea>
                         <div class="actions" style="margin-bottom:12px;">
                             <button class="btn btn-primary" onclick="saveDescriptionLang('en')">Guardar inglés</button>
                         </div>
                         <div style="display:flex;gap:6px;margin-bottom:6px;">
                             <span class="lang-tag">de</span><span style="font-size:12px;color:#888;">Deutsch</span>
                         </div>
-                        <textarea id="descriptionDe" placeholder="Projektbeschreibung auf Deutsch..." style="margin-bottom:6px;">${esc(detail.description_de || '')}</textarea>
+                        <textarea id="descriptionDe" placeholder="Projektbeschreibung auf Deutsch..." style="margin-bottom:6px;">${esc(descriptionDe)}</textarea>
                         <div class="actions">
                             <button class="btn btn-primary" onclick="saveDescriptionLang('de')">Guardar alemán</button>
                         </div>
@@ -472,22 +508,324 @@
         }
 
         /* ── SOBRE / CONTACTO ── */
+        let sobreImages = [];
+        let contactoImages = [];
+
+        function getSobreBlocksContainer(lang) {
+            const map = { es: 'sobreBlocksEs', en: 'sobreBlocksEn', de: 'sobreBlocksDe' };
+            return document.getElementById(map[lang]);
+        }
+
+        function parseSobreBlocks(content, lang) {
+            const lines = (content || '').split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+            const blocks = [];
+
+            for (const line of lines) {
+                if (/^image\s*:/i.test(line)) {
+                    blocks.push({ type: 'image', value: line.replace(/^image\s*:/i, '').trim() });
+                } else if (/^text\s*:/i.test(line)) {
+                    blocks.push({ type: 'text', value: line.replace(/^text\s*:/i, '').trim() });
+                }
+            }
+
+            if (blocks.length) return blocks;
+
+            const paragraphs = (content || '').split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+            if (!paragraphs.length) return [{ type: 'text', value: '' }];
+
+            const fallback = [];
+            paragraphs.forEach((paragraph, index) => {
+                if (sobreImages[index]) {
+                    fallback.push({ type: 'image', value: sobreImages[index].name });
+                }
+                fallback.push({ type: 'text', value: paragraph.replace(/\s*\n\s*/g, ' ') });
+            });
+            return fallback;
+        }
+
+        function parseContactoBlocks(content) {
+            const lines = (content || '').split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+            const blocks = [];
+
+            for (const line of lines) {
+                if (/^image\s*:/i.test(line)) {
+                    blocks.push({ type: 'image', value: line.replace(/^image\s*:/i, '').trim() });
+                } else if (/^text\s*:/i.test(line)) {
+                    blocks.push({ type: 'text', value: line.replace(/^text\s*:/i, '').trim() });
+                }
+            }
+
+            if (blocks.length) return blocks;
+
+            const paragraphs = (content || '').split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+            if (!paragraphs.length) return [{ type: 'text', value: '' }];
+
+            return paragraphs.map(paragraph => ({
+                type: 'text',
+                value: paragraph.replace(/\s*\n\s*/g, ' ')
+            }));
+        }
+
+        function createImageOptions(selectedName) {
+            if (!sobreImages.length) {
+                return '<option value="">Sin imágenes cargadas</option>';
+            }
+
+            return ['<option value="">Seleccionar imagen…</option>']
+                .concat(sobreImages.map(item => {
+                    const selected = item.name === selectedName ? 'selected' : '';
+                    return `<option value="${esc(item.name)}" ${selected}>${esc(item.name)}</option>`;
+                }))
+                .join('');
+        }
+
+        function createContactoImageOptions(selectedName) {
+            if (!contactoImages.length) {
+                return '<option value="">Sin imágenes cargadas</option>';
+            }
+
+            return ['<option value="">Seleccionar imagen…</option>']
+                .concat(contactoImages.map(item => {
+                    const selected = item.name === selectedName ? 'selected' : '';
+                    return `<option value="${esc(item.name)}" ${selected}>${esc(item.name)}</option>`;
+                }))
+                .join('');
+        }
+
+        function refreshSobreImageSelectors() {
+            document.querySelectorAll('.line-block-row').forEach(row => {
+                const selectType = row.querySelector('.block-type');
+                const imageSelect = row.querySelector('.block-image');
+                if (!selectType || !imageSelect) return;
+
+                const current = imageSelect.value;
+                imageSelect.innerHTML = createImageOptions(current);
+                if (!imageSelect.value && current) {
+                    imageSelect.value = current;
+                }
+                if (selectType.value === 'image') {
+                    onSobreBlockTypeChange(selectType);
+                }
+            });
+        }
+
+        function refreshContactoImageSelectors() {
+            document.querySelectorAll('#tab-contacto .line-block-row').forEach(row => {
+                const selectType = row.querySelector('.block-type');
+                const imageSelect = row.querySelector('.block-image');
+                if (!selectType || !imageSelect) return;
+
+                const current = imageSelect.value;
+                imageSelect.innerHTML = createContactoImageOptions(current);
+                if (!imageSelect.value && current) {
+                    imageSelect.value = current;
+                }
+                if (selectType.value === 'image') {
+                    onContactoBlockTypeChange(selectType);
+                }
+            });
+        }
+
+        function createSobreBlockRow(lang, block = { type: 'text', value: '' }) {
+            const row = document.createElement('div');
+            row.className = 'line-block-row';
+            row.innerHTML = `
+                <select class="block-type" onchange="onSobreBlockTypeChange(this)">
+                    <option value="text" ${block.type === 'text' ? 'selected' : ''}>Texto</option>
+                    <option value="image" ${block.type === 'image' ? 'selected' : ''}>Imagen</option>
+                </select>
+                <input class="block-text" type="text" maxlength="300" placeholder="Texto en una línea" value="${block.type === 'text' ? esc(block.value) : ''}">
+                <select class="block-image">${createImageOptions(block.type === 'image' ? block.value : '')}</select>
+                <button class="btn btn-light" onclick="moveSobreBlock(this, -1)">↑</button>
+                <button class="btn btn-light" onclick="moveSobreBlock(this, 1)">↓</button>
+                <button class="btn btn-danger" onclick="this.parentElement.remove()">✕</button>
+            `;
+
+            const container = getSobreBlocksContainer(lang);
+            if (container) container.appendChild(row);
+            onSobreBlockTypeChange(row.querySelector('.block-type'));
+        }
+
+        function addSobreBlock(lang, type = 'text') {
+            createSobreBlockRow(lang, { type, value: '' });
+        }
+
+        function getContactoBlocksContainer(lang) {
+            const map = { es: 'contactoBlocksEs', en: 'contactoBlocksEn', de: 'contactoBlocksDe' };
+            return document.getElementById(map[lang]);
+        }
+
+        function createContactoBlockRow(lang, block = { type: 'text', value: '' }) {
+            const row = document.createElement('div');
+            row.className = 'line-block-row';
+            row.innerHTML = `
+                <select class="block-type" onchange="onContactoBlockTypeChange(this)">
+                    <option value="text" ${block.type === 'text' ? 'selected' : ''}>Texto</option>
+                    <option value="image" ${block.type === 'image' ? 'selected' : ''}>Imagen</option>
+                </select>
+                <input class="block-text" type="text" maxlength="300" placeholder="Texto en una línea" value="${block.type === 'text' ? esc(block.value) : ''}">
+                <select class="block-image">${createContactoImageOptions(block.type === 'image' ? block.value : '')}</select>
+                <button class="btn btn-light" onclick="moveContactoBlock(this, -1)">↑</button>
+                <button class="btn btn-light" onclick="moveContactoBlock(this, 1)">↓</button>
+                <button class="btn btn-danger" onclick="this.parentElement.remove()">✕</button>
+            `;
+
+            const container = getContactoBlocksContainer(lang);
+            if (container) container.appendChild(row);
+            onContactoBlockTypeChange(row.querySelector('.block-type'));
+        }
+
+        function addContactoBlock(lang, type = 'text') {
+            createContactoBlockRow(lang, { type, value: '' });
+        }
+
+        function onSobreBlockTypeChange(selectEl) {
+            const row = selectEl.closest('.line-block-row');
+            if (!row) return;
+            const isText = selectEl.value === 'text';
+            row.querySelector('.block-text').style.display = isText ? 'block' : 'none';
+            row.querySelector('.block-image').style.display = isText ? 'none' : 'block';
+        }
+
+        function onContactoBlockTypeChange(selectEl) {
+            const row = selectEl.closest('.line-block-row');
+            if (!row) return;
+            const isText = selectEl.value === 'text';
+            row.querySelector('.block-text').style.display = isText ? 'block' : 'none';
+            row.querySelector('.block-image').style.display = isText ? 'none' : 'block';
+        }
+
+        function moveSobreBlock(button, direction) {
+            const row = button.closest('.line-block-row');
+            const container = row && row.parentElement;
+            if (!row || !container) return;
+
+            if (direction < 0 && row.previousElementSibling) {
+                container.insertBefore(row, row.previousElementSibling);
+            }
+            if (direction > 0 && row.nextElementSibling) {
+                container.insertBefore(row.nextElementSibling, row);
+            }
+        }
+
+        function moveContactoBlock(button, direction) {
+            const row = button.closest('.line-block-row');
+            const container = row && row.parentElement;
+            if (!row || !container) return;
+
+            if (direction < 0 && row.previousElementSibling) {
+                container.insertBefore(row, row.previousElementSibling);
+            }
+            if (direction > 0 && row.nextElementSibling) {
+                container.insertBefore(row.nextElementSibling, row);
+            }
+        }
+
+        function serializeSobreBlocks(lang) {
+            const container = getSobreBlocksContainer(lang);
+            if (!container) return '';
+
+            const lines = [];
+            Array.from(container.querySelectorAll('.line-block-row')).forEach(row => {
+                const type = row.querySelector('.block-type').value;
+                if (type === 'text') {
+                    const value = (row.querySelector('.block-text').value || '').trim();
+                    if (value) lines.push(`text: ${value.replace(/\r?\n/g, ' ')}`);
+                } else {
+                    const value = (row.querySelector('.block-image').value || '').trim();
+                    if (value) lines.push(`image: ${value}`);
+                }
+            });
+            return lines.join('\n');
+        }
+
+        async function saveSobreBlocks(lang) {
+            const pageKeyMap = { es: 'sobre_es', en: 'sobre_en', de: 'sobre_de' };
+            const pageKey = pageKeyMap[lang];
+            if (!pageKey) return;
+
+            const content = serializeSobreBlocks(lang);
+            setStatus(`Guardando ${pageKey}…`);
+            try {
+                await dropboxService.saveSiteContent(pageKey, content);
+                setStatus('Guardado correctamente');
+            } catch (error) {
+                console.error(error);
+                setStatus(`Error guardando ${pageKey}`, true);
+            }
+        }
+
+        function serializeContactoBlocks(lang) {
+            const container = getContactoBlocksContainer(lang);
+            if (!container) return '';
+
+            const lines = [];
+            Array.from(container.querySelectorAll('.line-block-row')).forEach(row => {
+                const type = row.querySelector('.block-type').value;
+                if (type === 'text') {
+                    const value = (row.querySelector('.block-text').value || '').trim();
+                    if (value) lines.push(`text: ${value.replace(/\r?\n/g, ' ')}`);
+                } else {
+                    const value = (row.querySelector('.block-image').value || '').trim();
+                    if (value) lines.push(`image: ${value}`);
+                }
+            });
+            return lines.join('\n');
+        }
+
+        async function saveContactoBlocks(lang) {
+            const pageKeyMap = { es: 'contacto_es', en: 'contacto_en', de: 'contacto_de' };
+            const pageKey = pageKeyMap[lang];
+            if (!pageKey) return;
+
+            const content = serializeContactoBlocks(lang);
+            setStatus(`Guardando ${pageKey}…`);
+            try {
+                await dropboxService.saveSiteContent(pageKey, content);
+                setStatus('Guardado correctamente');
+            } catch (error) {
+                console.error(error);
+                setStatus(`Error guardando ${pageKey}`, true);
+            }
+        }
+
+        function populateSobreBlocksByLanguage(lang, content) {
+            const container = getSobreBlocksContainer(lang);
+            if (!container) return;
+            container.innerHTML = '';
+
+            const blocks = parseSobreBlocks(content, lang);
+            blocks.forEach(block => createSobreBlockRow(lang, block));
+        }
+
+        function populateContactoBlocksByLanguage(lang, content) {
+            const container = getContactoBlocksContainer(lang);
+            if (!container) return;
+            container.innerHTML = '';
+
+            const blocks = parseContactoBlocks(content);
+            blocks.forEach(block => createContactoBlockRow(lang, block));
+        }
+
         async function loadSobreImages() {
             const grid = document.getElementById('sobreImageGrid');
             if (!grid) return;
             try {
-                const images = await dropboxService.getSobreImages();
-                if (!images.length) {
+                sobreImages = await dropboxService.getSobreImages();
+                if (!sobreImages.length) {
                     grid.innerHTML = '<p class="help">Sin fotos aún.</p>';
+                    refreshSobreImageSelectors();
                     return;
                 }
-                grid.innerHTML = images.map(item => `
+                grid.innerHTML = sobreImages.map(item => `
                     <div class="media-item">
                         <img src="${item.temporaryLink}" alt="${esc(item.name)}">
                         <button onclick="deleteSobreImage('${encodeURIComponent(item.path)}')">✕</button>
                     </div>`).join('');
+                refreshSobreImageSelectors();
             } catch (_) {
                 grid.innerHTML = '<p class="help">Sin fotos aún.</p>';
+                refreshSobreImageSelectors();
             }
         }
 
@@ -512,6 +850,49 @@
             await loadSobreImages();
         }
 
+        async function loadContactoImages() {
+            const grid = document.getElementById('contactoImageGrid');
+            if (!grid) return;
+            try {
+                contactoImages = await dropboxService.getContactoImages();
+                if (!contactoImages.length) {
+                    grid.innerHTML = '<p class="help">Sin fotos aún.</p>';
+                    refreshContactoImageSelectors();
+                    return;
+                }
+                grid.innerHTML = contactoImages.map(item => `
+                    <div class="media-item">
+                        <img src="${item.temporaryLink}" alt="${esc(item.name)}">
+                        <button onclick="deleteContactoImage('${encodeURIComponent(item.path)}')">✕</button>
+                    </div>`).join('');
+                refreshContactoImageSelectors();
+            } catch (_) {
+                grid.innerHTML = '<p class="help">Sin fotos aún.</p>';
+                refreshContactoImageSelectors();
+            }
+        }
+
+        async function uploadContactoImages() {
+            const input = document.getElementById('contactoUploadFiles');
+            const files = Array.from(input.files || []);
+            if (!files.length) { setStatus('Selecciona fotos para subir', true); return; }
+            setStatus(`Subiendo ${files.length} foto(s)…`);
+            for (const file of files) {
+                await dropboxService.uploadFile(file, `/ContenidoSitio/ContactoImagenes/${file.name}`);
+            }
+            input.value = '';
+            setStatus('Fotos subidas');
+            await loadContactoImages();
+        }
+
+        async function deleteContactoImage(encodedPath) {
+            if (!confirm('¿Eliminar esta foto?')) return;
+            setStatus('Eliminando…');
+            await dropboxService.deleteFile(decodeURIComponent(encodedPath));
+            setStatus('Foto eliminada');
+            await loadContactoImages();
+        }
+
         async function loadSiteContentEditors() {
             try {
                 const [sobreEs, sobreEn, sobreDe, contactoEs, contactoEn, contactoDe] = await Promise.all([
@@ -522,49 +903,25 @@
                     dropboxService.getSiteContent('contacto_en').catch(() => ''),
                     dropboxService.getSiteContent('contacto_de').catch(() => '')
                 ]);
-                const sobreEsEl  = document.getElementById('siteSobreEs');
-                const sobreEnEl  = document.getElementById('siteSobreEn');
-                const sobreDeEl  = document.getElementById('siteSobreDe');
-                const contactoEsEl = document.getElementById('siteContactoEs');
-                const contactoEnEl = document.getElementById('siteContactoEn');
-                const contactoDeEl = document.getElementById('siteContactoDe');
-                if (sobreEsEl)  sobreEsEl.value  = sobreEs  || '';
-                if (sobreEnEl)  sobreEnEl.value  = sobreEn  || '';
-                if (sobreDeEl)  sobreDeEl.value  = sobreDe  || '';
-                if (contactoEsEl) contactoEsEl.value = contactoEs || '';
-                if (contactoEnEl) contactoEnEl.value = contactoEn || '';
-                if (contactoDeEl) contactoDeEl.value = contactoDe || '';
+
+                populateSobreBlocksByLanguage('es', sobreEs || '');
+                populateSobreBlocksByLanguage('en', sobreEn || '');
+                populateSobreBlocksByLanguage('de', sobreDe || '');
+                populateContactoBlocksByLanguage('es', contactoEs || '');
+                populateContactoBlocksByLanguage('en', contactoEn || '');
+                populateContactoBlocksByLanguage('de', contactoDe || '');
             } catch (error) {
                 console.error(error);
                 setStatus('Error cargando textos', true);
             }
         }
 
-        async function saveSiteText(pageKey) {
-            const fieldMap = {
-                'sobre_es':  'siteSobreEs',
-                'sobre_en':  'siteSobreEn',
-                'sobre_de':  'siteSobreDe',
-                'contacto_es': 'siteContactoEs',
-                'contacto_en': 'siteContactoEn',
-                'contacto_de': 'siteContactoDe'
-            };
-            const field = document.getElementById(fieldMap[pageKey]);
-            if (!field) return;
-            setStatus(`Guardando ${pageKey}…`);
-            try {
-                await dropboxService.saveSiteContent(pageKey, field.value || '');
-                setStatus(`Guardado correctamente`);
-            } catch (error) {
-                console.error(error);
-                setStatus(`Error guardando ${pageKey}`, true);
-            }
-        }
-
         /* ── INIT ── */
         window.addEventListener('load', async () => {
             try {
-                await Promise.all([loadProjects(), loadSiteContentEditors(), loadSobreImages()]);
+                await loadSobreImages();
+                await loadContactoImages();
+                await Promise.all([loadProjects(), loadSiteContentEditors()]);
             } catch (error) {
                 console.error(error);
                 setStatus(error.message, true);
