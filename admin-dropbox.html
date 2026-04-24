@@ -119,7 +119,7 @@
             border:1px solid #f0f0f0;
             background:#fafafa;
             position:relative;
-            cursor:grab;
+            cursor:default;
         }
         .line-block-row.dragging { opacity:0.5; cursor:grabbing; }
         .line-block-row .drag-handle { cursor:grab; padding:9px 6px; text-align:center; color:#ccc; user-select:none; }
@@ -525,10 +525,47 @@
         /* ── SOBRE / CONTACTO ── */
         let sobreImages = [];
         let contactoImages = [];
+        let draggedBlock = null;
 
         function getSobreBlocksContainer(lang) {
             const map = { es: 'sobreBlocksEs', en: 'sobreBlocksEn', de: 'sobreBlocksDe' };
             return document.getElementById(map[lang]);
+        }
+
+        function setupBlockDragContainer(container) {
+            if (!container || container.dataset.dndReady === '1') return;
+            container.dataset.dndReady = '1';
+
+            container.addEventListener('dragover', (event) => {
+                event.preventDefault();
+                if (!draggedBlock) return;
+
+                const afterElement = getDragAfterElement(container, event.clientY);
+                if (!afterElement) {
+                    container.appendChild(draggedBlock);
+                } else if (afterElement !== draggedBlock) {
+                    container.insertBefore(draggedBlock, afterElement);
+                }
+            });
+
+            container.addEventListener('drop', (event) => {
+                event.preventDefault();
+            });
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.line-block-row:not(.dragging)')];
+
+            let closest = { offset: Number.NEGATIVE_INFINITY, element: null };
+            draggableElements.forEach((child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    closest = { offset, element: child };
+                }
+            });
+
+            return closest.element;
         }
 
         function parseSobreBlocks(content, lang) {
@@ -657,6 +694,7 @@
             `;
 
             const container = getSobreBlocksContainer(lang);
+            setupBlockDragContainer(container);
             if (container) container.appendChild(row);
             setupBlockDragListeners(row);
             onSobreBlockTypeChange(row.querySelector('.block-type'));
@@ -687,6 +725,7 @@
             `;
 
             const container = getContactoBlocksContainer(lang);
+            setupBlockDragContainer(container);
             if (container) container.appendChild(row);
             setupBlockDragListeners(row);
             onContactoBlockTypeChange(row.querySelector('.block-type'));
@@ -714,27 +753,19 @@
 
         function setupBlockDragListeners(row) {
             row.addEventListener('dragstart', (e) => {
+                if (!e.target.closest('.drag-handle')) {
+                    e.preventDefault();
+                    return;
+                }
                 row.classList.add('dragging');
+                draggedBlock = row;
                 e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/html', row.innerHTML);
+                e.dataTransfer.setData('text/plain', row.dataset.rowId || 'block');
             });
 
             row.addEventListener('dragend', () => {
                 row.classList.remove('dragging');
-            });
-
-            row.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
-                const rect = row.getBoundingClientRect();
-                const midpoint = rect.top + rect.height / 2;
-                const container = row.parentElement;
-                
-                if (e.clientY < midpoint && row.previousElementSibling) {
-                    container.insertBefore(row, row.previousElementSibling);
-                } else if (e.clientY >= midpoint && row.nextElementSibling) {
-                    container.insertBefore(row.nextElementSibling, row);
-                }
+                draggedBlock = null;
             });
         }
 
@@ -854,7 +885,7 @@
             const grid = document.getElementById('sobreImageGrid');
             if (!grid) return;
             try {
-                sobreImages = await dropboxService.getSobreImages();
+                sobreImages = await dropboxService.getSobreImages({ noCache: true });
                 if (!sobreImages.length) {
                     grid.innerHTML = '<p class="help">Sin fotos aún.</p>';
                     refreshSobreImageSelectors();
@@ -863,7 +894,7 @@
                 grid.innerHTML = sobreImages.map(item => `
                     <div class="media-item">
                         <img src="${item.temporaryLink}" alt="${esc(item.name)}">
-                        <button onclick="deleteSobreImage('${encodeURIComponent(item.path)}')">✕</button>
+                        <button onclick="deleteSobreImage('${encodeURIComponent(item.path || '')}','${encodeURIComponent(item.name || '')}')">✕</button>
                     </div>`).join('');
                 refreshSobreImageSelectors();
             } catch (_) {
@@ -880,7 +911,7 @@
             try {
                 for (const file of files) {
                     try {
-                        await dropboxService.uploadFile(file, `/ContenidoSitio/SobreImagenes/${file.name}`);
+                        await dropboxService.uploadFile(file, `/contenidositio/sobreimagenes/${file.name}`);
                         console.log(`✓ Subida exitosa: ${file.name}`);
                     } catch (err) {
                         console.error(`✗ Error al subir ${file.name}:`, err);
@@ -897,19 +928,50 @@
             }
         }
 
-        async function deleteSobreImage(encodedPath) {
+        function uniquePaths(paths) {
+            return Array.from(new Set(paths.filter(Boolean)));
+        }
+
+        async function deleteFromCandidates(candidates) {
+            let lastError = null;
+            for (const candidate of uniquePaths(candidates)) {
+                try {
+                    await dropboxService.deleteFile(candidate);
+                    return true;
+                } catch (error) {
+                    lastError = error;
+                }
+            }
+            if (lastError) throw lastError;
+            throw new Error('No se pudo resolver la ruta del archivo');
+        }
+
+        async function deleteSobreImage(encodedPath, encodedName) {
             if (!confirm('¿Eliminar esta foto?')) return;
             setStatus('Eliminando…');
-            await dropboxService.deleteFile(decodeURIComponent(encodedPath));
-            setStatus('Foto eliminada');
-            await loadSobreImages();
+            const rawPath = decodeURIComponent(encodedPath || '');
+            const rawName = decodeURIComponent(encodedName || '');
+            const candidates = [
+                rawPath,
+                rawPath.toLowerCase(),
+                rawName ? `/ContenidoSitio/SobreImagenes/${rawName}` : '',
+                rawName ? `/contenidositio/sobreimagenes/${rawName}` : ''
+            ];
+            try {
+                await deleteFromCandidates(candidates);
+                setStatus('Foto eliminada');
+                await loadSobreImages();
+            } catch (error) {
+                console.error(error);
+                setStatus(`No se pudo eliminar: ${error.message}`, true);
+            }
         }
 
         async function loadContactoImages() {
             const grid = document.getElementById('contactoImageGrid');
             if (!grid) return;
             try {
-                contactoImages = await dropboxService.getContactoImages();
+                contactoImages = await dropboxService.getContactoImages({ noCache: true });
                 if (!contactoImages.length) {
                     grid.innerHTML = '<p class="help">Sin fotos aún.</p>';
                     refreshContactoImageSelectors();
@@ -918,7 +980,7 @@
                 grid.innerHTML = contactoImages.map(item => `
                     <div class="media-item">
                         <img src="${item.temporaryLink}" alt="${esc(item.name)}">
-                        <button onclick="deleteContactoImage('${encodeURIComponent(item.path)}')">✕</button>
+                        <button onclick="deleteContactoImage('${encodeURIComponent(item.path || '')}','${encodeURIComponent(item.name || '')}')">✕</button>
                     </div>`).join('');
                 refreshContactoImageSelectors();
             } catch (_) {
@@ -935,7 +997,7 @@
             try {
                 for (const file of files) {
                     try {
-                        await dropboxService.uploadFile(file, `/ContenidoSitio/ContactoImagenes/${file.name}`);
+                        await dropboxService.uploadFile(file, `/contenidositio/contactoimagenes/${file.name}`);
                         console.log(`✓ Subida exitosa: ${file.name}`);
                     } catch (err) {
                         console.error(`✗ Error al subir ${file.name}:`, err);
@@ -952,23 +1014,36 @@
             }
         }
 
-        async function deleteContactoImage(encodedPath) {
+        async function deleteContactoImage(encodedPath, encodedName) {
             if (!confirm('¿Eliminar esta foto?')) return;
             setStatus('Eliminando…');
-            await dropboxService.deleteFile(decodeURIComponent(encodedPath));
-            setStatus('Foto eliminada');
-            await loadContactoImages();
+            const rawPath = decodeURIComponent(encodedPath || '');
+            const rawName = decodeURIComponent(encodedName || '');
+            const candidates = [
+                rawPath,
+                rawPath.toLowerCase(),
+                rawName ? `/ContenidoSitio/ContactoImagenes/${rawName}` : '',
+                rawName ? `/contenidositio/contactoimagenes/${rawName}` : ''
+            ];
+            try {
+                await deleteFromCandidates(candidates);
+                setStatus('Foto eliminada');
+                await loadContactoImages();
+            } catch (error) {
+                console.error(error);
+                setStatus(`No se pudo eliminar: ${error.message}`, true);
+            }
         }
 
         async function loadSiteContentEditors() {
             try {
                 const [sobreEs, sobreEn, sobreDe, contactoEs, contactoEn, contactoDe] = await Promise.all([
-                    dropboxService.getSiteContent('sobre_es').catch(() => ''),
-                    dropboxService.getSiteContent('sobre_en').catch(() => ''),
-                    dropboxService.getSiteContent('sobre_de').catch(() => ''),
-                    dropboxService.getSiteContent('contacto_es').catch(() => ''),
-                    dropboxService.getSiteContent('contacto_en').catch(() => ''),
-                    dropboxService.getSiteContent('contacto_de').catch(() => '')
+                    dropboxService.getSiteContent('sobre_es', { noCache: true }).catch(() => ''),
+                    dropboxService.getSiteContent('sobre_en', { noCache: true }).catch(() => ''),
+                    dropboxService.getSiteContent('sobre_de', { noCache: true }).catch(() => ''),
+                    dropboxService.getSiteContent('contacto_es', { noCache: true }).catch(() => ''),
+                    dropboxService.getSiteContent('contacto_en', { noCache: true }).catch(() => ''),
+                    dropboxService.getSiteContent('contacto_de', { noCache: true }).catch(() => '')
                 ]);
 
                 populateSobreBlocksByLanguage('es', sobreEs || '');

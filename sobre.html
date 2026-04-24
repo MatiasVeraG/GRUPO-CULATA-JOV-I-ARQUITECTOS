@@ -270,9 +270,9 @@
             try {
                 const langKey = lang === 'en' ? 'sobre_en' : lang === 'de' ? 'sobre_de' : 'sobre_es';
                 let text = null;
-                try { text = await dropboxService.getSiteContent(langKey); } catch (_) {}
+                try { text = await dropboxService.getSiteContent(langKey, { noCache: true }); } catch (_) {}
                 if (!text || !text.trim()) {
-                    try { text = await dropboxService.getSiteContent('sobre'); } catch (_) {}
+                    try { text = await dropboxService.getSiteContent('sobre', { noCache: true }); } catch (_) {}
                 }
 
                 const structuredBlocks = parseStructuredBlocks(text || '');
@@ -364,7 +364,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             initLanguage();
             const lang = localStorage.getItem('selectedLanguage') || 'es';
-            try { sobreImages = await dropboxService.getSobreImages(); } catch (_) {}
+            try { sobreImages = await dropboxService.getSobreImages({ noCache: true }); } catch (_) {}
             loadSobreContent(lang);
         });
     </script>

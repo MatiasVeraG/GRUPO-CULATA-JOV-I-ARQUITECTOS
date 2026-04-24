@@ -431,20 +431,30 @@ class DropboxService {
         return data;
     }
 
-    async getSiteContent(pageKey) {
-        const data = await this.callApi('get-site-content', {
-            pageKey
-        });
+    async getSiteContent(pageKey, options = {}) {
+        const params = { pageKey };
+        if (options.noCache) {
+            params._t = Date.now();
+        }
+        const data = await this.callApi('get-site-content', params);
         return data.content || '';
     }
 
-    async getSobreImages() {
-        const data = await this.callApi('get-sobre-images', {});
+    async getSobreImages(options = {}) {
+        const params = {};
+        if (options.noCache) {
+            params._t = Date.now();
+        }
+        const data = await this.callApi('get-sobre-images', params);
         return data.images || [];
     }
 
-    async getContactoImages() {
-        const data = await this.callApi('get-contacto-images', {});
+    async getContactoImages(options = {}) {
+        const params = {};
+        if (options.noCache) {
+            params._t = Date.now();
+        }
+        const data = await this.callApi('get-contacto-images', params);
         return data.images || [];
     }
 
@@ -460,15 +470,16 @@ class DropboxService {
      * Elimina un archivo
      */
     async deleteFile(filePath) {
+        const normalizedPath = String(filePath || '').trim();
         await this.callApi('delete-file', {
-            filePath
+            filePath: normalizedPath
         });
 
         // Limpiar caché del proyecto
-        const projectPath = filePath.substring(0, filePath.lastIndexOf('/'));
+        const projectPath = normalizedPath.substring(0, normalizedPath.lastIndexOf('/'));
         delete this.cache.projectImages[projectPath.toLowerCase()];
 
-        console.log(`✓ Archivo eliminado: ${filePath}`);
+        console.log(`✓ Archivo eliminado: ${normalizedPath}`);
         return { success: true };
     }
 

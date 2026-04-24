@@ -245,9 +245,9 @@
                 const resolvedLang = lang || localStorage.getItem('selectedLanguage') || 'es';
                 const langKey = resolvedLang === 'en' ? 'contacto_en' : resolvedLang === 'de' ? 'contacto_de' : 'contacto_es';
                 let text = null;
-                try { text = await dropboxService.getSiteContent(langKey); } catch (_) {}
+                try { text = await dropboxService.getSiteContent(langKey, { noCache: true }); } catch (_) {}
                 if (!text || !text.trim()) {
-                    text = await dropboxService.getSiteContent('contacto');
+                    text = await dropboxService.getSiteContent('contacto', { noCache: true });
                 }
                 if (!text || !text.trim()) return;
 
@@ -280,7 +280,7 @@
 
         async function loadContactoImages() {
             try {
-                contactoImages = await dropboxService.getContactoImages();
+                contactoImages = await dropboxService.getContactoImages({ noCache: true });
             } catch (_) {
                 contactoImages = [];
             }

@@ -1033,7 +1033,8 @@ async function saveSiteContent(pageKey, content, res) {
  */
 async function deleteFile(filePath, res) {
     try {
-        if (!filePath) {
+        const normalizedPath = (`${filePath || ''}`).trim();
+        if (!normalizedPath) {
             return res.status(400).json({ error: 'filePath is required' });
         }
 
@@ -1045,7 +1046,7 @@ async function deleteFile(filePath, res) {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ path: filePath })
+            body: JSON.stringify({ path: normalizedPath })
         });
 
         if (!response.ok) {
