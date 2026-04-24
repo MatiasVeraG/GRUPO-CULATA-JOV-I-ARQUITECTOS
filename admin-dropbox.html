@@ -112,12 +112,21 @@
         .line-blocks { display:flex; flex-direction:column; gap:8px; }
         .line-block-row {
             display:grid;
-            grid-template-columns:130px 1fr 1fr auto auto auto;
+            grid-template-columns:30px 130px 1fr 1fr auto;
             gap:8px;
-            align-items:center;
+            align-items:start;
+            padding:8px;
+            border:1px solid #f0f0f0;
+            background:#fafafa;
+            position:relative;
+            cursor:grab;
         }
+        .line-block-row.dragging { opacity:0.5; cursor:grabbing; }
+        .line-block-row .drag-handle { cursor:grab; padding:9px 6px; text-align:center; color:#ccc; user-select:none; }
+        .line-block-row .drag-handle:hover { color:#999; }
         .line-block-row input,
-        .line-block-row select { padding:9px 10px; }
+        .line-block-row select { padding:9px 10px; word-wrap:break-word; overflow-wrap:break-word; }
+        .line-block-row input.block-text { min-height:auto; resize:vertical; font-size:13px; line-height:1.4; }
         .line-block-row .btn { padding:9px 10px; }
 
         @media (max-width:980px) {
@@ -183,6 +192,7 @@
             <div class="text-block">
                 <h2>Sobre – Español</h2>
                 <span class="lang-tag">es</span>
+                <p class="help" style="margin-bottom:10px; font-size:12px;">Arrastra los bloques para reordenarlos.</p>
                 <div id="sobreBlocksEs" class="line-blocks"></div>
                 <div class="actions">
                     <button class="btn btn-light" onclick="addSobreBlock('es', 'text')">+ Línea texto</button>
@@ -194,6 +204,7 @@
             <div class="text-block">
                 <h2>Sobre – English</h2>
                 <span class="lang-tag">en</span>
+                <p class="help" style="margin-bottom:10px; font-size:12px;">Drag blocks to reorder.</p>
                 <div id="sobreBlocksEn" class="line-blocks"></div>
                 <div class="actions">
                     <button class="btn btn-light" onclick="addSobreBlock('en', 'text')">+ Text line</button>
@@ -205,6 +216,7 @@
             <div class="text-block">
                 <h2>Sobre – Deutsch</h2>
                 <span class="lang-tag">de</span>
+                <p class="help" style="margin-bottom:10px; font-size:12px;">Ziehen Sie Blöcke, um sie neu zu ordnen.</p>
                 <div id="sobreBlocksDe" class="line-blocks"></div>
                 <div class="actions">
                     <button class="btn btn-light" onclick="addSobreBlock('de', 'text')">+ Textzeile</button>
@@ -234,6 +246,7 @@
             <div class="text-block">
                 <h2>Contacto – Español</h2>
                 <span class="lang-tag">es</span>
+                <p class="help" style="margin-bottom:10px; font-size:12px;">Arrastra los bloques para reordenarlos.</p>
                 <div id="contactoBlocksEs" class="line-blocks"></div>
                 <div class="actions">
                     <button class="btn btn-light" onclick="addContactoBlock('es', 'text')">+ Línea texto</button>
@@ -245,6 +258,7 @@
             <div class="text-block">
                 <h2>Contacto – English</h2>
                 <span class="lang-tag">en</span>
+                <p class="help" style="margin-bottom:10px; font-size:12px;">Drag blocks to reorder.</p>
                 <div id="contactoBlocksEn" class="line-blocks"></div>
                 <div class="actions">
                     <button class="btn btn-light" onclick="addContactoBlock('en', 'text')">+ Text line</button>
@@ -256,6 +270,7 @@
             <div class="text-block">
                 <h2>Kontakt – Deutsch</h2>
                 <span class="lang-tag">de</span>
+                <p class="help" style="margin-bottom:10px; font-size:12px;">Ziehen Sie Blöcke, um sie neu zu ordnen.</p>
                 <div id="contactoBlocksDe" class="line-blocks"></div>
                 <div class="actions">
                     <button class="btn btn-light" onclick="addContactoBlock('de', 'text')">+ Textzeile</button>
@@ -629,20 +644,21 @@
         function createSobreBlockRow(lang, block = { type: 'text', value: '' }) {
             const row = document.createElement('div');
             row.className = 'line-block-row';
+            row.draggable = true;
             row.innerHTML = `
+                <div class="drag-handle">⋮</div>
                 <select class="block-type" onchange="onSobreBlockTypeChange(this)">
                     <option value="text" ${block.type === 'text' ? 'selected' : ''}>Texto</option>
                     <option value="image" ${block.type === 'image' ? 'selected' : ''}>Imagen</option>
                 </select>
-                <input class="block-text" type="text" maxlength="300" placeholder="Texto en una línea" value="${block.type === 'text' ? esc(block.value) : ''}">
+                <input class="block-text" type="text" placeholder="Escribe el texto aquí..." value="${block.type === 'text' ? esc(block.value) : ''}">
                 <select class="block-image">${createImageOptions(block.type === 'image' ? block.value : '')}</select>
-                <button class="btn btn-light" onclick="moveSobreBlock(this, -1)">↑</button>
-                <button class="btn btn-light" onclick="moveSobreBlock(this, 1)">↓</button>
                 <button class="btn btn-danger" onclick="this.parentElement.remove()">✕</button>
             `;
 
             const container = getSobreBlocksContainer(lang);
             if (container) container.appendChild(row);
+            setupBlockDragListeners(row);
             onSobreBlockTypeChange(row.querySelector('.block-type'));
         }
 
@@ -658,20 +674,21 @@
         function createContactoBlockRow(lang, block = { type: 'text', value: '' }) {
             const row = document.createElement('div');
             row.className = 'line-block-row';
+            row.draggable = true;
             row.innerHTML = `
+                <div class="drag-handle">⋮</div>
                 <select class="block-type" onchange="onContactoBlockTypeChange(this)">
                     <option value="text" ${block.type === 'text' ? 'selected' : ''}>Texto</option>
                     <option value="image" ${block.type === 'image' ? 'selected' : ''}>Imagen</option>
                 </select>
-                <input class="block-text" type="text" maxlength="300" placeholder="Texto en una línea" value="${block.type === 'text' ? esc(block.value) : ''}">
+                <input class="block-text" type="text" placeholder="Escribe el texto aquí..." value="${block.type === 'text' ? esc(block.value) : ''}">
                 <select class="block-image">${createContactoImageOptions(block.type === 'image' ? block.value : '')}</select>
-                <button class="btn btn-light" onclick="moveContactoBlock(this, -1)">↑</button>
-                <button class="btn btn-light" onclick="moveContactoBlock(this, 1)">↓</button>
                 <button class="btn btn-danger" onclick="this.parentElement.remove()">✕</button>
             `;
 
             const container = getContactoBlocksContainer(lang);
             if (container) container.appendChild(row);
+            setupBlockDragListeners(row);
             onContactoBlockTypeChange(row.querySelector('.block-type'));
         }
 
@@ -693,6 +710,32 @@
             const isText = selectEl.value === 'text';
             row.querySelector('.block-text').style.display = isText ? 'block' : 'none';
             row.querySelector('.block-image').style.display = isText ? 'none' : 'block';
+        }
+
+        function setupBlockDragListeners(row) {
+            row.addEventListener('dragstart', (e) => {
+                row.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', row.innerHTML);
+            });
+
+            row.addEventListener('dragend', () => {
+                row.classList.remove('dragging');
+            });
+
+            row.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                const rect = row.getBoundingClientRect();
+                const midpoint = rect.top + rect.height / 2;
+                const container = row.parentElement;
+                
+                if (e.clientY < midpoint && row.previousElementSibling) {
+                    container.insertBefore(row, row.previousElementSibling);
+                } else if (e.clientY >= midpoint && row.nextElementSibling) {
+                    container.insertBefore(row.nextElementSibling, row);
+                }
+            });
         }
 
         function moveSobreBlock(button, direction) {
@@ -834,12 +877,24 @@
             const files = Array.from(input.files || []);
             if (!files.length) { setStatus('Selecciona fotos para subir', true); return; }
             setStatus(`Subiendo ${files.length} foto(s)…`);
-            for (const file of files) {
-                await dropboxService.uploadFile(file, `/ContenidoSitio/SobreImagenes/${file.name}`);
+            try {
+                for (const file of files) {
+                    try {
+                        await dropboxService.uploadFile(file, `/ContenidoSitio/SobreImagenes/${file.name}`);
+                        console.log(`✓ Subida exitosa: ${file.name}`);
+                    } catch (err) {
+                        console.error(`✗ Error al subir ${file.name}:`, err);
+                        setStatus(`Error al subir ${file.name}: ${err.message}`, true);
+                        throw err;
+                    }
+                }
+                input.value = '';
+                setStatus('Fotos subidas correctamente');
+                await loadSobreImages();
+            } catch (error) {
+                console.error('Upload error:', error);
+                setStatus(`Error en la carga: ${error.message}`, true);
             }
-            input.value = '';
-            setStatus('Fotos subidas');
-            await loadSobreImages();
         }
 
         async function deleteSobreImage(encodedPath) {
@@ -877,12 +932,24 @@
             const files = Array.from(input.files || []);
             if (!files.length) { setStatus('Selecciona fotos para subir', true); return; }
             setStatus(`Subiendo ${files.length} foto(s)…`);
-            for (const file of files) {
-                await dropboxService.uploadFile(file, `/ContenidoSitio/ContactoImagenes/${file.name}`);
+            try {
+                for (const file of files) {
+                    try {
+                        await dropboxService.uploadFile(file, `/ContenidoSitio/ContactoImagenes/${file.name}`);
+                        console.log(`✓ Subida exitosa: ${file.name}`);
+                    } catch (err) {
+                        console.error(`✗ Error al subir ${file.name}:`, err);
+                        setStatus(`Error al subir ${file.name}: ${err.message}`, true);
+                        throw err;
+                    }
+                }
+                input.value = '';
+                setStatus('Fotos subidas correctamente');
+                await loadContactoImages();
+            } catch (error) {
+                console.error('Upload error:', error);
+                setStatus(`Error en la carga: ${error.message}`, true);
             }
-            input.value = '';
-            setStatus('Fotos subidas');
-            await loadContactoImages();
         }
 
         async function deleteContactoImage(encodedPath) {
