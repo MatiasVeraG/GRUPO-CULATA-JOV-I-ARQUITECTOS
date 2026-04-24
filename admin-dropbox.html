@@ -100,10 +100,28 @@
         .media-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px; margin-top:12px; }
         .media-item { border:1px solid #e8e8e8; position:relative; }
         .media-item img { width:100%; aspect-ratio:1; object-fit:cover; display:block; }
-        .media-item button { position:absolute; top:5px; right:5px; border:none; background:rgba(220,20,60,.95); color:#fff; cursor:pointer; padding:4px 7px; font-size:10px; }
+        .media-item button {
+            position:absolute;
+            top:5px;
+            right:5px;
+            border:none;
+            background:rgba(220,20,60,.95);
+            color:#fff;
+            cursor:pointer;
+            width:24px;
+            height:24px;
+            padding:0;
+            font-size:12px;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:0;
+        }
 
         /* ── SOBRE / CONTACTO PANELS ── */
-        .text-section { max-width:860px; }
+        #tab-sobre,
+        #tab-contacto { max-width:none; }
+        .text-section { max-width:none; width:100%; }
         .text-block { background:#fff; border:1px solid #e0e0e0; padding:22px; margin-bottom:22px; }
         .text-block h2 { font-size:11px; letter-spacing:3px; text-transform:uppercase; font-weight:400; margin-bottom:16px; color:#444; }
         .text-block textarea { min-height:260px; }
@@ -112,7 +130,7 @@
         .line-blocks { display:flex; flex-direction:column; gap:8px; }
         .line-block-row {
             display:grid;
-            grid-template-columns:30px 130px 1fr 1fr auto;
+            grid-template-columns:30px 130px minmax(0,1fr) auto;
             gap:8px;
             align-items:start;
             padding:8px;
@@ -125,9 +143,29 @@
         .line-block-row .drag-handle { cursor:grab; padding:9px 6px; text-align:center; color:#ccc; user-select:none; }
         .line-block-row .drag-handle:hover { color:#999; }
         .line-block-row input,
-        .line-block-row select { padding:9px 10px; word-wrap:break-word; overflow-wrap:break-word; }
-        .line-block-row input.block-text { min-height:auto; resize:vertical; font-size:13px; line-height:1.4; }
-        .line-block-row .btn { padding:9px 10px; }
+        .line-block-row select,
+        .line-block-row textarea { padding:9px 10px; word-wrap:break-word; overflow-wrap:break-word; }
+        .line-block-row .block-text,
+        .line-block-row .block-image {
+            grid-column:3;
+            width:100%;
+        }
+        .line-block-row textarea.block-text {
+            min-height:86px;
+            resize:vertical;
+            font-size:13px;
+            line-height:1.5;
+            white-space:pre-wrap;
+        }
+        .line-block-row .btn {
+            width:40px;
+            height:40px;
+            padding:0;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:0;
+        }
 
         @media (max-width:980px) {
             .layout { grid-template-columns:1fr; }
@@ -688,7 +726,7 @@
                     <option value="text" ${block.type === 'text' ? 'selected' : ''}>Texto</option>
                     <option value="image" ${block.type === 'image' ? 'selected' : ''}>Imagen</option>
                 </select>
-                <input class="block-text" type="text" placeholder="Escribe el texto aquí..." value="${block.type === 'text' ? esc(block.value) : ''}">
+                <textarea class="block-text" placeholder="Escribe el texto aquí...">${block.type === 'text' ? esc(block.value) : ''}</textarea>
                 <select class="block-image">${createImageOptions(block.type === 'image' ? block.value : '')}</select>
                 <button class="btn btn-danger" onclick="this.parentElement.remove()">✕</button>
             `;
@@ -719,7 +757,7 @@
                     <option value="text" ${block.type === 'text' ? 'selected' : ''}>Texto</option>
                     <option value="image" ${block.type === 'image' ? 'selected' : ''}>Imagen</option>
                 </select>
-                <input class="block-text" type="text" placeholder="Escribe el texto aquí..." value="${block.type === 'text' ? esc(block.value) : ''}">
+                <textarea class="block-text" placeholder="Escribe el texto aquí...">${block.type === 'text' ? esc(block.value) : ''}</textarea>
                 <select class="block-image">${createContactoImageOptions(block.type === 'image' ? block.value : '')}</select>
                 <button class="btn btn-danger" onclick="this.parentElement.remove()">✕</button>
             `;
