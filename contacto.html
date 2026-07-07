@@ -5,175 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contacto - Grupo Culata Jovái Arquitectos</title>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        /* HEADER MINIMALISTA */
-        .landing-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            padding: 30px 60px;
-            z-index: 100;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #FFFFFF;
-        }
-
-        .logo-text {
-            cursor: pointer;
-            height: 35px;
-            display: flex;
-            align-items: center;
-        }
-
-        .logo-text img {
-            height: 100%;
-            width: auto;
-            transition: opacity 0.3s ease;
-        }
-
-        .logo-text:hover img {
-            opacity: 0.7;
-        }
-
-        .nav-link {
-            font-size: 10px;
-            letter-spacing: 2px;
-            color: #000000;
-            text-decoration: none;
-            text-transform: lowercase;
-            transition: color 0.3s ease;
-        }
-
-        .nav-link:hover {
-            color: #DC143C;
-        }
-
-        /* SELECTOR DE IDIOMA */
-        .language-selector {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 200;
-            display: flex;
-            gap: 10px;
-        }
-
-        .lang-option {
-            font-size: 10px;
-            letter-spacing: 1px;
-            color: #999999;
-            text-decoration: none;
-            text-transform: lowercase;
-            cursor: pointer;
-            transition: color 0.3s ease;
-            font-weight: 400;
-        }
-
-        .lang-option:hover {
-            color: #000000;
-        }
-
-        .lang-option.active {
-            color: #000000;
-            text-decoration: underline;
-        }
-
-        @media (max-width: 768px) {
-            .landing-header {
-                padding: 20px 30px;
-            }
-
-            .logo-text {
-                height: 28px;
-            }
-
-            .nav-link {
-                font-size: 8px;
-            }
-
-            .language-selector {
-                bottom: 20px;
-                right: 20px;
-                gap: 8px;
-            }
-
-            .lang-option {
-                font-size: 9px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .landing-header {
-                padding: 15px 20px;
-            }
-
-            .logo-text {
-                height: 24px;
-            }
-        }
-
-        /* ESTILOS ESPECÍFICOS PARA CONTACTO */
-        #contacto {
-            background-color: #FFFFFF;
-            padding: 140px 60px 100px;
-            margin-top: 80px;
-            min-height: 100vh;
-        }
-
-        .contacto-content {
-            max-width: 760px;
-            margin: 40px auto 0;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .contacto-line {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-        }
-
-        .contacto-line.text p {
-            margin: 0;
-            font-size: 16px;
-            line-height: 1.9;
-            letter-spacing: 0.4px;
-            font-weight: 300;
-            text-align: center;
-        }
-
-        .contacto-line.image img {
-            width: min(420px, 100%);
-            height: auto;
-            max-height: 520px;
-            object-fit: cover;
-            display: block;
-        }
-
-        @media (max-width: 768px) {
-            #contacto {
-                padding: 120px 30px 80px;
-            }
-
-            .contacto-line.image img {
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 480px) {
-            #contacto {
-                padding: 100px 20px 60px;
-            }
-        }
-    </style>
 </head>
 <body>
     <!-- HEADER -->
-    <header class="landing-header">
-        <nav style="display: flex; gap: 30px;">
+    <header class="landing-header" id="header">
+        <nav>
             <a href="trabajos.html" class="nav-link" data-i18n="nav-trabajos">trabajos</a>
             <a href="sobre.html" class="nav-link" data-i18n="nav-sobre">sobre</a>
             <a href="contacto.html" class="nav-link" data-i18n="nav-contacto">contacto</a>
@@ -184,18 +20,21 @@
     </header>
 
     <!-- CONTACTO -->
-    <section id="contacto">
-        <h2 data-i18n="contact-title">Contacto</h2>
-        <div class="contacto-content" id="contactoInfoEditable"></div>
+    <section id="contacto" class="fade-in">
+        <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+            <h2 class="reveal" data-i18n="contact-title" style="margin-bottom: var(--space-8);">Contacto</h2>
+            <div class="contacto-content reveal" id="contactoInfoEditable"></div>
+        </div>
     </section>
 
     <!-- SELECTOR DE IDIOMA -->
-    <div class="language-selector">
+    <div class="language-selector" style="position: fixed; bottom: 30px; right: 30px; z-index: 200;">
         <span class="lang-option active" data-lang="es" onclick="changeLanguage('es')">es</span>
         <span class="lang-option" data-lang="en" onclick="changeLanguage('en')">en</span>
         <span class="lang-option" data-lang="de" onclick="changeLanguage('de')">de</span>
     </div>
 
+    <script src="script.js"></script>
     <script src="dropbox-config.js"></script>
     <script src="dropbox-service-vercel.js"></script>
     <script>
@@ -230,11 +69,15 @@
                 if (block.type === 'image') {
                     const img = imageByName.get(String(block.value || '').toLowerCase());
                     if (!img) return '';
-                    return `<div class="contacto-line image"><img src="${img.temporaryLink}" alt="${esc(img.name)}"></div>`;
+                    return `<div class="contacto-info image reveal"><img src="${img.temporaryLink}" alt="${esc(img.name)}" style="width:100%; max-width:500px; border-radius:4px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);"></div>`;
                 }
 
-                return `<div class="contacto-line text"><p>${esc(block.value)}</p></div>`;
+                return `<div class="contacto-info text reveal"><p>${esc(block.value)}</p></div>`;
             }).join('');
+            
+            setTimeout(() => {
+                if(typeof observer !== 'undefined') document.querySelectorAll('.contacto-info').forEach(el => observer.observe(el));
+            }, 100);
         }
 
         async function loadContactoContent(lang) {
@@ -266,13 +109,17 @@
                         if (lines.length === 0) return '';
                         const title = lines[0];
                         const body = lines.slice(1).join('<br>');
-                        return `<p><strong>${title}</strong>${body ? `<br>${body}` : ''}</p>`;
+                        return `<div class="contacto-info reveal"><p><strong>${title}</strong>${body ? `<br>${body}` : ''}</p></div>`;
                     })
                     .join('');
 
                 if (blocks) {
                     container.innerHTML = blocks;
                 }
+                
+                setTimeout(() => {
+                    if(typeof observer !== 'undefined') document.querySelectorAll('.contacto-info').forEach(el => observer.observe(el));
+                }, 100);
             } catch (error) {
                 console.error('No se pudo cargar el contenido de Contacto desde Dropbox:', error);
             }
@@ -288,24 +135,9 @@
 
         // Sistema de traducción
         const translations = {
-            es: {
-                'nav-trabajos': 'trabajos',
-                'nav-sobre': 'sobre',
-                'nav-contacto': 'contacto',
-                'contact-title': 'Contacto'
-            },
-            en: {
-                'nav-trabajos': 'works',
-                'nav-sobre': 'about',
-                'nav-contacto': 'contact',
-                'contact-title': 'Contact'
-            },
-            de: {
-                'nav-trabajos': 'arbeiten',
-                'nav-sobre': 'über',
-                'nav-contacto': 'kontakt',
-                'contact-title': 'Kontakt'
-            }
+            es: { 'nav-trabajos': 'trabajos', 'nav-sobre': 'sobre', 'nav-contacto': 'contacto', 'contact-title': 'Contacto' },
+            en: { 'nav-trabajos': 'works', 'nav-sobre': 'about', 'nav-contacto': 'contact', 'contact-title': 'Contact' },
+            de: { 'nav-trabajos': 'arbeiten', 'nav-sobre': 'über', 'nav-contacto': 'kontakt', 'contact-title': 'Kontakt' }
         };
 
         function updateDocumentTitle(lang) {
@@ -317,7 +149,6 @@
             document.title = titles[lang] || titles.es;
         }
 
-        // Función para cambiar idioma
         function changeLanguage(lang) {
             localStorage.setItem('selectedLanguage', lang);
             updateLanguageUI(lang);
@@ -326,7 +157,6 @@
             loadContactoContent(lang);
         }
 
-        // Actualizar indicador visual del idioma seleccionado
         function updateLanguageUI(lang) {
             document.querySelectorAll('.lang-option').forEach(option => {
                 option.classList.remove('active');
@@ -336,7 +166,6 @@
             });
         }
 
-        // Aplicar traducciones a todos los elementos con data-i18n
         function applyTranslations(lang) {
             document.querySelectorAll('[data-i18n]').forEach(element => {
                 const key = element.dataset.i18n;
@@ -346,7 +175,6 @@
             });
         }
 
-        // Inicializar idioma al cargar la página
         function initLanguage() {
             const savedLang = localStorage.getItem('selectedLanguage') || 'es';
             updateLanguageUI(savedLang);
@@ -354,7 +182,6 @@
             updateDocumentTitle(savedLang);
         }
 
-        // Inicializar idioma
         document.addEventListener('DOMContentLoaded', async () => {
             initLanguage();
             await loadContactoImages();

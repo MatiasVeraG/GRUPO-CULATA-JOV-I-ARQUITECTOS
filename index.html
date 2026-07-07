@@ -4,256 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grupo Culata Jovái Arquitectos</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        *::-webkit-scrollbar {
-            display: none;
-            width: 0;
-            height: 0;
-        }
-
-        * {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        html, body {
-            font-family: 'Futura', 'Century Gothic', sans-serif;
-            background-color: #FFFFFF;
-            overflow-x: hidden;
-            overflow-y: hidden;
-            height: 100%;
-        }
-
-        body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* HEADER MINIMALISTA */
-        .landing-header {
-            position: sticky;
-            top: 0;
-            left: 0;
-            right: 0;
-            padding: 30px 60px;
-            z-index: 100;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #FFFFFF;
-        }
-
-        .hero-zone {
-            flex: 1;
-            min-height: 0;
-            display: flex;
-            flex-direction: column;
-            padding-top: 10px;
-            padding-bottom: 12px;
-        }
-
-        .logo-text {
-            cursor: pointer;
-            height: 35px;
-            display: flex;
-            align-items: center;
-        }
-
-        .logo-text img {
-            height: 100%;
-            width: auto;
-            transition: opacity 0.3s ease;
-        }
-
-        .logo-text:hover img {
-            opacity: 0.7;
-        }
-
-        .nav-link {
-            font-size: 10px;
-            letter-spacing: 2px;
-            color: #000000;
-            text-decoration: none;
-            text-transform: lowercase;
-            transition: color 0.3s ease;
-        }
-
-        .nav-link:hover {
-            color: #DC143C;
-        }
-
-        /* CAROUSEL */
-        .carousel-container {
-            width: 95vw;
-            flex: 1;
-            min-height: 0;
-            margin: 0 auto;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .carousel-slide {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            transition: opacity 1s ease;
-        }
-
-        .carousel-slide.active {
-            opacity: 1;
-        }
-
-        .carousel-slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            object-position: center bottom;
-            cursor: default;
-        }
-
-        .bottom-controls {
-            width: 95vw;
-            margin: 8px auto 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-
-        /* SELECTOR DE IDIOMA */
-        .language-selector {
-            display: flex;
-            gap: 10px;
-        }
-
-        /* BOTONES DE REDES SOCIALES */
-        .social-buttons {
-            display: flex;
-            gap: 12px;
-        }
-
-        .social-btn {
-            width: 18px;
-            height: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            color: #000000;
-            transition: all 0.3s ease;
-            opacity: 0.6;
-        }
-
-        .social-btn:hover {
-            opacity: 1;
-            transform: scale(1.1);
-        }
-
-        .social-btn svg {
-            width: 100%;
-            height: 100%;
-            fill: currentColor;
-        }
-
-        .lang-option {
-            font-size: 10px;
-            letter-spacing: 1px;
-            color: #999999;
-            text-decoration: none;
-            text-transform: lowercase;
-            cursor: pointer;
-            transition: color 0.3s ease;
-            font-weight: 400;
-        }
-
-        .lang-option:hover {
-            color: #000000;
-        }
-
-        .lang-option.active {
-            color: #000000;
-            text-decoration: underline;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .landing-header {
-                padding: 20px 30px;
-            }
-
-            .logo-text {
-                height: 28px;
-            }
-
-            .nav-link {
-                font-size: 8px;
-            }
-
-            .carousel-container {
-                width: 98vw;
-            }
-
-            .hero-zone {
-                padding-top: 8px;
-                padding-bottom: 10px;
-            }
-
-            .bottom-controls {
-                width: 98vw;
-                margin-top: 6px;
-            }
-
-            .language-selector {
-                gap: 8px;
-            }
-
-            .lang-option {
-                font-size: 9px;
-            }
-
-            .social-buttons {
-                gap: 10px;
-            }
-
-            .social-btn {
-                width: 16px;
-                height: 16px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .landing-header {
-                padding: 15px 20px;
-            }
-
-            .logo-text {
-                height: 24px;
-            }
-
-            .carousel-container {
-                width: 100vw;
-            }
-
-            .bottom-controls {
-                width: 100vw;
-                padding: 0 10px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- HEADER -->
-    <header class="landing-header">
-        <nav style="display: flex; gap: 30px;">
+    <header class="landing-header" id="header">
+        <nav>
             <a href="trabajos.html" class="nav-link" data-i18n="nav-trabajos">trabajos</a>
             <a href="sobre.html" class="nav-link" data-i18n="nav-sobre">sobre</a>
             <a href="contacto.html" class="nav-link" data-i18n="nav-contacto">contacto</a>
@@ -263,13 +19,14 @@
         </div>
     </header>
 
-    <div class="hero-zone">
+    <div class="hero-zone fade-in">
         <!-- CAROUSEL -->
         <div class="carousel-container" id="carouselContainer">
             <!-- Slides se generarán dinámicamente -->
+            <div class="loading">Cargando portafolio...</div>
         </div>
 
-        <div class="bottom-controls">
+        <div class="bottom-controls reveal">
             <!-- BOTONES DE REDES SOCIALES -->
             <div class="social-buttons">
                 <a href="https://www.facebook.com" target="_blank" class="social-btn" aria-label="Facebook">
@@ -293,41 +50,24 @@
         </div>
     </div>
 
+    <!-- Scripts -->
+    <script src="script.js"></script>
     <script src="dropbox-config.js"></script>
     <script src="dropbox-service-vercel.js"></script>
     <script>
         // Sistema de traducción
         const translations = {
-            es: {
-                'nav-trabajos': 'trabajos',
-                'nav-sobre': 'sobre',
-                'nav-contacto': 'contacto'
-            },
-            en: {
-                'nav-trabajos': 'works',
-                'nav-sobre': 'about',
-                'nav-contacto': 'contact'
-            },
-            de: {
-                'nav-trabajos': 'arbeiten',
-                'nav-sobre': 'über',
-                'nav-contacto': 'kontakt'
-            }
+            es: { 'nav-trabajos': 'trabajos', 'nav-sobre': 'sobre', 'nav-contacto': 'contacto' },
+            en: { 'nav-trabajos': 'works', 'nav-sobre': 'about', 'nav-contacto': 'contact' },
+            de: { 'nav-trabajos': 'arbeiten', 'nav-sobre': 'über', 'nav-contacto': 'kontakt' }
         };
 
-        // Función para cambiar idioma
         function changeLanguage(lang) {
-            // Guardar idioma seleccionado en localStorage
             localStorage.setItem('selectedLanguage', lang);
-            
-            // Actualizar UI
             updateLanguageUI(lang);
-            
-            // Aplicar traducciones
             applyTranslations(lang);
         }
 
-        // Actualizar indicador visual del idioma seleccionado
         function updateLanguageUI(lang) {
             document.querySelectorAll('.lang-option').forEach(option => {
                 option.classList.remove('active');
@@ -337,7 +77,6 @@
             });
         }
 
-        // Aplicar traducciones a todos los elementos con data-i18n
         function applyTranslations(lang) {
             document.querySelectorAll('[data-i18n]').forEach(element => {
                 const key = element.dataset.i18n;
@@ -347,7 +86,6 @@
             });
         }
 
-        // Inicializar idioma al cargar la página
         function initLanguage() {
             const savedLang = localStorage.getItem('selectedLanguage') || 'es';
             updateLanguageUI(savedLang);
@@ -358,7 +96,6 @@
         async function getCarouselImages() {
             try {
                 const projects = await dropboxService.getAllProjectsWithCovers();
-
                 return projects.map(project => ({
                     cover: project.cover,
                     title: project.name,
@@ -376,21 +113,21 @@
             const container = document.getElementById('carouselContainer');
 
             if (projects.length === 0) {
-                container.innerHTML = '<p style="text-align: center; padding: 100px; color: #999;">No hay proyectos disponibles</p>';
+                container.innerHTML = '<div class="loading">No hay proyectos disponibles</div>';
                 return;
             }
+            
+            container.innerHTML = '';
 
             projects.forEach((project, index) => {
-                // Crear slide visual (sin redireccion por click)
                 const slide = document.createElement('div');
                 slide.className = 'carousel-slide' + (index === 0 ? ' active' : '');
-                slide.style.cursor = 'default';
-                slide.innerHTML = `
-                    ${project.cover
-                        ? `<img src="${project.cover}" alt="${project.title}">`
-                        : `<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#999;letter-spacing:1px;">Sin portada</div>`
-                    }
-                `;
+                
+                if (project.cover) {
+                    slide.innerHTML = `<img src="${project.cover}" alt="${project.title}">`;
+                } else {
+                    slide.innerHTML = `<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#999;letter-spacing:1px;text-transform:uppercase;">Sin portada</div>`;
+                }
                 
                 container.appendChild(slide);
             });
@@ -399,58 +136,44 @@
         let currentSlide = 0;
 
         function showSlide(index) {
-            // Eliminar active de todos
-            document.querySelectorAll('.carousel-slide').forEach(slide => {
-                slide.classList.remove('active');
-            });
-
-            // Añadir active al actual
             const slides = document.querySelectorAll('.carousel-slide');
+            if(slides.length === 0) return;
             
+            slides.forEach(slide => slide.classList.remove('active'));
             if (slides[index]) slides[index].classList.add('active');
         }
 
         function nextSlide() {
-            const totalSlides = document.querySelectorAll('.carousel-slide').length;
-            currentSlide = (currentSlide + 1) % totalSlides;
+            const slides = document.querySelectorAll('.carousel-slide');
+            if(slides.length === 0) return;
+            currentSlide = (currentSlide + 1) % slides.length;
             showSlide(currentSlide);
         }
 
         function prevSlide() {
-            const totalSlides = document.querySelectorAll('.carousel-slide').length;
-            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
-            showSlide(currentSlide);
-        }
-
-        function goToSlide(index) {
-            currentSlide = index;
+            const slides = document.querySelectorAll('.carousel-slide');
+            if(slides.length === 0) return;
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
             showSlide(currentSlide);
         }
 
         // Event listeners
-        // Navegación con teclado
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight') nextSlide();
             if (e.key === 'ArrowLeft') prevSlide();
         });
 
-        // Auto-avance cada 5 segundos
+        // Auto-avance
         let autoSlide = setInterval(nextSlide, 5000);
 
-        // Pausar auto-avance al hover
-        document.getElementById('carouselContainer').addEventListener('mouseenter', () => {
-            clearInterval(autoSlide);
+        document.getElementById('carouselContainer').addEventListener('mouseenter', () => clearInterval(autoSlide));
+        document.getElementById('carouselContainer').addEventListener('mouseleave', () => autoSlide = setInterval(nextSlide, 5000));
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            createCarousel();
+            initLanguage();
         });
-
-        document.getElementById('carouselContainer').addEventListener('mouseleave', () => {
-            autoSlide = setInterval(nextSlide, 5000);
-        });
-
-        // Inicializar carousel
-        createCarousel();
-
-        // Inicializar idioma
-        initLanguage();
     </script>
 </body>
 </html>

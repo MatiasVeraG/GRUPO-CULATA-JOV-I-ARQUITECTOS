@@ -5,195 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trabajos - Grupo Culata Jovái Arquitectos</title>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        /* HEADER MINIMALISTA */
-        .landing-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            padding: 30px 60px;
-            z-index: 100;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #FFFFFF;
-        }
-
-        .logo-text {
-            cursor: pointer;
-            height: 35px;
-            display: flex;
-            align-items: center;
-        }
-
-        .logo-text img {
-            height: 100%;
-            width: auto;
-            transition: opacity 0.3s ease;
-        }
-
-        .logo-text:hover img {
-            opacity: 0.7;
-        }
-
-        .nav-link {
-            font-size: 10px;
-            letter-spacing: 2px;
-            color: #000000;
-            text-decoration: none;
-            text-transform: lowercase;
-            transition: color 0.3s ease;
-        }
-
-        .nav-link:hover {
-            color: #DC143C;
-        }
-
-        /* GRID DE PROYECTOS - SOLO PORTADAS */
-        #proyectos {
-            margin-top: 100px;
-            padding: 20px;
-        }
-
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 3px;
-        }
-
-        .project-item {
-            position: relative;
-            overflow: hidden;
-            aspect-ratio: 4/3;
-            cursor: pointer;
-        }
-
-        .project-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease, opacity 0.3s ease;
-        }
-
-        .project-item:hover img {
-            transform: scale(1.02);
-            opacity: 0.9;
-        }
-
-        .project-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 30px;
-            background: linear-gradient(transparent, rgba(0,0,0,0.7));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .project-item:hover .project-overlay {
-            opacity: 1;
-        }
-
-        .project-overlay span {
-            color: #fff;
-            font-size: 14px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            font-weight: 300;
-        }
-
-        /* SELECTOR DE IDIOMA */
-        .language-selector {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 200;
-            display: flex;
-            gap: 10px;
-        }
-
-        .lang-option {
-            font-size: 10px;
-            letter-spacing: 1px;
-            color: #999999;
-            text-decoration: none;
-            text-transform: lowercase;
-            cursor: pointer;
-            transition: color 0.3s ease;
-            font-weight: 400;
-        }
-
-        .lang-option:hover {
-            color: #000000;
-        }
-
-        .lang-option.active {
-            color: #000000;
-            text-decoration: underline;
-        }
-
-        /* LOADING */
-        .loading {
-            text-align: center;
-            padding: 100px;
-            font-size: 12px;
-            letter-spacing: 2px;
-            color: #999;
-            grid-column: 1 / -1;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 1024px) {
-            .projects-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .landing-header {
-                padding: 20px 30px;
-            }
-
-            .logo-text {
-                height: 28px;
-            }
-
-            .nav-link {
-                font-size: 8px;
-            }
-
-            .projects-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .language-selector {
-                bottom: 20px;
-                right: 20px;
-                gap: 8px;
-            }
-
-            .lang-option {
-                font-size: 9px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .landing-header {
-                padding: 15px 20px;
-            }
-
-            .logo-text {
-                height: 24px;
-            }
-        }
-    </style>
 </head>
 <body>
     <!-- HEADER -->
-    <header class="landing-header">
-        <nav style="display: flex; gap: 30px;">
+    <header class="landing-header" id="header">
+        <nav>
             <a href="trabajos.html" class="nav-link" data-i18n="nav-trabajos">trabajos</a>
             <a href="sobre.html" class="nav-link" data-i18n="nav-sobre">sobre</a>
             <a href="contacto.html" class="nav-link" data-i18n="nav-contacto">contacto</a>
@@ -204,19 +20,21 @@
     </header>
 
     <!-- PROYECTOS -->
-    <section id="proyectos">
+    <section id="proyectos" class="fade-in">
         <div class="projects-grid" id="projectsGrid">
             <div class="loading">Cargando proyectos...</div>
         </div>
     </section>
 
     <!-- SELECTOR DE IDIOMA -->
-    <div class="language-selector">
+    <div class="language-selector" style="position: fixed; bottom: 30px; right: 30px; z-index: 200;">
         <span class="lang-option active" data-lang="es" onclick="changeLanguage('es')">es</span>
         <span class="lang-option" data-lang="en" onclick="changeLanguage('en')">en</span>
         <span class="lang-option" data-lang="de" onclick="changeLanguage('de')">de</span>
     </div>
 
+    <!-- Scripts -->
+    <script src="script.js"></script>
     <script src="dropbox-config.js"></script>
     <script src="dropbox-service-vercel.js"></script>
     <script>
@@ -226,53 +44,68 @@
             return div.innerHTML;
         }
 
-        // Cargar proyectos desde Dropbox
+        // Cargar proyectos
         async function loadProjects() {
             const grid = document.getElementById('projectsGrid');
+            if (!grid) return;
             
             try {
+                // Intento primario: cargar desde la API
                 const projects = await dropboxService.getAllProjectsWithCovers();
                 
                 if (projects.length === 0) {
-                    grid.innerHTML = '<div class="loading">No hay proyectos disponibles</div>';
-                    return;
+                    throw new Error("No hay proyectos en Dropbox");
                 }
 
                 // Mostrar solo la portada de cada proyecto
-                grid.innerHTML = projects.map(project => `
-                    <div class="project-item" onclick="window.location.href='proyecto.html?path=${encodeURIComponent(project.path)}&source=trabajos'">
+                grid.innerHTML = projects.map((project, index) => `
+                    <div class="project-item reveal" style="transition-delay: ${(index % 3) * 0.15}s" onclick="window.location.href='proyecto.html?path=${encodeURIComponent(project.path)}&source=trabajos'">
                         ${project.cover
                             ? `<img src="${project.cover}" alt="${escapeHtml(project.name)}" loading="lazy">`
-                            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f5f5f5;color:#999;font-size:11px;letter-spacing:1px;">Sin portada</div>`
+                            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f5f5f5;color:#999;font-size:11px;letter-spacing:1px;text-transform:uppercase;">Sin portada</div>`
                         }
                         <div class="project-overlay">
                             <span>${escapeHtml(project.name)}</span>
                         </div>
                     </div>
                 `).join('');
+
+                setTimeout(() => {
+                    if (typeof observer !== 'undefined') document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+                }, 100);
+
             } catch (error) {
-                console.error('Error cargando proyectos:', error);
-                grid.innerHTML = `<div class="loading">Error al cargar proyectos: ${escapeHtml(error.message)}</div>`;
+                console.warn('Error cargando proyectos desde API, usando fallback local:', error);
+                
+                // Fallback: cargar desde localStorage usando funciones de script.js
+                if (typeof getProjects === 'function') {
+                    const localProjects = getProjects();
+                    if (localProjects.length > 0) {
+                        grid.innerHTML = localProjects.map((project, index) => `
+                            <div class="project-item reveal" style="transition-delay: ${(index % 3) * 0.15}s" onclick="window.location.href='proyecto.html?proyecto=${project.id}&source=trabajos'">
+                                <img src="${project.images ? project.images[0] : project.image}" alt="${escapeHtml(project.title)}" loading="lazy">
+                                <div class="project-overlay">
+                                    <span>${escapeHtml(project.title)}</span>
+                                </div>
+                            </div>
+                        `).join('');
+                        
+                        setTimeout(() => {
+                            if (typeof observer !== 'undefined') document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+                        }, 100);
+                        return;
+                    }
+                }
+                
+                grid.innerHTML = `<div class="loading">No hay proyectos disponibles (Backend inactivo y sin caché local).</div>`;
             }
         }
 
         // Sistema de traducción
         const translations = {
-            es: {
-                'nav-trabajos': 'trabajos',
-                'nav-sobre': 'sobre',
-                'nav-contacto': 'contacto'
-            },
-            en: {
-                'nav-trabajos': 'works',
-                'nav-sobre': 'about',
-                'nav-contacto': 'contact'
-            },
-            de: {
-                'nav-trabajos': 'arbeiten',
-                'nav-sobre': 'über',
-                'nav-contacto': 'kontakt'
-            }
+            es: { 'nav-trabajos': 'trabajos', 'nav-sobre': 'sobre', 'nav-contacto': 'contacto' },
+            en: { 'nav-trabajos': 'works', 'nav-sobre': 'about', 'nav-contacto': 'contact' },
+            de: { 'nav-trabajos': 'arbeiten', 'nav-sobre': 'über', 'nav-contacto': 'kontakt' }
         };
 
         function changeLanguage(lang) {
