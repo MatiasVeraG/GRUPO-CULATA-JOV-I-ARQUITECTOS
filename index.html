@@ -9,21 +9,30 @@
 <body>
     <!-- HEADER -->
     <header class="landing-header" id="header">
-        <nav>
-            <a href="trabajos.html" class="nav-link" data-i18n="nav-trabajos">trabajos</a>
-            <a href="sobre.html" class="nav-link" data-i18n="nav-sobre">sobre</a>
-            <a href="contacto.html" class="nav-link" data-i18n="nav-contacto">contacto</a>
-        </nav>
         <div class="logo-text" onclick="window.location.href='index.html'">
             <img src="images/logo.png" alt="Grupo Culata Jovái Arquitectos">
         </div>
     </header>
+
+    <!-- SIDE CONTACT INFO -->
+    <div class="floating-contact reveal">
+        <p><strong data-i18n="contact-address">Dirección</strong><br>Asunción, Paraguay</p>
+        <p><strong>Email</strong><br><a href="mailto:contacto@culatajovai.com">contacto@culatajovai.com</a></p>
+        <p><strong data-i18n="contact-phone">Teléfono</strong><br><a href="tel:+595999000000">+595 999 000 000</a></p>
+        <p><a href="https://instagram.com/culatajovai" target="_blank">Instagram</a></p>
+    </div>
 
     <div class="hero-zone fade-in">
         <!-- CAROUSEL -->
         <div class="carousel-container" id="carouselContainer">
             <!-- Slides se generarán dinámicamente -->
             <div class="loading">Cargando portafolio...</div>
+        </div>
+
+        <!-- CAROUSEL CONTROLS -->
+        <div class="carousel-nav-buttons reveal">
+            <button class="carousel-control" onclick="prevSlide()" aria-label="Anterior">&#10094;</button>
+            <button class="carousel-control" onclick="nextSlide()" aria-label="Siguiente">&#10095;</button>
         </div>
 
         <div class="bottom-controls reveal">
@@ -52,14 +61,12 @@
 
     <!-- Scripts -->
     <script src="script.js"></script>
-    <script src="dropbox-config.js"></script>
-    <script src="dropbox-service-vercel.js"></script>
     <script>
         // Sistema de traducción
         const translations = {
-            es: { 'nav-trabajos': 'trabajos', 'nav-sobre': 'sobre', 'nav-contacto': 'contacto' },
-            en: { 'nav-trabajos': 'works', 'nav-sobre': 'about', 'nav-contacto': 'contact' },
-            de: { 'nav-trabajos': 'arbeiten', 'nav-sobre': 'über', 'nav-contacto': 'kontakt' }
+            es: { 'contact-address': 'Dirección', 'contact-phone': 'Teléfono' },
+            en: { 'contact-address': 'Address', 'contact-phone': 'Phone' },
+            de: { 'contact-address': 'Adresse', 'contact-phone': 'Telefon' }
         };
 
         function changeLanguage(lang) {
@@ -92,19 +99,19 @@
             applyTranslations(savedLang);
         }
 
-        // Obtener portadas de los proyectos desde Dropbox
+        // Obtener portadas de los proyectos de forma estática (sin backend)
         async function getCarouselImages() {
-            try {
-                const projects = await dropboxService.getAllProjectsWithCovers();
-                return projects.map(project => ({
-                    cover: project.cover,
-                    title: project.name,
-                    path: project.path
-                }));
-            } catch (error) {
-                console.error('Error cargando proyectos:', error);
-                return [];
-            }
+            return [
+                { cover: 'images/casa-mainumby-grupo-culata-jovai_2.jpg', title: 'Casa Mainumby' },
+                { cover: 'images/casa-mainumby-grupo-culata-jovai_3.jpg', title: 'Casa Mainumby' },
+                { cover: 'images/casa-mainumby-grupo-culata-jovai_4.jpg', title: 'Casa Mainumby' },
+                { cover: 'images/casa-mainumby-grupo-culata-jovai_5.jpg', title: 'Casa Mainumby' },
+                { cover: 'images/casa-mainumby-grupo-culata-jovai_7.jpg', title: 'Casa Mainumby' },
+                { cover: 'images/casa-mainumby-grupo-culata-jovai_9.jpg', title: 'Casa Mainumby' },
+                { cover: 'images/casa-mainumby-grupo-culata-jovai_11.jpg', title: 'Casa Mainumby' },
+                { cover: 'images/casa-mainumby-grupo-culata-jovai_14.jpg', title: 'Casa Mainumby' },
+                { cover: 'images/casa-mainumby-grupo-culata-jovai_16.jpg', title: 'Casa Mainumby' }
+            ];
         }
 
         // Crear slides del carousel
@@ -163,11 +170,8 @@
             if (e.key === 'ArrowLeft') prevSlide();
         });
 
-        // Auto-avance
+        // Auto-avance ininterrumpido
         let autoSlide = setInterval(nextSlide, 5000);
-
-        document.getElementById('carouselContainer').addEventListener('mouseenter', () => clearInterval(autoSlide));
-        document.getElementById('carouselContainer').addEventListener('mouseleave', () => autoSlide = setInterval(nextSlide, 5000));
 
         // Inicializar
         document.addEventListener('DOMContentLoaded', () => {
