@@ -33,10 +33,7 @@
         <span class="lang-option" data-lang="de" onclick="changeLanguage('de')">de</span>
     </div>
 
-    <!-- Scripts -->
-    <script src="script.js"></script>
-    <script src="dropbox-config.js"></script>
-    <script src="dropbox-service-vercel.js"></script>
+
     <script>
         function escapeHtml(text) {
             const div = document.createElement('div');
@@ -44,61 +41,28 @@
             return div.innerHTML;
         }
 
-        // Cargar proyectos
+        // Cargar proyectos de forma estática
         async function loadProjects() {
             const grid = document.getElementById('projectsGrid');
             if (!grid) return;
             
-            try {
-                // Intento primario: cargar desde la API
-                const projects = await dropboxService.getAllProjectsWithCovers();
-                
-                if (projects.length === 0) {
-                    throw new Error("No hay proyectos en Dropbox");
-                }
+            const projects = [
+                { cover: 'images/casa miralgo/casa-miralago-grupo-culata-jovai_21.jpg', name: 'Casa Miralago', path: '' },
+                { cover: 'images/casa mainumby/casa-mainumby-grupo-culata-jovai_16.jpg', name: 'Casa Mainumby', path: '' },
+                { cover: 'images/casa mainumby/casa-mainumby-grupo-culata-jovai_11.jpg', name: 'Casa Mainumby', path: '' },
+                { cover: 'images/casa mainumby/casa-mainumby-grupo-culata-jovai_14.jpg', name: 'Casa Mainumby', path: '' },
+                { cover: 'images/vivienda gt/30-vivienda-gt-grupo-culata-jovai-c-federico-cairoli-low.jpg', name: 'Vivienda GT', path: '' },
+                { cover: 'images/casa miralgo/casa-miralago-grupo-culata-jovai_16.jpg', name: 'Casa Miralago', path: '' }
+            ];
 
-                // Mostrar solo la portada de cada proyecto
-                grid.innerHTML = projects.map((project, index) => `
-                    <div class="project-item reveal" style="transition-delay: ${(index % 3) * 0.15}s" onclick="window.location.href='proyecto.html?path=${encodeURIComponent(project.path)}&source=trabajos'">
-                        ${project.cover
-                            ? `<img src="${project.cover}" alt="${escapeHtml(project.name)}" loading="lazy">`
-                            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f5f5f5;color:#999;font-size:11px;letter-spacing:1px;text-transform:uppercase;">Sin portada</div>`
-                        }
-                        <div class="project-overlay">
-                            <span>${escapeHtml(project.name)}</span>
-                        </div>
+            grid.innerHTML = projects.map(project => `
+                <div class="project-item">
+                    <img src="${project.cover}" alt="${escapeHtml(project.name)}" loading="lazy" style="object-fit: cover;">
+                    <div class="project-overlay">
+                        <span>${escapeHtml(project.name)}</span>
                     </div>
-                `).join('');
-
-                setTimeout(() => {
-                    if (typeof observer !== 'undefined') document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-                }, 100);
-
-            } catch (error) {
-                console.warn('Error cargando proyectos desde API, usando fallback local:', error);
-                
-                // Fallback: cargar desde localStorage usando funciones de script.js
-                if (typeof getProjects === 'function') {
-                    const localProjects = getProjects();
-                    if (localProjects.length > 0) {
-                        grid.innerHTML = localProjects.map((project, index) => `
-                            <div class="project-item reveal" style="transition-delay: ${(index % 3) * 0.15}s" onclick="window.location.href='proyecto.html?proyecto=${project.id}&source=trabajos'">
-                                <img src="${project.images ? project.images[0] : project.image}" alt="${escapeHtml(project.title)}" loading="lazy">
-                                <div class="project-overlay">
-                                    <span>${escapeHtml(project.title)}</span>
-                                </div>
-                            </div>
-                        `).join('');
-                        
-                        setTimeout(() => {
-                            if (typeof observer !== 'undefined') document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-                        }, 100);
-                        return;
-                    }
-                }
-                
-                grid.innerHTML = `<div class="loading">No hay proyectos disponibles (Backend inactivo y sin caché local).</div>`;
-            }
+                </div>
+            `).join('');
         }
 
         // Sistema de traducción

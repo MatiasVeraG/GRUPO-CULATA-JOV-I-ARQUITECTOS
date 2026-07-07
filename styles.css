@@ -170,24 +170,93 @@ nav {
 }
 
 /* ==========================================================================
+   SIDE CONTACT
+   ========================================================================== */
+.floating-contact {
+    position: absolute;
+    top: 50%;
+    left: var(--space-8);
+    transform: translateY(-50%);
+    z-index: 1000;
+    background-color: transparent;
+    padding: var(--space-4) var(--space-6);
+    color: #ffffff;
+}
+
+.floating-contact p {
+    font-size: var(--text-base);
+    letter-spacing: 2px;
+    line-height: 2;
+    margin-bottom: var(--space-3);
+    text-transform: uppercase;
+    font-weight: 500;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+}
+
+.floating-contact strong {
+    font-weight: 700;
+    font-size: var(--text-lg);
+}
+
+.floating-contact p:last-child {
+    margin-bottom: 0;
+}
+
+.floating-contact a {
+    color: #ffffff;
+    transition: color var(--transition-fast);
+    font-weight: 500;
+}
+
+.floating-contact a:hover {
+    color: var(--accent-color);
+}
+
+@media (max-width: 768px) {
+    .floating-contact {
+        top: 50%;
+        bottom: auto;
+        left: var(--space-4);
+        transform: translateY(-50%);
+        width: auto;
+        text-align: left;
+        padding: 0;
+    }
+    .floating-contact p {
+        font-size: var(--text-xs);
+        line-height: 1.8;
+        margin-bottom: var(--space-2);
+    }
+    .floating-contact strong {
+        font-size: var(--text-sm);
+    }
+}
+
+/* ==========================================================================
    HERO / CAROUSEL
    ========================================================================== */
 .hero-zone {
     height: 100vh;
+    width: 100vw;
     display: flex;
     flex-direction: column;
-    padding-top: 80px; /* Space for navbar */
-    padding-bottom: var(--space-3);
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
 }
 
 .carousel-container {
-    width: 95vw;
-    flex: 1;
-    min-height: 0;
-    margin: 0 auto;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
     overflow: hidden;
-    position: relative;
-    border-radius: 4px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 0;
 }
 
 .carousel-slide {
@@ -211,17 +280,56 @@ nav {
 .carousel-slide img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Changed to cover for a premium edge-to-edge feel */
+    object-fit: cover;
     object-position: center;
+    image-rendering: high-quality;
     cursor: default;
 }
 
+.carousel-nav-buttons {
+    position: absolute;
+    right: var(--space-6);
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    z-index: 1000;
+}
+
+.carousel-control {
+    background: rgba(255, 255, 255, 0.7);
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    backdrop-filter: blur(5px);
+}
+
+.carousel-control:hover {
+    background: rgba(255, 255, 255, 1);
+    color: var(--accent-color);
+    transform: scale(1.1);
+}
+
 .bottom-controls {
-    width: 95vw;
-    margin: var(--space-2) auto 0;
+    position: absolute;
+    bottom: var(--space-4);
+    left: 0;
+    width: 100vw;
+    padding: 0 var(--space-8);
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
+    z-index: 1000;
 }
 
 /* ==========================================================================
@@ -590,7 +698,22 @@ nav {
     }
     
     .logo-text {
-        height: 25px;
+        height: 35px; /* Keeps logo slightly bigger on mobile */
+    }
+    
+    .carousel-nav-buttons {
+        right: var(--space-2);
+    }
+    
+    .carousel-control {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .bottom-controls {
+        padding: 0 var(--space-4);
+        bottom: var(--space-2);
     }
     
     nav {
