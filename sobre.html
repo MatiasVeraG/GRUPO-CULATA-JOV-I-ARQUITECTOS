@@ -21,9 +21,8 @@
 
     <!-- NOSOTROS -->
     <section id="nosotros" class="fade-in">
-        <div class="nosotros-container">
-            <h2 class="nosotros-title reveal" data-i18n="about-title">Sobre</h2>
-            <div id="personCards" class="about-stack">
+        <div class="nosotros-container" style="max-width: 1200px; padding: 0 var(--space-4); margin: 0 auto;">
+            <div id="personCards" class="about-stack" style="width: 100%;">
                 <!-- Se llena dinámicamente desde Dropbox -->
             </div>
         </div>
@@ -66,25 +65,57 @@
             return blocks;
         }
 
-        function renderStructuredBlocks(container, blocks) {
-            const imageByName = new Map(
-                (sobreImages || []).map(item => [String(item.name || '').toLowerCase(), item])
-            );
-
-            container.innerHTML = blocks.map(block => {
-                if (block.type === 'image') {
-                    const img = imageByName.get(String(block.value || '').toLowerCase());
-                    if (!img) return '';
-                    return `<div class="about-block image reveal"><img src="${img.temporaryLink}" alt="${esc(img.name)}"></div>`;
-                }
-
-                return `<div class="about-block text reveal"><p>${esc(block.value)}</p></div>`;
-            }).join('');
+        function renderAboutGrid(container, texts, images) {
+            const labelText = localStorage.getItem('selectedLanguage') === 'en' ? '01 — Our vision' : 
+                            localStorage.getItem('selectedLanguage') === 'de' ? '01 — Unsere Vision' : 
+                            '01 — Nuestra visión';
+                            
+            const textLead = texts[0] || '';
+            const textSecondary = texts.slice(1).join('<br><br>');
             
-            // Re-observe with IntersectionObserver from script.js
+            let imagesHtml = '';
+            if (images.length >= 2) {
+                imagesHtml = `
+                    <div class="about-image-wrapper offset-up reveal">
+                        <img src="${images[0].temporaryLink}" alt="${esc(images[0].name)}" loading="lazy">
+                    </div>
+                    <div class="about-image-wrapper offset-down reveal">
+                        <img src="${images[1].temporaryLink}" alt="${esc(images[1].name)}" loading="lazy">
+                    </div>
+                `;
+            } else if (images.length === 1) {
+                imagesHtml = `
+                    <div class="about-image-wrapper reveal">
+                        <img src="${images[0].temporaryLink}" alt="${esc(images[0].name)}" loading="lazy">
+                    </div>
+                `;
+            } else {
+                imagesHtml = `
+                    <div class="about-image-wrapper offset-up reveal">
+                        <img src="images/casa-mainumby-grupo-culata-jovai_16.jpg" alt="Nuestro Estudio" loading="lazy">
+                    </div>
+                    <div class="about-image-wrapper offset-down reveal">
+                        <img src="images/casa-mainumby-grupo-culata-jovai_2.jpg" alt="Nuestro Equipo" loading="lazy">
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="about-grid">
+                    <div class="about-content">
+                        <span class="about-label reveal">${labelText}</span>
+                        ${textLead ? `<div class="about-text-lead reveal"><p>${esc(textLead)}</p></div>` : ''}
+                        ${textSecondary ? `<div class="about-text-secondary reveal"><p>${esc(textSecondary).replace(/&lt;br&gt;/g, '<br>')}</p></div>` : ''}
+                    </div>
+                    <div class="about-images">
+                        ${imagesHtml}
+                    </div>
+                </div>
+            `;
+            
             setTimeout(() => {
                 if(typeof observer !== 'undefined') {
-                    document.querySelectorAll('.about-block').forEach(el => observer.observe(el));
+                    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
                 }
             }, 100);
         }
@@ -103,7 +134,12 @@
 
                 const structuredBlocks = parseStructuredBlocks(text || '');
                 if (structuredBlocks.length) {
-                    renderStructuredBlocks(container, structuredBlocks);
+                    const texts = structuredBlocks.filter(b => b.type === 'text').map(b => b.value);
+                    const imageNames = structuredBlocks.filter(b => b.type === 'image').map(b => String(b.value || '').toLowerCase());
+                    const imageByName = new Map((sobreImages || []).map(item => [String(item.name || '').toLowerCase(), item]));
+                    const images = imageNames.map(name => imageByName.get(name)).filter(Boolean);
+                    
+                    renderAboutGrid(container, texts, images);
                     return;
                 }
 
@@ -112,40 +148,15 @@
                     : [];
 
                 if (!paragraphs.length) {
-                    container.innerHTML = `
-                        <div class="about-block text reveal">
-                            <p>En Grupo Culata Jovái Arquitectos creemos en una arquitectura que trasciende el espacio físico. Buscamos la perfecta armonía entre el entorno, la funcionalidad y la estética contemporánea.</p>
-                        </div>
-                        <div class="about-block text reveal">
-                            <p>Nuestro equipo está dedicado a transformar ideas en realidades tangibles, creando espacios atemporales con un profundo respeto por los materiales y la luz natural.</p>
-                        </div>
-                        <div class="about-block image reveal">
-                            <img src="images/casa-mainumby-grupo-culata-jovai_16.jpg" alt="Nuestro Estudio">
-                        </div>
-                    `;
-                    setTimeout(() => {
-                        if(typeof observer !== 'undefined') {
-                            document.querySelectorAll('.about-block, .reveal').forEach(el => observer.observe(el));
-                        }
-                    }, 100);
+                    // Fallback local
+                    renderAboutGrid(container, [
+                        "En Grupo Culata Jovái Arquitectos creemos en una arquitectura que trasciende el espacio físico. Buscamos la perfecta armonía entre el entorno, la funcionalidad y la estética contemporánea.",
+                        "Nuestro equipo está dedicado a transformar ideas en realidades tangibles, creando espacios atemporales con un profundo respeto por los materiales y la luz natural."
+                    ], sobreImages.slice(0, 2));
                     return;
                 }
 
-                container.innerHTML = paragraphs.map((bio, i) => {
-                    const img = sobreImages[i];
-                    const photoHtml = img
-                        ? `<div class="about-block image reveal"><img src="${img.temporaryLink}" alt=""></div>`
-                        : '';
-                    const textHtml = bio.split(/\n/).map(line => `<div class="about-block text reveal"><p>${esc(line)}</p></div>`).join('');
-                    return `${photoHtml}${textHtml}`;
-                }).join('');
-                
-                // Re-observe with IntersectionObserver from script.js
-                setTimeout(() => {
-                    if(typeof observer !== 'undefined') {
-                        document.querySelectorAll('.about-block').forEach(el => observer.observe(el));
-                    }
-                }, 100);
+                renderAboutGrid(container, paragraphs, sobreImages.slice(0, 2));
 
             } catch (error) {
                 console.error('No se pudo cargar el contenido de Sobre:', error);

@@ -21,9 +21,8 @@
 
     <!-- CONTACTO -->
     <section id="contacto" class="fade-in">
-        <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-            <h2 class="reveal" data-i18n="contact-title" style="margin-bottom: var(--space-8);">Contacto</h2>
-            <div class="contacto-content reveal" id="contactoInfoEditable"></div>
+        <div style="width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 var(--space-4);">
+            <div class="contacto-content" id="contactoInfoEditable" style="width: 100%;"></div>
         </div>
     </section>
 
@@ -63,22 +62,77 @@
             return blocks;
         }
 
-        function renderStructuredBlocks(container, blocks) {
-            const imageByName = new Map((contactoImages || []).map(item => [String(item.name || '').toLowerCase(), item]));
-            container.innerHTML = blocks.map(block => {
-                if (block.type === 'image') {
-                    const img = imageByName.get(String(block.value || '').toLowerCase());
-                    if (!img) return '';
-                    return `<div class="contacto-info image reveal"><img src="${img.temporaryLink}" alt="${esc(img.name)}" style="width:100%; max-width:500px; border-radius:4px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);"></div>`;
-                }
+        function renderContactGrid(container, infoHtml) {
+            const lang = localStorage.getItem('selectedLanguage') || 'es';
+            const labelText = lang === 'en' ? 'LET\\'S TALK' : 
+                            lang === 'de' ? 'LASS UNS REDEN' : 
+                            'HABLEMOS';
+                            
+            const formLabels = {
+                es: { name: 'Nombre', email: 'Correo Electrónico', message: 'Mensaje', send: 'ENVIAR MENSAJE', success: '¡Mensaje enviado con éxito!' },
+                en: { name: 'Name', email: 'Email', message: 'Message', send: 'SEND MESSAGE', success: 'Message sent successfully!' },
+                de: { name: 'Name', email: 'E-Mail', message: 'Nachricht', send: 'NACHRICHT SENDEN', success: 'Nachricht erfolgreich gesendet!' }
+            };
+            const labels = formLabels[lang] || formLabels.es;
 
-                return `<div class="contacto-info text reveal"><p>${esc(block.value)}</p></div>`;
-            }).join('');
+            container.innerHTML = `
+                <div class="contact-grid">
+                    <div class="contact-info-col">
+                        <span class="about-label reveal">${labelText}</span>
+                        ${infoHtml}
+                    </div>
+                    <div class="contact-form-col reveal">
+                        <form id="contactForm" class="contact-form" onsubmit="handleContactSubmit(event)">
+                            <div class="form-group">
+                                <label for="name" class="form-label">${labels.name}</label>
+                                <input type="text" id="name" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="form-label">${labels.email}</label>
+                                <input type="email" id="email" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="message" class="form-label">${labels.message}</label>
+                                <textarea id="message" class="form-textarea" required></textarea>
+                            </div>
+                            <button type="submit" class="form-submit" id="submitBtn">
+                                <span class="btn-text">${labels.send}</span>
+                                <span class="btn-loader" style="display:none;">...</span>
+                            </button>
+                            <div id="formSuccess" class="form-success" style="display:none; color: var(--accent-color); margin-top: 16px; font-size: 14px;">${labels.success}</div>
+                        </form>
+                    </div>
+                </div>
+            `;
             
             setTimeout(() => {
-                if(typeof observer !== 'undefined') document.querySelectorAll('.contacto-info').forEach(el => observer.observe(el));
+                if(typeof observer !== 'undefined') document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
             }, 100);
         }
+
+        window.handleContactSubmit = function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const text = btn.querySelector('.btn-text');
+            const loader = btn.querySelector('.btn-loader');
+            const success = document.getElementById('formSuccess');
+            
+            btn.classList.add('loading');
+            text.style.display = 'none';
+            loader.style.display = 'inline-block';
+            
+            setTimeout(() => {
+                btn.classList.remove('loading');
+                text.style.display = 'inline-block';
+                loader.style.display = 'none';
+                document.getElementById('contactForm').reset();
+                success.style.display = 'block';
+                
+                setTimeout(() => {
+                    success.style.display = 'none';
+                }, 4000);
+            }, 1500);
+        };
 
         async function loadContactoContent(lang) {
             const container = document.getElementById('contactoInfoEditable');
@@ -94,33 +148,36 @@
                 }
                 
                 if (!text || !text.trim()) {
-                    container.innerHTML = `
+                    const fallbackInfoHtml = `
                         <div class="contacto-info reveal">
                             <p><strong>Dirección</strong><br>Asunción, Paraguay</p>
                         </div>
                         <div class="contacto-info reveal">
-                            <p><strong>Email</strong><br><a href="mailto:contacto@culatajovai.com">contacto@culatajovai.com</a></p>
+                            <p><strong>Email</strong><br><a href="mailto:contacto@culatajovai.com" class="social-link">contacto@culatajovai.com</a></p>
                         </div>
                         <div class="contacto-info reveal">
-                            <p><strong>Teléfono</strong><br><a href="tel:+595999000000">+595 999 000 000</a></p>
+                            <p><strong>Teléfono</strong><br><a href="tel:+595999000000" class="social-link">+595 999 000 000</a></p>
                         </div>
-                        <div class="contacto-info reveal">
-                            <a href="https://instagram.com/culatajovai" target="_blank" class="btn-instagram">Instagram</a>
+                        <div class="contacto-info reveal" style="margin-top: 32px;">
+                            <a href="https://instagram.com/culatajovai" target="_blank" class="social-link">Instagram</a>
                         </div>
                     `;
-                    setTimeout(() => {
-                        if(typeof observer !== 'undefined') document.querySelectorAll('.contacto-info, .reveal').forEach(el => observer.observe(el));
-                    }, 100);
+                    renderContactGrid(container, fallbackInfoHtml);
                     return;
                 }
 
                 const structuredBlocks = parseStructuredBlocks(text || '');
                 if (structuredBlocks.length) {
-                    renderStructuredBlocks(container, structuredBlocks);
+                    const imageByName = new Map((contactoImages || []).map(item => [String(item.name || '').toLowerCase(), item]));
+                    const infoHtml = structuredBlocks.map(block => {
+                        if (block.type === 'image') return '';
+                        return `<div class="contacto-info text reveal"><p>${esc(block.value)}</p></div>`;
+                    }).join('');
+                    renderContactGrid(container, infoHtml);
                     return;
                 }
 
-                const blocks = text
+                const infoHtml = text
                     .split(/\n\s*\n/)
                     .map(item => item.trim())
                     .filter(Boolean)
@@ -133,13 +190,9 @@
                     })
                     .join('');
 
-                if (blocks) {
-                    container.innerHTML = blocks;
+                if (infoHtml) {
+                    renderContactGrid(container, infoHtml);
                 }
-                
-                setTimeout(() => {
-                    if(typeof observer !== 'undefined') document.querySelectorAll('.contacto-info').forEach(el => observer.observe(el));
-                }, 100);
             } catch (error) {
                 console.error('No se pudo cargar el contenido de Contacto desde Dropbox:', error);
             }
