@@ -385,7 +385,7 @@
             <button class="carousel-control" onclick="nextSlide()" aria-label="Siguiente">&#10095;</button>
         </div>
 
-        <div class="bottom-controls">
+        <div class="bottom-controls reveal">
             <!-- BOTONES DE REDES SOCIALES -->
             <div class="social-buttons">
                 <a href="https://www.facebook.com" target="_blank" class="social-btn" aria-label="Facebook">
@@ -412,36 +412,17 @@
     <script>
         // Sistema de traducción
         const translations = {
-            es: {
-                'nav-trabajos': 'trabajos',
-                'nav-sobre': 'sobre',
-                'nav-contacto': 'contacto'
-            },
-            en: {
-                'nav-trabajos': 'works',
-                'nav-sobre': 'about',
-                'nav-contacto': 'contact'
-            },
-            de: {
-                'nav-trabajos': 'arbeiten',
-                'nav-sobre': 'über',
-                'nav-contacto': 'kontakt'
-            }
+            es: { 'contact-address': 'Dirección', 'contact-phone': 'Teléfono' },
+            en: { 'contact-address': 'Address', 'contact-phone': 'Phone' },
+            de: { 'contact-address': 'Adresse', 'contact-phone': 'Telefon' }
         };
 
-        // Función para cambiar idioma
         function changeLanguage(lang) {
-            // Guardar idioma seleccionado en localStorage
             localStorage.setItem('selectedLanguage', lang);
-            
-            // Actualizar UI
             updateLanguageUI(lang);
-            
-            // Aplicar traducciones
             applyTranslations(lang);
         }
 
-        // Actualizar indicador visual del idioma seleccionado
         function updateLanguageUI(lang) {
             document.querySelectorAll('.lang-option').forEach(option => {
                 option.classList.remove('active');
@@ -451,7 +432,6 @@
             });
         }
 
-        // Aplicar traducciones a todos los elementos con data-i18n
         function applyTranslations(lang) {
             document.querySelectorAll('[data-i18n]').forEach(element => {
                 const key = element.dataset.i18n;
@@ -461,13 +441,13 @@
             });
         }
 
-        // Inicializar idioma al cargar la página
         function initLanguage() {
             const savedLang = localStorage.getItem('selectedLanguage') || 'es';
             updateLanguageUI(savedLang);
             applyTranslations(savedLang);
         }
 
+        // Obtener portadas de los proyectos de forma estática (sin backend)
         // Obtener portadas de los proyectos de forma estática (sin backend)
         async function getCarouselImages() {
             return [
@@ -486,21 +466,21 @@
             const container = document.getElementById('carouselContainer');
 
             if (projects.length === 0) {
-                container.innerHTML = '<p style="text-align: center; padding: 100px; color: #999;">No hay proyectos disponibles</p>';
+                container.innerHTML = '<div class="loading">No hay proyectos disponibles</div>';
                 return;
             }
+            
+            container.innerHTML = '';
 
             projects.forEach((project, index) => {
-                // Crear slide visual (sin redireccion por click)
                 const slide = document.createElement('div');
                 slide.className = 'carousel-slide' + (index === 0 ? ' active' : '');
-                slide.style.cursor = 'default';
-                slide.innerHTML = `
-                    ${project.cover
-                        ? `<img src="${project.cover}" alt="${project.title}">`
-                        : `<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#999;letter-spacing:1px;">Sin portada</div>`
-                    }
-                `;
+                
+                if (project.cover) {
+                    slide.innerHTML = `<img src="${project.cover}" alt="${project.title}">`;
+                } else {
+                    slide.innerHTML = `<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#999;letter-spacing:1px;text-transform:uppercase;">Sin portada</div>`;
+                }
                 
                 container.appendChild(slide);
             });
@@ -509,42 +489,34 @@
         let currentSlide = 0;
 
         function showSlide(index) {
-            // Eliminar active de todos
-            document.querySelectorAll('.carousel-slide').forEach(slide => {
-                slide.classList.remove('active');
-            });
-
-            // Añadir active al actual
             const slides = document.querySelectorAll('.carousel-slide');
+            if(slides.length === 0) return;
             
+            slides.forEach(slide => slide.classList.remove('active'));
             if (slides[index]) slides[index].classList.add('active');
         }
 
         function nextSlide() {
-            const totalSlides = document.querySelectorAll('.carousel-slide').length;
-            currentSlide = (currentSlide + 1) % totalSlides;
+            const slides = document.querySelectorAll('.carousel-slide');
+            if(slides.length === 0) return;
+            currentSlide = (currentSlide + 1) % slides.length;
             showSlide(currentSlide);
         }
 
         function prevSlide() {
-            const totalSlides = document.querySelectorAll('.carousel-slide').length;
-            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
-            showSlide(currentSlide);
-        }
-
-        function goToSlide(index) {
-            currentSlide = index;
+            const slides = document.querySelectorAll('.carousel-slide');
+            if(slides.length === 0) return;
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
             showSlide(currentSlide);
         }
 
         // Event listeners
-        // Navegación con teclado
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight') nextSlide();
             if (e.key === 'ArrowLeft') prevSlide();
         });
 
-        // Auto-avance cada 5 segundos
+        // Auto-avance ininterrumpido
         let autoSlide = setInterval(nextSlide, 5000);
 
         // Pausar auto-avance al hover (desactivado para controles en pantalla)

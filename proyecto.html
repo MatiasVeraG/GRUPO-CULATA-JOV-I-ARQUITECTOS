@@ -1,88 +1,24 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proyecto - Grupo Culata Jovai Arquitectos</title>
+    <title>Proyecto - Grupo Culata Jovái Arquitectos</title>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        .landing-header { position: fixed; top: 0; left: 0; right: 0; padding: 30px 60px; z-index: 100; display: flex; justify-content: space-between; align-items: center; background-color: #fff; }
-        .logo-text { cursor: pointer; height: 35px; display: flex; align-items: center; }
-        .logo-text img { height: 100%; width: auto; }
-        .nav-link { font-size: 10px; letter-spacing: 2px; color: #000; text-decoration: none; text-transform: lowercase; }
-        .nav-link:hover { color: #DC143C; }
-
-        .project-page { margin-top: 100px; }
-        .loading { text-align: center; padding: 120px 20px; letter-spacing: 2px; color: #777; }
-
-        .project-slideshow { width: 100%; position: relative; overflow: hidden; background: #fff; }
-        .slideshow-track { display: flex; transition: transform 0.5s ease; }
-        .slideshow-slide { min-width: 100%; display: flex; align-items: center; justify-content: center; }
-        .slideshow-slide img { width: 100%; height: 88vh; object-fit: contain; cursor: zoom-in; }
-
-        .slideshow-btn { position: absolute; top: 50%; transform: translateY(-50%); background: none; border: none; color: #000; font-size: 46px; cursor: pointer; padding: 10px 20px; }
-        .slideshow-prev { left: 0; }
-        .slideshow-next { right: 0; }
-        .slideshow-counter { position: absolute; bottom: 20px; right: 30px; color: rgba(0,0,0,0.5); font-size: 11px; letter-spacing: 2px; }
-
-        .project-info { display: flex; max-width: 1400px; margin: 0 auto; padding: 60px 80px; }
-        .project-sidebar { flex: 0 0 33.333%; max-width: 33.333%; padding-right: 55px; border-right: 1px solid #eee; }
-        .project-description-wrap { flex: 0 0 66.666%; max-width: 66.666%; padding-left: 55px; }
-        .project-title { font-size: 26px; font-weight: 300; letter-spacing: 3px; margin-bottom: 35px; text-transform: uppercase; }
-        .project-datos-item { margin-bottom: 14px; }
-        .project-datos-label { display: block; color: #999; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
-        .project-datos-value { color: #000; font-size: 11px; letter-spacing: 1px; }
-        .project-description { font-size: 13px; line-height: 1.9; color: #333; text-align: justify; }
-        .project-description p { margin-bottom: 20px; }
-
-        .planos-title { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: #999; padding: 40px 80px 24px; border-top: 1px solid #eee; }
-        .drawings-wrap { padding: 0 80px 40px; }
-        .drawings-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
-        .drawing-item { background: #f7f7f7; border: 1px solid #eee; cursor: zoom-in; }
-        .drawing-item img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
-
-        .back-wrap { padding: 20px 80px 10px; }
-        .back-button { display: inline-flex; align-items: center; gap: 8px; font-size: 10px; letter-spacing: 2px; color: #000; text-decoration: none; text-transform: lowercase; }
-
-        .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000; align-items: center; justify-content: center; }
-        .lightbox.active { display: flex; }
-        .lightbox-content img { max-width: 90vw; max-height: 90vh; object-fit: contain; }
-        .lightbox-close, .lightbox-nav { position: absolute; color: #fff; cursor: pointer; user-select: none; }
-        .lightbox-close { top: 20px; right: 30px; font-size: 40px; }
-        .lightbox-nav { top: 50%; transform: translateY(-50%); font-size: 50px; padding: 20px; }
-        .lightbox-prev { left: 20px; }
-        .lightbox-next { right: 20px; }
-        .lightbox-counter { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 12px; letter-spacing: 2px; }
-
-        .language-selector { position: fixed; bottom: 30px; right: 30px; z-index: 200; display: flex; gap: 10px; }
-        .lang-option { font-size: 10px; letter-spacing: 1px; color: #999; cursor: pointer; text-transform: lowercase; }
-        .lang-option.active { color: #000; text-decoration: underline; }
-
-        @media (max-width: 900px) {
-            .landing-header { padding: 20px 25px; }
-            .project-info { display: block; padding: 40px 24px; }
-            .project-sidebar { max-width: none; border-right: none; padding-right: 0; margin-bottom: 24px; }
-            .project-description-wrap { max-width: none; padding-left: 0; }
-            .slideshow-slide img { height: 60vh; }
-            .back-wrap, .planos-title { padding-left: 24px; padding-right: 24px; }
-            .drawings-wrap { padding: 0 24px 30px; }
-            .drawings-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        }
-    </style>
 </head>
 <body>
-    <header class="landing-header">
-        <nav style="display: flex; gap: 30px;">
+    <header class="landing-header" id="header">
+        <nav>
             <a href="trabajos.html" class="nav-link" data-i18n="nav-trabajos">trabajos</a>
             <a href="sobre.html" class="nav-link" data-i18n="nav-sobre">sobre</a>
             <a href="contacto.html" class="nav-link" data-i18n="nav-contacto">contacto</a>
         </nav>
         <div class="logo-text" onclick="window.location.href='index.html'">
-            <img src="images/logo.png" alt="Grupo Culata Jovai Arquitectos">
+            <img src="images/logo.png" alt="Grupo Culata Jovái Arquitectos">
         </div>
     </header>
 
-    <main class="project-page" id="projectContent">
+    <main class="project-page fade-in" id="projectContent">
         <div class="loading">Cargando proyecto...</div>
     </main>
 
@@ -94,23 +30,24 @@
         <span class="lightbox-counter" id="lightboxCounter"></span>
     </div>
 
-    <footer id="projectFooter" style="background-color:#000;color:#fff;text-align:center;padding:40px 20px;font-size:10px;letter-spacing:2px;margin-top:80px;">
-        <p>© 2026 GRUPO CULATA JOVAI ARQUITECTOS</p>
+    <footer id="projectFooter" style="background-color:#000;color:#fff;text-align:center;padding:40px 20px;font-size:10px;letter-spacing:2px;margin-top:80px;display:none;">
+        <p>© 2026 GRUPO CULATA JOVÁI ARQUITECTOS</p>
     </footer>
 
-    <div class="language-selector">
+    <div class="language-selector" style="position: fixed; bottom: 30px; right: 30px; z-index: 200;">
         <span class="lang-option active" data-lang="es" onclick="changeLanguage('es')">es</span>
         <span class="lang-option" data-lang="en" onclick="changeLanguage('en')">en</span>
         <span class="lang-option" data-lang="de" onclick="changeLanguage('de')">de</span>
     </div>
 
+    <script src="script.js"></script>
     <script src="dropbox-config.js"></script>
     <script src="dropbox-service-vercel.js"></script>
     <script>
-        let currentProject = null;
-        let allImages = [];
-        let currentImageIndex = 0;
-        let slideshowIndex = 0;
+        var currentProject = null;
+        var allImages = [];
+        var currentImageIndex = 0;
+        var slideshowIndex = 0;
 
         function escapeHtml(text) {
             const div = document.createElement('div');
@@ -136,15 +73,20 @@
             const params = new URLSearchParams(window.location.search);
             const slug = params.get('proyecto') || params.get('slug');
             if (!slug) return null;
-            const projects = await dropboxService.listProjects();
-            const found = projects.find(p => p.slug === slug);
-            return found ? found.path : null;
+            
+            try {
+                const projects = await dropboxService.listProjects();
+                const found = projects.find(p => p.slug === slug);
+                return found ? found.path : slug; // Retorna el slug como ID de fallback si falla
+            } catch (error) {
+                return slug; // Usamos el ID de la URL como fallback
+            }
         }
 
         async function loadProjectData() {
             try {
-                const projectPath = await resolveProjectPath();
-                if (!projectPath) {
+                const projectPathOrId = await resolveProjectPath();
+                if (!projectPathOrId) {
                     document.getElementById('projectContent').innerHTML = '<div class="loading">Proyecto no encontrado</div>';
                     return;
                 }
@@ -152,12 +94,39 @@
                 const source = getSourceFromUrl();
                 const footer = document.getElementById('projectFooter');
                 if (footer) {
-                    footer.style.display = source === 'trabajos' ? 'none' : '';
+                    footer.style.display = source === 'trabajos' ? 'none' : 'block';
                 }
 
-                currentProject = await dropboxService.getProjectDetail(projectPath);
+                try {
+                    // Intento de cargar desde API
+                    if (String(projectPathOrId).startsWith('/')) {
+                        currentProject = await dropboxService.getProjectDetail(projectPathOrId);
+                    } else {
+                        throw new Error("Local ID provided, skipping API");
+                    }
+                } catch (error) {
+                    console.warn("Usando fallback local para proyecto:", projectPathOrId);
+                    if (typeof getProjects === 'function') {
+                        const localProjects = getProjects();
+                        const found = localProjects.find(p => String(p.id) === String(projectPathOrId));
+                        if (found) {
+                            currentProject = {
+                                name: found.title,
+                                description: found.description || "Descripción del proyecto.",
+                                features: [{key: "Estado", value: "Terminado"}, {key: "Ubicación", value: "Local"}],
+                                images: (found.images || []).map(img => ({ temporaryLink: img, name: 'Imagen' })),
+                                drawings: []
+                            };
+                        } else {
+                            throw new Error("Proyecto no encontrado en datos locales");
+                        }
+                    } else {
+                        throw error;
+                    }
+                }
+
                 renderProject();
-                document.title = `${currentProject.name} - Grupo Culata Jovai Arquitectos`;
+                document.title = `${currentProject.name} - Grupo Culata Jovái Arquitectos`;
             } catch (error) {
                 console.error(error);
                 document.getElementById('projectContent').innerHTML = `<div class="loading">Error al cargar el proyecto: ${escapeHtml(error.message)}</div>`;
@@ -175,7 +144,7 @@
             ];
 
             const datosHTML = (currentProject.features || []).map(item => {
-                return `<div class="project-datos-item"><span class="project-datos-label">${escapeHtml(item.key)}</span><span class="project-datos-value">${escapeHtml(item.value || '')}</span></div>`;
+                return `<div class="project-datos-item reveal"><span class="project-datos-label">${escapeHtml(item.key)}</span><span class="project-datos-value">${escapeHtml(item.value || '')}</span></div>`;
             }).join('');
 
             const lang = localStorage.getItem('selectedLanguage') || 'es';
@@ -185,28 +154,28 @@
                 currentProject.description_es
             || currentProject.description || '').trim();
             const descriptionHTML = descriptionText
-                ? descriptionText.split(/\n\s*\n/).map(p => `<p>${escapeHtml(p).replace(/\n/g, '<br>')}</p>`).join('')
-                : '<p>Sin descripcion disponible.</p>';
+                ? descriptionText.split(/\n\s*\n/).map(p => `<p class="reveal">${escapeHtml(p).replace(/\n/g, '<br>')}</p>`).join('')
+                : '<p class="reveal">Sin descripción disponible.</p>';
 
             const slidesHTML = images.length
                 ? images.map((img, index) => `<div class="slideshow-slide"><img src="${img.temporaryLink}" alt="${escapeHtml(currentProject.name)}" loading="${index === 0 ? 'eager' : 'lazy'}" onclick="openLightbox(${index})"></div>`).join('')
-                : '<div class="slideshow-slide"><div style="height:88vh;display:flex;align-items:center;justify-content:center;color:#999;letter-spacing:1px;">Sin imagenes</div></div>';
+                : '<div class="slideshow-slide"><div style="height:85vh;display:flex;align-items:center;justify-content:center;color:#999;letter-spacing:1px;text-transform:uppercase;">Sin imágenes</div></div>';
 
             let drawingsHTML = '';
             if (drawings.length) {
                 drawingsHTML = `
-                    <h3 class="planos-title">Dibujos</h3>
                     <div class="drawings-wrap">
+                        <h3 class="planos-title reveal">Planos</h3>
                         <div class="drawings-grid">
-                            ${drawings.map((item, idx) => `<div class="drawing-item" onclick="openLightbox(${images.length + idx})"><img src="${item.temporaryLink}" alt="Dibujo" loading="lazy"></div>`).join('')}
+                            ${drawings.map((item, idx) => `<div class="drawing-item reveal" onclick="openLightbox(${images.length + idx})"><img src="${item.temporaryLink}" alt="Plano" loading="lazy"></div>`).join('')}
                         </div>
                     </div>
                 `;
             }
 
             content.innerHTML = `
-                <div class="back-wrap"><a href="trabajos.html" class="back-button">&larr; volver a trabajos</a></div>
-                <div class="project-slideshow">
+                <div class="back-wrap reveal"><a href="trabajos.html" class="back-button">&larr; volver a trabajos</a></div>
+                <div class="project-slideshow reveal">
                     <div class="slideshow-track" id="slideshowTrack">${slidesHTML}</div>
                     ${images.length > 1 ? `
                         <button class="slideshow-btn slideshow-prev" onclick="slideshowMove(-1)">&#8249;</button>
@@ -216,7 +185,7 @@
                 </div>
                 <div class="project-info">
                     <aside class="project-sidebar">
-                        <h1 class="project-title">${escapeHtml(currentProject.name)}</h1>
+                        <h1 class="project-title reveal">${escapeHtml(currentProject.name)}</h1>
                         <div class="project-datos">${datosHTML}</div>
                     </aside>
                     <div class="project-description-wrap">
@@ -227,6 +196,10 @@
             `;
 
             slideshowIndex = 0;
+            
+            setTimeout(() => {
+                if(typeof observer !== 'undefined') document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+            }, 100);
         }
 
         function slideshowMove(dir) {
@@ -278,7 +251,7 @@
         const translations = {
             es: { 'nav-trabajos': 'trabajos', 'nav-sobre': 'sobre', 'nav-contacto': 'contacto' },
             en: { 'nav-trabajos': 'works', 'nav-sobre': 'about', 'nav-contacto': 'contact' },
-            de: { 'nav-trabajos': 'arbeiten', 'nav-sobre': 'uber', 'nav-contacto': 'kontakt' }
+            de: { 'nav-trabajos': 'arbeiten', 'nav-sobre': 'über', 'nav-contacto': 'kontakt' }
         };
 
         function changeLanguage(lang) {
@@ -298,10 +271,14 @@
                     currentProject.description_es
                 || currentProject.description || '').trim();
                 const html = raw
-                    ? raw.split(/\n\s*\n/).map(p => `<p>${escapeHtml(p).replace(/\n/g, '<br>')}</p>`).join('')
-                    : '<p>Sin descripcion disponible.</p>';
+                    ? raw.split(/\n\s*\n/).map(p => `<p class="reveal">${escapeHtml(p).replace(/\n/g, '<br>')}</p>`).join('')
+                    : '<p class="reveal">Sin descripción disponible.</p>';
                 const el = document.getElementById('projectDescription');
                 if (el) el.innerHTML = html;
+                
+                setTimeout(() => {
+                    if(typeof observer !== 'undefined') document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+                }, 100);
             }
         }
 

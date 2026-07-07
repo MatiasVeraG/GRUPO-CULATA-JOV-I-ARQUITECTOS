@@ -5,194 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sobre - Grupo Culata Jovái Arquitectos</title>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        /* HEADER MINIMALISTA */
-        .landing-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            padding: 30px 60px;
-            z-index: 100;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #FFFFFF;
-        }
-
-        .logo-text {
-            cursor: pointer;
-            height: 35px;
-            display: flex;
-            align-items: center;
-        }
-
-        .logo-text img {
-            height: 100%;
-            width: auto;
-            transition: opacity 0.3s ease;
-        }
-
-        .logo-text:hover img {
-            opacity: 0.7;
-        }
-
-        .nav-link {
-            font-size: 10px;
-            letter-spacing: 2px;
-            color: #000000;
-            text-decoration: none;
-            text-transform: lowercase;
-            transition: color 0.3s ease;
-        }
-
-        .nav-link:hover {
-            color: #DC143C;
-        }
-
-        /* SELECTOR DE IDIOMA */
-        .language-selector {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 200;
-            display: flex;
-            gap: 10px;
-        }
-
-        .lang-option {
-            font-size: 10px;
-            letter-spacing: 1px;
-            color: #999999;
-            text-decoration: none;
-            text-transform: lowercase;
-            cursor: pointer;
-            transition: color 0.3s ease;
-            font-weight: 400;
-        }
-
-        .lang-option:hover {
-            color: #000000;
-        }
-
-        .lang-option.active {
-            color: #000000;
-            text-decoration: underline;
-        }
-
-        @media (max-width: 768px) {
-            .landing-header {
-                padding: 20px 30px;
-            }
-
-            .logo-text {
-                height: 28px;
-            }
-
-            .nav-link {
-                font-size: 8px;
-            }
-
-            .language-selector {
-                bottom: 20px;
-                right: 20px;
-                gap: 8px;
-            }
-
-            .lang-option {
-                font-size: 9px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .landing-header {
-                padding: 15px 20px;
-            }
-
-            .logo-text {
-                height: 24px;
-            }
-        }
-    </style>
-    <style>
-        /* ESTILOS ESPECÍFICOS PARA SOBRE */
-        #nosotros {
-            background-color: #FFFFFF;
-            padding: 140px 60px 100px;
-            min-height: 100vh;
-        }
-
-        .nosotros-container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .nosotros-title {
-            font-size: 32px;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            font-weight: 300;
-            margin-bottom: 80px;
-            text-align: center;
-        }
-
-        .about-stack {
-            max-width: 760px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 28px;
-        }
-
-        .about-block {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-        }
-
-        .about-block.text p {
-            width: 100%;
-            font-size: 15px;
-            line-height: 1.9;
-            letter-spacing: 0.4px;
-            margin: 0;
-            font-weight: 300;
-            text-align: center;
-        }
-
-        .about-block.image img {
-            width: min(420px, 100%);
-            height: auto;
-            max-height: 520px;
-            object-fit: cover;
-            display: block;
-        }
-
-        @media (max-width: 768px) {
-            #nosotros {
-                padding: 100px 30px 80px;
-            }
-
-            .about-stack {
-                gap: 22px;
-            }
-
-            .about-block.image img {
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 480px) {
-            #nosotros {
-                padding: 80px 20px 60px;
-            }
-        }
-    </style>
 </head>
 <body>
     <!-- HEADER -->
-    <header class="landing-header">
-        <nav style="display: flex; gap: 30px;">
+    <header class="landing-header" id="header">
+        <nav>
             <a href="trabajos.html" class="nav-link" data-i18n="nav-trabajos">trabajos</a>
             <a href="sobre.html" class="nav-link" data-i18n="nav-sobre">sobre</a>
             <a href="contacto.html" class="nav-link" data-i18n="nav-contacto">contacto</a>
@@ -203,129 +20,105 @@
     </header>
 
     <!-- NOSOTROS -->
-    <section id="nosotros">
-        <div class="nosotros-container">
-            <h2 class="nosotros-title" data-i18n="about-title">Sobre</h2>
-            <div id="personCards" class="about-stack">
+    <section id="nosotros" class="fade-in">
+        <div class="nosotros-container" style="max-width: 1200px; padding: 0 var(--space-4); margin: 0 auto;">
+            <h2 class="reveal section-title" data-i18n="about-title">Sobre</h2>
+            <div id="personCards" class="about-stack" style="width: 100%;">
                 <!-- Se llena dinámicamente desde Dropbox -->
             </div>
         </div>
     </section>
 
     <!-- SELECTOR DE IDIOMA -->
-    <div class="language-selector">
+    <div class="language-selector" style="position: fixed; bottom: 30px; right: 30px; z-index: 200;">
         <span class="lang-option active" data-lang="es" onclick="changeLanguage('es')">es</span>
         <span class="lang-option" data-lang="en" onclick="changeLanguage('en')">en</span>
         <span class="lang-option" data-lang="de" onclick="changeLanguage('de')">de</span>
     </div>
 
-    <script src="dropbox-config.js"></script>
-    <script src="dropbox-service-vercel.js"></script>
+    <!-- Scripts -->
+    <script src="script.js"></script>
     <script>
-        let sobreImages = [];
-
         function esc(text) {
             const d = document.createElement('div');
             d.textContent = text || '';
             return d.innerHTML;
         }
 
-        function parseStructuredBlocks(text) {
-            const lines = (text || '').split(/\r?\n/).map(line => line.trim()).filter(Boolean);
-            const blocks = [];
-
-            for (const line of lines) {
-                if (/^image\s*:/i.test(line)) {
-                    const value = line.replace(/^image\s*:/i, '').trim();
-                    if (value) blocks.push({ type: 'image', value });
-                } else if (/^text\s*:/i.test(line)) {
-                    const value = line.replace(/^text\s*:/i, '').trim();
-                    if (value) blocks.push({ type: 'text', value });
-                }
+        function renderAboutGrid(container, texts, images) {
+            const labelText = localStorage.getItem('selectedLanguage') === 'en' ? '01 — Our vision' : 
+                            localStorage.getItem('selectedLanguage') === 'de' ? '01 — Unsere Vision' : 
+                            '01 — Nuestra visión';
+                            
+            const textLead = texts[0] || '';
+            const textSecondary = texts.slice(1).join('<br><br>');
+            
+            let imagesHtml = '';
+            if (images.length >= 2) {
+                imagesHtml = `
+                    <div class="about-image-wrapper offset-up reveal">
+                        <img src="${images[0].temporaryLink}" alt="${esc(images[0].name)}" loading="lazy">
+                    </div>
+                    <div class="about-image-wrapper offset-down reveal">
+                        <img src="${images[1].temporaryLink}" alt="${esc(images[1].name)}" loading="lazy">
+                    </div>
+                `;
+            } else if (images.length === 1) {
+                imagesHtml = `
+                    <div class="about-image-wrapper reveal">
+                        <img src="${images[0].temporaryLink}" alt="${esc(images[0].name)}" loading="lazy">
+                    </div>
+                `;
+            } else {
+                imagesHtml = `
+                    <div class="about-image-wrapper offset-up reveal">
+                        <img src="images/casa-mainumby-grupo-culata-jovai_16.jpg" alt="Nuestro Estudio" loading="lazy">
+                    </div>
+                    <div class="about-image-wrapper offset-down reveal">
+                        <img src="images/casa-mainumby-grupo-culata-jovai_2.jpg" alt="Nuestro Equipo" loading="lazy">
+                    </div>
+                `;
             }
 
-            return blocks;
-        }
-
-        function renderStructuredBlocks(container, blocks) {
-            const imageByName = new Map(
-                (sobreImages || []).map(item => [String(item.name || '').toLowerCase(), item])
-            );
-
-            container.innerHTML = blocks.map(block => {
-                if (block.type === 'image') {
-                    const img = imageByName.get(String(block.value || '').toLowerCase());
-                    if (!img) return '';
-                    return `<div class="about-block image"><img src="${img.temporaryLink}" alt="${esc(img.name)}"></div>`;
+            container.innerHTML = `
+                <div class="about-grid">
+                    <div class="about-content">
+                        <span class="about-label reveal">${labelText}</span>
+                        ${textLead ? `<div class="about-text-lead reveal"><p>${esc(textLead)}</p></div>` : ''}
+                        ${textSecondary ? `<div class="about-text-secondary reveal"><p>${esc(textSecondary).replace(/&lt;br&gt;/g, '<br>')}</p></div>` : ''}
+                    </div>
+                    <div class="about-images">
+                        ${imagesHtml}
+                    </div>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                if(typeof observer !== 'undefined') {
+                    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
                 }
-
-                return `<div class="about-block text"><p>${esc(block.value)}</p></div>`;
-            }).join('');
+            }, 100);
         }
 
-        async function loadSobreContent(lang) {
+        function loadSobreContent() {
             const container = document.getElementById('personCards');
             if (!container) return;
 
-            try {
-                const langKey = lang === 'en' ? 'sobre_en' : lang === 'de' ? 'sobre_de' : 'sobre_es';
-                let text = null;
-                try { text = await dropboxService.getSiteContent(langKey, { noCache: true }); } catch (_) {}
-                if (!text || !text.trim()) {
-                    try { text = await dropboxService.getSiteContent('sobre', { noCache: true }); } catch (_) {}
-                }
+            const staticTexts = [
+                "En Grupo Culata Jovái Arquitectos creemos en una arquitectura que trasciende el espacio físico. Buscamos la perfecta armonía entre el entorno, la funcionalidad y la estética contemporánea.",
+                "Nuestro equipo está dedicado a transformar ideas en realidades tangibles, creando espacios atemporales con un profundo respeto por los materiales y la luz natural."
+            ];
 
-                const structuredBlocks = parseStructuredBlocks(text || '');
-                if (structuredBlocks.length) {
-                    renderStructuredBlocks(container, structuredBlocks);
-                    return;
-                }
-
-                const paragraphs = text
-                    ? text.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean)
-                    : [];
-
-                if (!paragraphs.length) {
-                    container.innerHTML = '';
-                    return;
-                }
-
-                container.innerHTML = paragraphs.map((bio, i) => {
-                    const img = sobreImages[i];
-                    const photoHtml = img
-                        ? `<div class="about-block image"><img src="${img.temporaryLink}" alt=""></div>`
-                        : '';
-                    const textHtml = bio.split(/\n/).map(line => `<div class="about-block text"><p>${esc(line)}</p></div>`).join('');
-                    return `${photoHtml}${textHtml}`;
-                }).join('');
-            } catch (error) {
-                console.error('No se pudo cargar el contenido de Sobre:', error);
-            }
+            renderAboutGrid(container, staticTexts, []);
         }
 
         // Sistema de traducción
         const translations = {
-            es: {
-                'nav-trabajos': 'trabajos',
-                'nav-sobre': 'sobre',
-                'nav-contacto': 'contacto',
-                'about-title': 'Sobre'
-            },
-            en: {
-                'nav-trabajos': 'works',
-                'nav-sobre': 'about',
-                'nav-contacto': 'contact',
-                'about-title': 'About'
-            },
-            de: {
-                'nav-trabajos': 'arbeiten',
-                'nav-sobre': 'über',
-                'nav-contacto': 'kontakt',
-                'about-title': 'Über'
-            }
+            es: { 'nav-trabajos': 'trabajos', 'nav-sobre': 'sobre', 'nav-contacto': 'contacto', 'about-title': 'Sobre' },
+            en: { 'nav-trabajos': 'works', 'nav-sobre': 'about', 'nav-contacto': 'contact', 'about-title': 'About' },
+            de: { 'nav-trabajos': 'arbeiten', 'nav-sobre': 'über', 'nav-contacto': 'kontakt', 'about-title': 'Über' }
         };
 
-        // Función para cambiar idioma
         function changeLanguage(lang) {
             localStorage.setItem('selectedLanguage', lang);
             updateLanguageUI(lang);
@@ -333,7 +126,6 @@
             loadSobreContent(lang);
         }
 
-        // Actualizar indicador visual del idioma seleccionado
         function updateLanguageUI(lang) {
             document.querySelectorAll('.lang-option').forEach(option => {
                 option.classList.remove('active');
@@ -343,7 +135,6 @@
             });
         }
 
-        // Aplicar traducciones a todos los elementos con data-i18n
         function applyTranslations(lang) {
             document.querySelectorAll('[data-i18n]').forEach(element => {
                 const key = element.dataset.i18n;
@@ -353,7 +144,6 @@
             });
         }
 
-        // Inicializar idioma al cargar la página
         function initLanguage() {
             const savedLang = localStorage.getItem('selectedLanguage') || 'es';
             updateLanguageUI(savedLang);
@@ -361,11 +151,9 @@
         }
 
         // Inicializar
-        document.addEventListener('DOMContentLoaded', async () => {
+        document.addEventListener('DOMContentLoaded', () => {
             initLanguage();
-            const lang = localStorage.getItem('selectedLanguage') || 'es';
-            try { sobreImages = await dropboxService.getSobreImages({ noCache: true }); } catch (_) {}
-            loadSobreContent(lang);
+            loadSobreContent();
         });
     </script>
 </body>

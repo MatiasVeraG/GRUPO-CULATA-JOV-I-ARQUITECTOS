@@ -1,7 +1,6 @@
 // CARGA INICIAL
 window.addEventListener('load', () => {
-    // Cargar proyectos al iniciar
-    loadProjects();
+    // La carga específica de proyectos se maneja en cada página
 });
 
 // SMOOTH SCROLL
@@ -25,22 +24,26 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 
 // FADE IN ON SCROLL
 const observerOptions = {
-    threshold: 0.15,
+    threshold: 0.1,
     rootMargin: '0px 0px -50px 0px'
 };
 
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
+            entry.target.classList.add('active');
+            // Optional: unobserve if we only want it to animate once
+            // observer.unobserve(entry.target);
         }
     });
 }, observerOptions);
 
-// Añadir clase fade-in a elementos que queremos animar
+// Añadir clase reveal a elementos que queremos animar
 window.addEventListener('DOMContentLoaded', () => {
+    // Buscar elementos que ya tengan la clase reveal o añadírsela dinámicamente
     const sections = document.querySelectorAll('section');
     const projectItems = document.querySelectorAll('.project-item');
+    const textBlocks = document.querySelectorAll('.about-block');
     
     sections.forEach(section => {
         section.classList.add('fade-in');
@@ -48,10 +51,19 @@ window.addEventListener('DOMContentLoaded', () => {
     });
     
     projectItems.forEach((item, index) => {
-        item.classList.add('fade-in');
-        item.style.transitionDelay = `${index * 0.1}s`;
+        item.classList.add('reveal');
+        item.style.transitionDelay = `${(index % 3) * 0.15}s`;
         observer.observe(item);
     });
+    
+    textBlocks.forEach((block, index) => {
+        block.classList.add('reveal');
+        block.style.transitionDelay = `${(index % 2) * 0.15}s`;
+        observer.observe(block);
+    });
+    
+    // Asegurar que cualquier elemento que ya tenga .fade-in o .reveal sea observado
+    document.querySelectorAll('.fade-in, .reveal').forEach(el => observer.observe(el));
 });
 
 // HEADER BACKGROUND ON SCROLL
@@ -71,24 +83,65 @@ window.addEventListener('scroll', () => {
 });
 
 // MODAL DE PROYECTOS
-// Obtener proyectos desde localStorage
+// Obtener proyectos desde localStorage o usar fallback visual
 function getProjects() {
     const projects = localStorage.getItem('projects');
     const parsed = projects ? JSON.parse(projects) : [];
-    return parsed.sort((a, b) => (a.order || 0) - (b.order || 0));
+    
+    if (parsed.length > 0) {
+        return parsed.sort((a, b) => (a.order || 0) - (b.order || 0));
+    }
+    
+    // Fallback visual de alta calidad para cuando la API de Dropbox no esté disponible
+    return [
+        {
+            id: 1,
+            title: "Casa Mainumby - Fachada",
+            image: "images/casa-mainumby-grupo-culata-jovai_11.jpg",
+            images: ["images/casa-mainumby-grupo-culata-jovai_11.jpg"]
+        },
+        {
+            id: 2,
+            title: "Casa Mainumby - Interior",
+            image: "images/casa-mainumby-grupo-culata-jovai_16.jpg",
+            images: ["images/casa-mainumby-grupo-culata-jovai_16.jpg"]
+        },
+        {
+            id: 3,
+            title: "Casa Mainumby - Detalles",
+            image: "images/casa-mainumby-grupo-culata-jovai_2.jpg",
+            images: ["images/casa-mainumby-grupo-culata-jovai_2.jpg"]
+        },
+        {
+            id: 4,
+            title: "Casa Mainumby - Estructura",
+            image: "images/casa-mainumby-grupo-culata-jovai_5.jpg",
+            images: ["images/casa-mainumby-grupo-culata-jovai_5.jpg"]
+        },
+        {
+            id: 5,
+            title: "Casa Mainumby - Exteriores",
+            image: "images/casa-mainumby-grupo-culata-jovai_7.jpg",
+            images: ["images/casa-mainumby-grupo-culata-jovai_7.jpg"]
+        },
+        {
+            id: 6,
+            title: "Casa Mainumby - Espacios",
+            image: "images/casa-mainumby-grupo-culata-jovai_9.jpg",
+            images: ["images/casa-mainumby-grupo-culata-jovai_9.jpg"]
+        }
+    ];
 }
 
-// Cargar y mostrar proyectos
-async function loadProjects() {
+// Cargar y mostrar proyectos desde localStorage (Fallback)
+async function loadLocalProjects() {
     const grid = document.getElementById('projectsGrid');
-    
-    // Mostrar indicador de carga
-    grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; letter-spacing: 1px; padding: 60px 0;">Cargando proyectos...</p>';
+    if (!grid) return;
     
     const projects = getProjects();
     
     if (projects.length === 0) {
-        grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; letter-spacing: 1px; padding: 60px 0;">No hay proyectos</p>';
+        grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; letter-spacing: 1px; padding: 60px 0;">No hay proyectos locales</p>';
         return;
     }
     
@@ -101,8 +154,7 @@ async function loadProjects() {
         </div>
     `).join('');
     
-    // Reiniciar event listeners para el modal
-    attachProjectClickEvents();
+    if (typeof attachProjectClickEvents === 'function') attachProjectClickEvents();
 }
 
 // Adjuntar eventos de click a los proyectos
@@ -117,8 +169,8 @@ function attachProjectClickEvents() {
 }
 
 // Abrir modal de proyecto con slider
-let currentImageIndex = 0;
-let currentProjectImages = [];
+var currentImageIndex = 0;
+var currentProjectImages = [];
 
 function openProjectModal(projectId) {
     const projects = getProjects();
@@ -212,26 +264,32 @@ function createModalIndicators() {
 }
 
 // Navegación del slider
-document.getElementById('modalPrev').addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (currentImageIndex > 0) {
-        currentImageIndex--;
-        updateModalImage();
-    }
-});
+const modalPrev = document.getElementById('modalPrev');
+if (modalPrev) {
+    modalPrev.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (currentImageIndex > 0) {
+            currentImageIndex--;
+            updateModalImage();
+        }
+    });
+}
 
-document.getElementById('modalNext').addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (currentImageIndex < currentProjectImages.length - 1) {
-        currentImageIndex++;
-        updateModalImage();
-    }
-});
+const modalNext = document.getElementById('modalNext');
+if (modalNext) {
+    modalNext.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (currentImageIndex < currentProjectImages.length - 1) {
+            currentImageIndex++;
+            updateModalImage();
+        }
+    });
+}
 
 // Navegación con teclado
 document.addEventListener('keydown', (e) => {
     const modal = document.getElementById('projectModal');
-    if (!modal.classList.contains('active')) return;
+    if (!modal || !modal.classList.contains('active')) return;
     
     if (e.key === 'ArrowLeft' && currentImageIndex > 0) {
         currentImageIndex--;
@@ -243,17 +301,20 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Soporte para gestos táctiles (swipe)
-let touchStartX = 0;
-let touchEndX = 0;
+var touchStartX = 0;
+var touchEndX = 0;
+const modalImageEl = document.getElementById('modalImage');
 
-document.getElementById('modalImage').addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-});
+if (modalImageEl) {
+    modalImageEl.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    });
 
-document.getElementById('modalImage').addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    handleSwipe();
-});
+    modalImageEl.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    });
+}
 
 function handleSwipe() {
     const swipeThreshold = 50; // Mínimo de píxeles para considerar un swipe
@@ -279,15 +340,20 @@ function handleSwipe() {
 const modal = document.getElementById('projectModal');
 const modalClose = document.querySelector('.modal-close');
 
-modalClose.addEventListener('click', closeModal);
+if (modalClose) {
+    modalClose.addEventListener('click', closeModal);
+}
 
-modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-        closeModal();
-    }
-});
+if (modal) {
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+}
 
 function closeModal() {
+    if (!modal) return;
     modal.classList.remove('active');
     setTimeout(() => {
         modal.style.display = 'none';
@@ -297,7 +363,7 @@ function closeModal() {
 
 // Cerrar modal con ESC
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal.classList.contains('active')) {
+    if (modal && e.key === 'Escape' && modal.classList.contains('active')) {
         closeModal();
     }
 });
