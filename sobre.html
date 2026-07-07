@@ -39,6 +39,11 @@
     <!-- Scripts -->
     <script src="script.js"></script>
     <script>
+        function esc(text) {
+            const d = document.createElement('div');
+            d.textContent = text || '';
+            return d.innerHTML;
+        }
 
         function renderAboutGrid(container, texts, images) {
             const labelText = localStorage.getItem('selectedLanguage') === 'en' ? '01 — Our vision' : 
@@ -95,7 +100,7 @@
             }, 100);
         }
 
-        function loadSobreContent(lang) {
+        function loadSobreContent() {
             const container = document.getElementById('personCards');
             if (!container) return;
 
@@ -148,8 +153,7 @@
         // Inicializar
         document.addEventListener('DOMContentLoaded', () => {
             initLanguage();
-            const lang = localStorage.getItem('selectedLanguage') || 'es';
-            loadSobreContent(lang);
+            loadSobreContent();
         });
     </script>
 </body>
