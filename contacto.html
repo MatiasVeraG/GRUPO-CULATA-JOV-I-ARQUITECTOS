@@ -90,9 +90,29 @@
                 let text = null;
                 try { text = await dropboxService.getSiteContent(langKey, { noCache: true }); } catch (_) {}
                 if (!text || !text.trim()) {
-                    text = await dropboxService.getSiteContent('contacto', { noCache: true });
+                    text = await dropboxService.getSiteContent('contacto', { noCache: true }).catch(() => null);
                 }
-                if (!text || !text.trim()) return;
+                
+                if (!text || !text.trim()) {
+                    container.innerHTML = `
+                        <div class="contacto-info reveal">
+                            <p><strong>Dirección</strong><br>Asunción, Paraguay</p>
+                        </div>
+                        <div class="contacto-info reveal">
+                            <p><strong>Email</strong><br><a href="mailto:contacto@culatajovai.com">contacto@culatajovai.com</a></p>
+                        </div>
+                        <div class="contacto-info reveal">
+                            <p><strong>Teléfono</strong><br><a href="tel:+595999000000">+595 999 000 000</a></p>
+                        </div>
+                        <div class="contacto-info reveal">
+                            <a href="https://instagram.com/culatajovai" target="_blank" class="btn-instagram">Instagram</a>
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        if(typeof observer !== 'undefined') document.querySelectorAll('.contacto-info, .reveal').forEach(el => observer.observe(el));
+                    }, 100);
+                    return;
+                }
 
                 const structuredBlocks = parseStructuredBlocks(text || '');
                 if (structuredBlocks.length) {

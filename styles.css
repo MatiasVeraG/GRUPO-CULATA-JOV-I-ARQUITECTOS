@@ -690,16 +690,22 @@ nav {
 
 .slideshow-slide {
     min-width: 100%;
+    height: 85vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: #fafafa;
 }
 
 .slideshow-slide img {
-    width: 100%;
-    height: 85vh;
-    object-fit: cover;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
     cursor: zoom-in;
+    image-rendering: high-quality;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 
 .slideshow-btn {
@@ -823,7 +829,7 @@ nav {
 }
 
 .drawing-item:hover {
-    transform: scale(1.02);
+    transform: scale(1.05);
 }
 
 .drawing-item img {
@@ -989,3 +995,73 @@ nav {
         grid-template-columns: 1fr;
     }
 }
+
+/* ==========================================================================
+   LIGHTBOX (IMAGE VIEWER)
+   ========================================================================== */
+.lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,0.98);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+.lightbox.active { 
+    display: flex; 
+}
+.lightbox-close {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-8);
+    font-size: var(--text-2xl);
+    font-weight: 300;
+    color: var(--text-color);
+    cursor: pointer;
+    z-index: 10;
+    transition: color var(--transition-fast);
+}
+.lightbox-close:hover {
+    color: var(--accent-color);
+}
+.lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: var(--text-2xl);
+    color: var(--text-color);
+    cursor: pointer;
+    padding: var(--space-4);
+    z-index: 10;
+    transition: color var(--transition-fast);
+}
+.lightbox-nav:hover {
+    color: var(--accent-color);
+}
+.lightbox-prev { left: var(--space-4); }
+.lightbox-next { right: var(--space-4); }
+.lightbox-content {
+    width: 90vw;
+    height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.lightbox-content img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    image-rendering: high-quality;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
+.lightbox-counter {
+    position: absolute;
+    bottom: var(--space-4);
+    right: var(--space-8);
+    letter-spacing: 2px;
+    font-size: var(--text-sm);
+    color: var(--text-color);
+}
+

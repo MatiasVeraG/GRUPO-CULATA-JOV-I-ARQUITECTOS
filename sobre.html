@@ -112,7 +112,22 @@
                     : [];
 
                 if (!paragraphs.length) {
-                    container.innerHTML = '';
+                    container.innerHTML = `
+                        <div class="about-block text reveal">
+                            <p>En Grupo Culata Jovái Arquitectos creemos en una arquitectura que trasciende el espacio físico. Buscamos la perfecta armonía entre el entorno, la funcionalidad y la estética contemporánea.</p>
+                        </div>
+                        <div class="about-block text reveal">
+                            <p>Nuestro equipo está dedicado a transformar ideas en realidades tangibles, creando espacios atemporales con un profundo respeto por los materiales y la luz natural.</p>
+                        </div>
+                        <div class="about-block image reveal">
+                            <img src="images/casa-mainumby-grupo-culata-jovai_16.jpg" alt="Nuestro Estudio">
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        if(typeof observer !== 'undefined') {
+                            document.querySelectorAll('.about-block, .reveal').forEach(el => observer.observe(el));
+                        }
+                    }, 100);
                     return;
                 }
 
