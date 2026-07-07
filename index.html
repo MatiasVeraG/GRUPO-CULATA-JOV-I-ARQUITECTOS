@@ -36,29 +36,85 @@
             min-height: 100vh;
         }
 
-        /* HEADER MINIMALISTA */
-        .landing-header {
-            position: fixed;
+        /* SPLIT LAYOUT */
+        .main-layout {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: var(--bg-color);
+        }
+
+        .sidebar {
+            width: clamp(280px, 25%, 380px);
+            height: 100vh;
+            background: var(--bg-color);
+            color: var(--text-color);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 10;
+        }
+
+        .carousel-container {
+            width: calc(100vw - clamp(280px, 25%, 380px));
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        /* CAROUSEL SLIDES */
+        .carousel-slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
             top: 0;
             left: 0;
-            width: 100vw;
-            padding: 30px 60px;
-            z-index: 100;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 100%);
-            pointer-events: none;
-        }
-        
-        .landing-header > * {
-            pointer-events: auto;
+            opacity: 0;
+            z-index: 0;
+            transition: opacity 1s ease-in-out;
         }
 
-        .hero-zone {
-            /* no longer needed for flex, just a wrapper */
+        .carousel-slide.last-active {
+            opacity: 1;
+            z-index: 1;
+            transition: opacity 1s ease-in-out;
         }
 
+        .carousel-slide.active {
+            opacity: 1;
+            z-index: 2;
+        }
+
+        .carousel-slide img {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            cursor: default;
+            z-index: 1;
+            transform: scale(1);
+            transition: transform 6s ease-out;
+        }
+
+        .carousel-slide.active img {
+            transform: scale(1.05);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .carousel-slide {
+                transition: opacity 0.2s ease-in-out;
+            }
+            .carousel-slide img, .carousel-slide.active img {
+                transition: none;
+                transform: scale(1);
+            }
+        }
+
+        /* SIDEBAR CONTENT */
         .logo-text {
             cursor: pointer;
             height: 35px;
@@ -76,333 +132,168 @@
             opacity: 0.7;
         }
 
-        .nav-link {
-            font-size: 11px;
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            padding-bottom: 30px;
+        }
+
+        .contact-info p {
+            font-size: 12px;
             letter-spacing: 2px;
-            color: #ffffff;
+            line-height: 1.6;
+            text-transform: uppercase;
+            font-weight: 400;
+        }
+
+        .contact-info strong {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .contact-info a {
+            color: var(--text-color);
             text-decoration: none;
-            text-transform: lowercase;
             transition: color 0.3s ease;
         }
 
-        .nav-link:hover {
-            color: #DC143C;
+        .contact-info a:hover {
+            color: var(--accent-color);
         }
 
-        /* CAROUSEL */
-        .carousel-container {
-            width: 100vw;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            margin: 0;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .carousel-slide {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            transition: opacity 3s ease-in-out;
-        }
-
-        .carousel-slide.active {
-            opacity: 1;
-        }
-
-        .carousel-slide img {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center;
-            cursor: default;
-            z-index: 1;
-        }
-
-        .floating-contact {
-            position: absolute;
-            top: 50%;
-            left: 60px;
-            transform: translateY(-50%);
-            z-index: 10;
-            color: #fff;
-            pointer-events: none;
-        }
-        .floating-contact p {
-            font-size: 14px;
-            letter-spacing: 2px;
-            line-height: 2;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            font-weight: 500;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.6);
-            pointer-events: auto;
-        }
-        .floating-contact strong {
-            font-weight: 700;
-            font-size: 18px;
-        }
-        .floating-contact a {
-            color: #fff;
-            text-decoration: none;
-        }
-
-        .carousel-nav-buttons {
-            position: absolute;
-            right: 60px;
-            top: 50%;
-            transform: translateY(-50%);
+        .contact-block {
+            padding-bottom: 30%;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            z-index: 10;
-        }
-        .carousel-control {
-            background: rgba(255, 255, 255, 0.7);
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #000;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        .carousel-control:hover {
-            background: rgba(255, 255, 255, 1);
-            color: #DC143C;
-            transform: scale(1.1);
+            gap: 35px;
         }
 
-        .bottom-controls {
-            position: fixed;
-            bottom: 30px;
-            left: 60px;
-            right: 60px;
-            width: auto;
-            margin: 0;
+        .sidebar-footer {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            z-index: 100;
-            pointer-events: none;
-        }
-        .bottom-controls > * {
-            pointer-events: auto;
+            flex-direction: column;
+            gap: 32px;
         }
 
-        /* SELECTOR DE IDIOMA */
+        .social-links-text {
+            display: flex;
+            flex-direction: column;
+            gap: 70px;
+        }
+
+        .social-links-text a {
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s ease;
+        }
+
+        .social-links-text a:hover {
+            opacity: 0.7;
+        }
+
         .language-selector {
             display: flex;
-            gap: 10px;
-        }
-
-        /* BOTONES DE REDES SOCIALES */
-        .social-buttons {
-            display: flex;
-            gap: 12px;
-        }
-
-        .social-btn {
-            width: 18px;
-            height: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            color: #ffffff;
-            transition: all 0.3s ease;
-            opacity: 0.6;
-        }
-
-        .social-btn:hover {
-            opacity: 1;
-            transform: scale(1.1);
-        }
-
-        .social-btn svg {
-            width: 100%;
-            height: 100%;
-            fill: currentColor;
+            gap: 16px;
         }
 
         .lang-option {
             font-size: 10px;
             letter-spacing: 1px;
-            color: rgba(255,255,255,0.6);
+            color: var(--text-color);
+            opacity: 0.5;
             text-decoration: none;
             text-transform: lowercase;
             cursor: pointer;
-            transition: color 0.3s ease;
+            transition: opacity 0.3s ease;
             font-weight: 400;
         }
 
-        .lang-option:hover {
-            color: #ffffff;
-        }
-
-        .lang-option.active {
-            color: #ffffff;
+        .lang-option:hover, .lang-option.active {
+            opacity: 1;
             text-decoration: underline;
         }
 
         /* RESPONSIVE */
         @media (max-width: 768px) {
-            .landing-header {
-                padding: 20px 30px;
+            .main-layout {
+                flex-direction: column;
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            .carousel-container {
+                width: 100vw;
+                height: 60vh;
+                order: 1; /* Carousel at the top */
+            }
+
+            .sidebar {
+                width: 100vw;
+                height: 40vh;
+                padding: 24px;
+                order: 2; /* Sidebar below */
+                overflow-y: auto;
             }
 
             .logo-text {
                 height: 28px;
+                margin-bottom: 24px;
             }
 
-            .nav-link {
-                font-size: 8px;
+            .contact-block,
+            .contact-info,
+            .social-links-text {
+                gap: 16px;
+            }
+            
+            .contact-block {
+                margin-bottom: 24px;
             }
 
-            .carousel-container {
-                /* already 100vw, 100vh on mobile */
-            }
-
-            .hero-zone {
-                /* wrapper */
-            }
-
-            .bottom-controls {
-                left: 20px;
-                right: 20px;
-                bottom: 20px;
-            }
-
-            .carousel-slide img {
-                object-fit: cover;
-                object-position: center center;
-            }
-
-            .floating-contact {
-                top: auto;
-                bottom: 40px;
-                left: 50%;
-                transform: translateX(-50%);
-                text-align: center;
-                width: 90%;
-            }
-            .floating-contact p {
-                font-size: 11px;
-                margin-bottom: 8px;
-            }
-            .floating-contact strong {
-                font-size: 13px;
-            }
-
-            .carousel-nav-buttons {
-                right: 20px;
-                gap: 10px;
-            }
-            .carousel-control {
-                width: 40px;
-                height: 40px;
-                font-size: 1rem;
-            }
-
-            .language-selector {
-                gap: 8px;
-            }
-
-            .lang-option {
-                font-size: 9px;
-            }
-
-            .social-buttons {
-                gap: 10px;
-            }
-
-            .social-btn {
-                width: 16px;
-                height: 16px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .landing-header {
-                padding: 15px 20px;
-            }
-
-            .logo-text {
-                height: 24px;
-            }
-
-            .carousel-container {
-                /* already 100vw */
-            }
-
-            .bottom-controls {
-                left: 10px;
-                right: 10px;
-                bottom: 15px;
+            .sidebar-footer {
+                gap: 20px;
             }
         }
     </style>
 </head>
 <body>
-    <header class="landing-header">
+    <div class="main-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="logo-text" onclick="window.location.href='index.html'">
+                <img src="images/logo.png" alt="Grupo Culata Jovái Arquitectos">
+            </div>
 
-        <div class="logo-text" onclick="window.location.href='index.html'">
-            <img src="images/logo_blanco.png" alt="Grupo Culata Jovái Arquitectos">
-        </div>
-    </header>
+            <div class="contact-block">
+                <div class="contact-info">
+                    <p><strong data-i18n="contact-address">Dirección</strong><br>Asunción, Paraguay</p>
+                    <p><strong>Email</strong><br><a href="mailto:contacto@culatajovai.com">contacto@culatajovai.com</a></p>
+                    <p><strong data-i18n="contact-phone">Teléfono</strong><br><a href="tel:+595999000000">+595 999 000 000</a></p>
+                </div>
 
-    <div class="hero-zone">
-        <!-- SIDE CONTACT INFO -->
-        <div class="floating-contact">
-            <p><strong data-i18n="contact-address">Dirección</strong><br>Asunción, Paraguay</p>
-            <p><strong>Email</strong><br><a href="mailto:contacto@culatajovai.com">contacto@culatajovai.com</a></p>
-            <p><strong data-i18n="contact-phone">Teléfono</strong><br><a href="tel:+595999000000">+595 999 000 000</a></p>
-            <p><a href="https://instagram.com/culatajovai" target="_blank">Instagram</a></p>
-        </div>
+                <div class="social-links-text">
+                    <a href="https://www.instagram.com" target="_blank">Instagram</a>
+                    <a href="https://www.facebook.com" target="_blank">Facebook</a>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+
+                <div class="language-selector">
+                    <span class="lang-option active" data-lang="es" onclick="changeLanguage('es')">es</span>
+                    <span class="lang-option" data-lang="en" onclick="changeLanguage('en')">en</span>
+                    <span class="lang-option" data-lang="de" onclick="changeLanguage('de')">de</span>
+                </div>
+            </div>
+        </aside>
 
         <!-- CAROUSEL -->
         <div class="carousel-container" id="carouselContainer">
             <!-- Slides se generarán dinámicamente -->
-        </div>
-
-        <!-- CAROUSEL CONTROLS -->
-        <div class="carousel-nav-buttons">
-            <button class="carousel-control" onclick="prevSlide()" aria-label="Anterior">&#10094;</button>
-            <button class="carousel-control" onclick="nextSlide()" aria-label="Siguiente">&#10095;</button>
-        </div>
-
-        <div class="bottom-controls reveal">
-            <!-- BOTONES DE REDES SOCIALES -->
-            <div class="social-buttons">
-                <a href="https://www.facebook.com" target="_blank" class="social-btn" aria-label="Facebook">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                </a>
-                <a href="https://www.instagram.com" target="_blank" class="social-btn" aria-label="Instagram">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                    </svg>
-                </a>
-            </div>
-
-            <!-- SELECTOR DE IDIOMA -->
-            <div class="language-selector">
-                <span class="lang-option active" data-lang="es" onclick="changeLanguage('es')">es</span>
-                <span class="lang-option" data-lang="en" onclick="changeLanguage('en')">en</span>
-                <span class="lang-option" data-lang="de" onclick="changeLanguage('de')">de</span>
-            </div>
         </div>
     </div>
 
@@ -484,13 +375,25 @@
         }
 
         let currentSlide = 0;
+        let lastSlideIndex = -1;
 
         function showSlide(index) {
             const slides = document.querySelectorAll('.carousel-slide');
             if(slides.length === 0) return;
             
-            slides.forEach(slide => slide.classList.remove('active'));
-            if (slides[index]) slides[index].classList.add('active');
+            slides.forEach(slide => {
+                slide.classList.remove('active', 'last-active');
+            });
+            
+            if (lastSlideIndex !== -1 && slides[lastSlideIndex]) {
+                slides[lastSlideIndex].classList.add('last-active');
+            }
+            
+            if (slides[index]) {
+                slides[index].classList.add('active');
+            }
+            
+            lastSlideIndex = index;
         }
 
         function nextSlide() {
@@ -513,17 +416,8 @@
             if (e.key === 'ArrowLeft') prevSlide();
         });
 
-        // Auto-avance ininterrumpido
-        let autoSlide = setInterval(nextSlide, 12000);
-
-        // Pausar auto-avance al hover (desactivado para controles en pantalla)
-        // document.getElementById('carouselContainer').addEventListener('mouseenter', () => {
-        //     clearInterval(autoSlide);
-        // });
-
-        document.getElementById('carouselContainer').addEventListener('mouseleave', () => {
-            autoSlide = setInterval(nextSlide, 5000);
-        });
+        // Auto-avance con intervalo de permanencia de 5s
+        let autoSlide = setInterval(nextSlide, 5000);
 
         // Inicializar carousel
         createCarousel();
