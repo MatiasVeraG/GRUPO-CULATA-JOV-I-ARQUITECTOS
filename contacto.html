@@ -35,33 +35,8 @@
     </div>
 
     <script src="script.js"></script>
-    <script src="dropbox-config.js"></script>
-    <script src="dropbox-service-vercel.js"></script>
+    <script src="script.js"></script>
     <script>
-        let contactoImages = [];
-
-        function esc(text) {
-            const d = document.createElement('div');
-            d.textContent = text || '';
-            return d.innerHTML;
-        }
-
-        function parseStructuredBlocks(text) {
-            const lines = (text || '').split(/\r?\n/).map(line => line.trim()).filter(Boolean);
-            const blocks = [];
-
-            for (const line of lines) {
-                if (/^image\s*:/i.test(line)) {
-                    const value = line.replace(/^image\s*:/i, '').trim();
-                    if (value) blocks.push({ type: 'image', value });
-                } else if (/^text\s*:/i.test(line)) {
-                    const value = line.replace(/^text\s*:/i, '').trim();
-                    if (value) blocks.push({ type: 'text', value });
-                }
-            }
-
-            return blocks;
-        }
 
         function renderContactGrid(container, infoHtml) {
             const lang = localStorage.getItem('selectedLanguage') || 'es';
@@ -135,91 +110,40 @@
             }, 1500);
         };
 
-        async function loadContactoContent(lang) {
+        function loadContactoContent() {
             const container = document.getElementById('contactoInfoEditable');
             if (!container) return;
 
-            try {
-                const resolvedLang = lang || localStorage.getItem('selectedLanguage') || 'es';
-                const langKey = resolvedLang === 'en' ? 'contacto_en' : resolvedLang === 'de' ? 'contacto_de' : 'contacto_es';
-                let text = null;
-                try { text = await dropboxService.getSiteContent(langKey, { noCache: true }); } catch (_) {}
-                if (!text || !text.trim()) {
-                    text = await dropboxService.getSiteContent('contacto', { noCache: true }).catch(() => null);
-                }
-                
-                if (!text || !text.trim()) {
-                    const fallbackInfoHtml = `
-                        <div class="contacto-info reveal" style="display: flex; gap: 16px; align-items: flex-start;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                            <div>
-                                <strong>Dirección</strong>
-                                <p>Asunción, Paraguay</p>
-                            </div>
-                        </div>
-                        <div class="contacto-info reveal" style="display: flex; gap: 16px; align-items: flex-start;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                            <div>
-                                <strong>Email</strong>
-                                <p><a href="mailto:contacto@culatajovai.com" class="social-link">contacto@culatajovai.com</a></p>
-                            </div>
-                        </div>
-                        <div class="contacto-info reveal" style="display: flex; gap: 16px; align-items: flex-start;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                            <div>
-                                <strong>Teléfono</strong>
-                                <p><a href="tel:+595999000000" class="social-link">+595 999 000 000</a></p>
-                            </div>
-                        </div>
-                        <div class="contacto-info reveal" style="display: flex; gap: 16px; align-items: flex-start; margin-top: 32px;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px;"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-                            <div>
-                                <a href="https://instagram.com/culatajovai" target="_blank" class="social-link">Instagram</a>
-                            </div>
-                        </div>
-                    `;
-                    renderContactGrid(container, fallbackInfoHtml);
-                    return;
-                }
-
-                const structuredBlocks = parseStructuredBlocks(text || '');
-                if (structuredBlocks.length) {
-                    const imageByName = new Map((contactoImages || []).map(item => [String(item.name || '').toLowerCase(), item]));
-                    const infoHtml = structuredBlocks.map(block => {
-                        if (block.type === 'image') return '';
-                        return `<div class="contacto-info text reveal"><p>${esc(block.value)}</p></div>`;
-                    }).join('');
-                    renderContactGrid(container, infoHtml);
-                    return;
-                }
-
-                const infoHtml = text
-                    .split(/\n\s*\n/)
-                    .map(item => item.trim())
-                    .filter(Boolean)
-                    .map(item => {
-                        const lines = item.split(/\n/).map(l => l.trim()).filter(Boolean);
-                        if (lines.length === 0) return '';
-                        const title = lines[0];
-                        const body = lines.slice(1).join('<br>');
-                        return `<div class="contacto-info reveal"><p><strong>${title}</strong>${body ? `<br>${body}` : ''}</p></div>`;
-                    })
-                    .join('');
-
-                if (infoHtml) {
-                    renderContactGrid(container, infoHtml);
-                }
-            } catch (error) {
-                console.error('No se pudo cargar el contenido de Contacto desde Dropbox:', error);
-            }
-        }
-
-        async function loadContactoImages() {
-            try {
-                contactoImages = await dropboxService.getContactoImages({ noCache: true });
-            } catch (_) {
-                contactoImages = [];
-            }
+            const fallbackInfoHtml = `
+                <div class="contacto-info reveal" style="display: flex; gap: 16px; align-items: flex-start;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    <div>
+                        <strong>Dirección</strong>
+                        <p>Asunción, Paraguay</p>
+                    </div>
+                </div>
+                <div class="contacto-info reveal" style="display: flex; gap: 16px; align-items: flex-start;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    <div>
+                        <strong>Email</strong>
+                        <p><a href="mailto:contacto@culatajovai.com" class="social-link">contacto@culatajovai.com</a></p>
+                    </div>
+                </div>
+                <div class="contacto-info reveal" style="display: flex; gap: 16px; align-items: flex-start;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    <div>
+                        <strong>Teléfono</strong>
+                        <p><a href="tel:+595999000000" class="social-link">+595 999 000 000</a></p>
+                    </div>
+                </div>
+                <div class="contacto-info reveal" style="display: flex; gap: 16px; align-items: flex-start; margin-top: 32px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 2px;"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                    <div>
+                        <a href="https://instagram.com/culatajovai" target="_blank" class="social-link">Instagram</a>
+                    </div>
+                </div>
+            `;
+            renderContactGrid(container, fallbackInfoHtml);
         }
 
         // Sistema de traducción
@@ -271,10 +195,9 @@
             updateDocumentTitle(savedLang);
         }
 
-        document.addEventListener('DOMContentLoaded', async () => {
+        document.addEventListener('DOMContentLoaded', () => {
             initLanguage();
-            await loadContactoImages();
-            loadContactoContent(localStorage.getItem('selectedLanguage') || 'es');
+            loadContactoContent();
         });
     </script>
 </body>

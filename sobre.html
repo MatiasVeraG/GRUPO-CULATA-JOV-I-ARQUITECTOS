@@ -38,33 +38,7 @@
 
     <!-- Scripts -->
     <script src="script.js"></script>
-    <script src="dropbox-config.js"></script>
-    <script src="dropbox-service-vercel.js"></script>
     <script>
-        let sobreImages = [];
-
-        function esc(text) {
-            const d = document.createElement('div');
-            d.textContent = text || '';
-            return d.innerHTML;
-        }
-
-        function parseStructuredBlocks(text) {
-            const lines = (text || '').split(/\r?\n/).map(line => line.trim()).filter(Boolean);
-            const blocks = [];
-
-            for (const line of lines) {
-                if (/^image\s*:/i.test(line)) {
-                    const value = line.replace(/^image\s*:/i, '').trim();
-                    if (value) blocks.push({ type: 'image', value });
-                } else if (/^text\s*:/i.test(line)) {
-                    const value = line.replace(/^text\s*:/i, '').trim();
-                    if (value) blocks.push({ type: 'text', value });
-                }
-            }
-
-            return blocks;
-        }
 
         function renderAboutGrid(container, texts, images) {
             const labelText = localStorage.getItem('selectedLanguage') === 'en' ? '01 — Our vision' : 
@@ -121,47 +95,16 @@
             }, 100);
         }
 
-        async function loadSobreContent(lang) {
+        function loadSobreContent(lang) {
             const container = document.getElementById('personCards');
             if (!container) return;
 
-            try {
-                const langKey = lang === 'en' ? 'sobre_en' : lang === 'de' ? 'sobre_de' : 'sobre_es';
-                let text = null;
-                try { text = await dropboxService.getSiteContent(langKey, { noCache: true }); } catch (_) {}
-                if (!text || !text.trim()) {
-                    try { text = await dropboxService.getSiteContent('sobre', { noCache: true }); } catch (_) {}
-                }
+            const staticTexts = [
+                "En Grupo Culata Jovái Arquitectos creemos en una arquitectura que trasciende el espacio físico. Buscamos la perfecta armonía entre el entorno, la funcionalidad y la estética contemporánea.",
+                "Nuestro equipo está dedicado a transformar ideas en realidades tangibles, creando espacios atemporales con un profundo respeto por los materiales y la luz natural."
+            ];
 
-                const structuredBlocks = parseStructuredBlocks(text || '');
-                if (structuredBlocks.length) {
-                    const texts = structuredBlocks.filter(b => b.type === 'text').map(b => b.value);
-                    const imageNames = structuredBlocks.filter(b => b.type === 'image').map(b => String(b.value || '').toLowerCase());
-                    const imageByName = new Map((sobreImages || []).map(item => [String(item.name || '').toLowerCase(), item]));
-                    const images = imageNames.map(name => imageByName.get(name)).filter(Boolean);
-                    
-                    renderAboutGrid(container, texts, images);
-                    return;
-                }
-
-                const paragraphs = text
-                    ? text.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean)
-                    : [];
-
-                if (!paragraphs.length) {
-                    // Fallback local
-                    renderAboutGrid(container, [
-                        "En Grupo Culata Jovái Arquitectos creemos en una arquitectura que trasciende el espacio físico. Buscamos la perfecta armonía entre el entorno, la funcionalidad y la estética contemporánea.",
-                        "Nuestro equipo está dedicado a transformar ideas en realidades tangibles, creando espacios atemporales con un profundo respeto por los materiales y la luz natural."
-                    ], sobreImages.slice(0, 2));
-                    return;
-                }
-
-                renderAboutGrid(container, paragraphs, sobreImages.slice(0, 2));
-
-            } catch (error) {
-                console.error('No se pudo cargar el contenido de Sobre:', error);
-            }
+            renderAboutGrid(container, staticTexts, []);
         }
 
         // Sistema de traducción
@@ -203,10 +146,9 @@
         }
 
         // Inicializar
-        document.addEventListener('DOMContentLoaded', async () => {
+        document.addEventListener('DOMContentLoaded', () => {
             initLanguage();
             const lang = localStorage.getItem('selectedLanguage') || 'es';
-            try { sobreImages = await dropboxService.getSobreImages({ noCache: true }); } catch (_) {}
             loadSobreContent(lang);
         });
     </script>
