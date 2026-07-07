@@ -38,25 +38,25 @@
 
         /* HEADER MINIMALISTA */
         .landing-header {
-            position: sticky;
+            position: fixed;
             top: 0;
             left: 0;
-            right: 0;
+            width: 100vw;
             padding: 30px 60px;
             z-index: 100;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #FFFFFF;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 100%);
+            pointer-events: none;
+        }
+        
+        .landing-header > * {
+            pointer-events: auto;
         }
 
         .hero-zone {
-            flex: 1;
-            min-height: 0;
-            display: flex;
-            flex-direction: column;
-            padding-top: 10px;
-            padding-bottom: 12px;
+            /* no longer needed for flex, just a wrapper */
         }
 
         .logo-text {
@@ -77,9 +77,9 @@
         }
 
         .nav-link {
-            font-size: 10px;
+            font-size: 11px;
             letter-spacing: 2px;
-            color: #000000;
+            color: #ffffff;
             text-decoration: none;
             text-transform: lowercase;
             transition: color 0.3s ease;
@@ -91,12 +91,14 @@
 
         /* CAROUSEL */
         .carousel-container {
-            width: 95vw;
-            flex: 1;
-            min-height: 0;
-            margin: 0 auto;
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            margin: 0;
             overflow: hidden;
-            position: relative;
+            z-index: 1;
         }
 
         .carousel-slide {
@@ -114,19 +116,89 @@
         }
 
         .carousel-slide img {
+            position: relative;
             width: 100%;
             height: 100%;
-            object-fit: contain;
-            object-position: center bottom;
+            object-fit: cover;
+            object-position: center;
             cursor: default;
+            z-index: 1;
+        }
+
+        .floating-contact {
+            position: absolute;
+            top: 50%;
+            left: 60px;
+            transform: translateY(-50%);
+            z-index: 10;
+            color: #fff;
+            pointer-events: none;
+        }
+        .floating-contact p {
+            font-size: 14px;
+            letter-spacing: 2px;
+            line-height: 2;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            font-weight: 500;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+            pointer-events: auto;
+        }
+        .floating-contact strong {
+            font-weight: 700;
+            font-size: 18px;
+        }
+        .floating-contact a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .carousel-nav-buttons {
+            position: absolute;
+            right: 60px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            z-index: 10;
+        }
+        .carousel-control {
+            background: rgba(255, 255, 255, 0.7);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .carousel-control:hover {
+            background: rgba(255, 255, 255, 1);
+            color: #DC143C;
+            transform: scale(1.1);
         }
 
         .bottom-controls {
-            width: 95vw;
-            margin: 8px auto 0;
+            position: fixed;
+            bottom: 30px;
+            left: 60px;
+            right: 60px;
+            width: auto;
+            margin: 0;
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
+            z-index: 100;
+            pointer-events: none;
+        }
+        .bottom-controls > * {
+            pointer-events: auto;
         }
 
         /* SELECTOR DE IDIOMA */
@@ -148,7 +220,7 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            color: #000000;
+            color: #ffffff;
             transition: all 0.3s ease;
             opacity: 0.6;
         }
@@ -167,7 +239,7 @@
         .lang-option {
             font-size: 10px;
             letter-spacing: 1px;
-            color: #999999;
+            color: rgba(255,255,255,0.6);
             text-decoration: none;
             text-transform: lowercase;
             cursor: pointer;
@@ -176,11 +248,11 @@
         }
 
         .lang-option:hover {
-            color: #000000;
+            color: #ffffff;
         }
 
         .lang-option.active {
-            color: #000000;
+            color: #ffffff;
             text-decoration: underline;
         }
 
@@ -199,17 +271,48 @@
             }
 
             .carousel-container {
-                width: 98vw;
+                /* already 100vw, 100vh on mobile */
             }
 
             .hero-zone {
-                padding-top: 8px;
-                padding-bottom: 10px;
+                /* wrapper */
             }
 
             .bottom-controls {
-                width: 98vw;
-                margin-top: 6px;
+                left: 20px;
+                right: 20px;
+                bottom: 20px;
+            }
+
+            .carousel-slide img {
+                object-fit: cover;
+                object-position: center center;
+            }
+
+            .floating-contact {
+                top: auto;
+                bottom: 40px;
+                left: 50%;
+                transform: translateX(-50%);
+                text-align: center;
+                width: 90%;
+            }
+            .floating-contact p {
+                font-size: 11px;
+                margin-bottom: 8px;
+            }
+            .floating-contact strong {
+                font-size: 13px;
+            }
+
+            .carousel-nav-buttons {
+                right: 20px;
+                gap: 10px;
+            }
+            .carousel-control {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
             }
 
             .language-selector {
@@ -240,33 +343,46 @@
             }
 
             .carousel-container {
-                width: 100vw;
+                /* already 100vw */
             }
 
             .bottom-controls {
-                width: 100vw;
-                padding: 0 10px;
+                left: 10px;
+                right: 10px;
+                bottom: 15px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- HEADER -->
     <header class="landing-header">
         <nav style="display: flex; gap: 30px;">
             <a href="trabajos.html" class="nav-link" data-i18n="nav-trabajos">trabajos</a>
-            <a href="sobre.html" class="nav-link" data-i18n="nav-sobre">sobre</a>
             <a href="contacto.html" class="nav-link" data-i18n="nav-contacto">contacto</a>
         </nav>
         <div class="logo-text" onclick="window.location.href='index.html'">
-            <img src="images/logo.png" alt="Grupo Culata Jovái Arquitectos">
+            <img src="images/logo_blanco.png" alt="Grupo Culata Jovái Arquitectos">
         </div>
     </header>
 
     <div class="hero-zone">
+        <!-- SIDE CONTACT INFO -->
+        <div class="floating-contact">
+            <p><strong data-i18n="contact-address">Dirección</strong><br>Asunción, Paraguay</p>
+            <p><strong>Email</strong><br><a href="mailto:contacto@culatajovai.com">contacto@culatajovai.com</a></p>
+            <p><strong data-i18n="contact-phone">Teléfono</strong><br><a href="tel:+595999000000">+595 999 000 000</a></p>
+            <p><a href="https://instagram.com/culatajovai" target="_blank">Instagram</a></p>
+        </div>
+
         <!-- CAROUSEL -->
         <div class="carousel-container" id="carouselContainer">
             <!-- Slides se generarán dinámicamente -->
+        </div>
+
+        <!-- CAROUSEL CONTROLS -->
+        <div class="carousel-nav-buttons">
+            <button class="carousel-control" onclick="prevSlide()" aria-label="Anterior">&#10094;</button>
+            <button class="carousel-control" onclick="nextSlide()" aria-label="Siguiente">&#10095;</button>
         </div>
 
         <div class="bottom-controls">
@@ -293,8 +409,6 @@
         </div>
     </div>
 
-    <script src="dropbox-config.js"></script>
-    <script src="dropbox-service-vercel.js"></script>
     <script>
         // Sistema de traducción
         const translations = {
@@ -354,20 +468,16 @@
             applyTranslations(savedLang);
         }
 
-        // Obtener portadas de los proyectos desde Dropbox
+        // Obtener portadas de los proyectos de forma estática (sin backend)
         async function getCarouselImages() {
-            try {
-                const projects = await dropboxService.getAllProjectsWithCovers();
-
-                return projects.map(project => ({
-                    cover: project.cover,
-                    title: project.name,
-                    path: project.path
-                }));
-            } catch (error) {
-                console.error('Error cargando proyectos:', error);
-                return [];
-            }
+            return [
+                { cover: 'images/casa miralgo/casa-miralago-grupo-culata-jovai_21.jpg', title: 'Casa Miralago' },
+                { cover: 'images/casa mainumby/casa-mainumby-grupo-culata-jovai_16.jpg', title: 'Casa Mainumby' },
+                { cover: 'images/casa mainumby/casa-mainumby-grupo-culata-jovai_11.jpg', title: 'Casa Mainumby' },
+                { cover: 'images/casa mainumby/casa-mainumby-grupo-culata-jovai_14.jpg', title: 'Casa Mainumby' },
+                { cover: 'images/vivienda gt/30-vivienda-gt-grupo-culata-jovai-c-federico-cairoli-low.jpg', title: 'Vivienda GT' },
+                { cover: 'images/casa miralgo/casa-miralago-grupo-culata-jovai_16.jpg', title: 'Casa Miralago' }
+            ];
         }
 
         // Crear slides del carousel
@@ -437,10 +547,10 @@
         // Auto-avance cada 5 segundos
         let autoSlide = setInterval(nextSlide, 5000);
 
-        // Pausar auto-avance al hover
-        document.getElementById('carouselContainer').addEventListener('mouseenter', () => {
-            clearInterval(autoSlide);
-        });
+        // Pausar auto-avance al hover (desactivado para controles en pantalla)
+        // document.getElementById('carouselContainer').addEventListener('mouseenter', () => {
+        //     clearInterval(autoSlide);
+        // });
 
         document.getElementById('carouselContainer').addEventListener('mouseleave', () => {
             autoSlide = setInterval(nextSlide, 5000);
