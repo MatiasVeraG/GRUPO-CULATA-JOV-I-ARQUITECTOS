@@ -99,21 +99,14 @@
             object-position: center;
             cursor: default;
             z-index: 1;
-            transform: scale(1);
-            transition: transform 6s ease-out;
         }
 
         .carousel-slide.active img {
-            transform: scale(1.05);
         }
 
         @media (prefers-reduced-motion: reduce) {
             .carousel-slide {
                 transition: opacity 0.2s ease-in-out;
-            }
-            .carousel-slide img, .carousel-slide.active img {
-                transition: none;
-                transform: scale(1);
             }
         }
 
@@ -277,10 +270,11 @@
                     <p><strong>Email</strong><br><a href="mailto:contacto@culatajovai.com">contacto@culatajovai.com</a></p>
                     <p><strong data-i18n="contact-phone">Teléfono</strong><br><a href="tel:+595999000000">+595 999 000 000</a></p>
                 </div>
-
+                <div class="social-links-text">
+                    <a style="padding-bottom: 30px;" href="sobre.html" data-i18n="nav-sobre">Sobre</a>
+                </div>
                 <div class="social-links-text">
                     <a href="https://www.instagram.com" target="_blank">Instagram</a>
-                    <a href="sobre.html">Sobre</a>
                     <a href="https://www.facebook.com" target="_blank">Facebook</a>
                 </div>
             </div>
@@ -304,9 +298,9 @@
     <script>
         // Sistema de traducción
         const translations = {
-            es: { 'contact-address': 'Dirección', 'contact-phone': 'Teléfono' },
-            en: { 'contact-address': 'Address', 'contact-phone': 'Phone' },
-            de: { 'contact-address': 'Adresse', 'contact-phone': 'Telefon' }
+            es: { 'contact-address': 'Dirección', 'contact-phone': 'Teléfono', 'nav-sobre': 'Sobre' },
+            en: { 'contact-address': 'Address', 'contact-phone': 'Phone', 'nav-sobre': 'About' },
+            de: { 'contact-address': 'Adresse', 'contact-phone': 'Telefon', 'nav-sobre': 'Über' }
         };
 
         function changeLanguage(lang) {
@@ -420,8 +414,8 @@
             if (e.key === 'ArrowLeft') prevSlide();
         });
 
-        // Auto-avance con intervalo de permanencia de 5s
-        let autoSlide = setInterval(nextSlide, 5000);
+        // Auto-avance con intervalo de permanencia de 15s
+        let autoSlide = setInterval(nextSlide, 15000);
 
         // Inicializar carousel
         createCarousel();

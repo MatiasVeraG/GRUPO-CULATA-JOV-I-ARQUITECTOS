@@ -10,367 +10,35 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* =========================================================
-           SOBRE PAGE — Layout Editorial Premium (Mockup)
-           ========================================================= */
-
-        /* Reset explícito */
-        .about-page-section *,
-        .about-page-section *::before,
-        .about-page-section *::after {
-            color: inherit;
-        }
-
-        .about-page-section {
-            padding-top: 140px;
-            padding-bottom: 96px;
-            padding-left: 6%;
-            padding-right: 6%;
-            max-width: 1440px;
+        .about-simple-section {
+            padding: 140px 6% 96px;
+            max-width: 1000px;
             margin: 0 auto;
             font-family: 'Space Grotesk', sans-serif;
             color: #1a1a1a;
-            box-sizing: border-box;
         }
-
-        /* Utilidades */
-        .color-accent { color: #B85C38; } /* Terracota para detalles */
-        .divider { border-top: 1px solid #e0e0e0; margin: 32px 0; }
-
-        /* ---------- 1. Hero Split Intro ---------- */
-        .about-hero-split {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 80px;
-            margin-bottom: 100px;
-            align-items: start;
-        }
-
-        /* Columna Izquierda */
-        .about-hero-left {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        .about-kicker {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 10px;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            font-weight: 500;
-            color: #B85C38;
-        }
-        .about-kicker::before {
-            content: '';
-            display: block;
-            width: 24px;
-            height: 1px;
-            background-color: #B85C38;
-        }
-        .about-hero-title {
-            font-size: clamp(2.5rem, 4vw, 3.8rem);
-            letter-spacing: 2px;
-            font-weight: 300;
-            line-height: 1.1;
-            margin: 0;
-            text-transform: none; /* Como en el mockup */
-        }
-
-        /* Columna Derecha */
-        .about-hero-right {
-            display: flex;
-            flex-direction: column;
-            padding-top: 8px; /* Alinear visualmente con el título */
-        }
-        .about-lead {
-            font-size: 20px;
-            font-weight: 500;
-            line-height: 1.5;
-            margin: 0 0 24px 0;
-            color: #1a1a1a;
-            max-width: 580px;
-        }
-        .about-body {
-            font-size: 14px;
-            font-weight: 300;
-            line-height: 1.8;
-            color: #444444;
-            margin: 0 0 40px 0;
-            max-width: 580px;
-        }
-
-        /* Estadísticas */
-        .about-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-            padding-top: 16px;
-        }
-        .stat-item {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .stat-number {
-            font-size: 2.2rem;
-            font-weight: 300;
-            color: #B85C38;
-            line-height: 1;
-        }
-        .stat-label {
-            font-size: 11px;
+        .about-title {
+            font-size: clamp(2rem, 4vw, 3rem);
             font-weight: 400;
-            color: #666;
-        }
-
-        /* ---------- 2. Bloque "Cómo trabajamos" ---------- */
-        .about-pillars {
-            margin-bottom: 120px;
-        }
-        .pillars-kicker {
-            font-size: 10px;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            font-weight: 500;
-            color: #B85C38;
-            margin-bottom: 32px;
-        }
-        .pillars-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 48px;
-        }
-        .pillar-item {
-            border-top: 1px solid #e0e0e0;
-            padding-top: 24px;
-        }
-        .pillar-icon {
-            width: 24px;
-            height: 24px;
-            margin-bottom: 16px;
-            color: #B85C38;
-        }
-        .pillar-title {
-            font-size: 18px;
-            font-weight: 400;
-            margin: 0 0 12px 0;
-            color: #1a1a1a;
-        }
-        .pillar-desc {
-            font-size: 13px;
-            font-weight: 300;
-            line-height: 1.7;
-            color: #555;
-            margin: 0;
-        }
-
-        /* ---------- 3. Imagen Hero Central ---------- */
-        .about-main-image {
-            width: 100%;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 120px;
-            aspect-ratio: 21 / 9;
-        }
-        .about-main-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        /* ---------- 4. Manifiesto / Cita ---------- */
-        .about-quote-section {
-            text-align: center;
-            max-width: 800px;
-            margin: 0 auto 120px auto;
-            padding: 0 20px;
-        }
-        .about-quote {
-            font-size: clamp(1.8rem, 3vw, 2.5rem);
-            font-weight: 300;
-            line-height: 1.4;
-            color: #1a1a1a;
-            margin: 0 0 32px 0;
-        }
-        .about-quote-author {
-            font-size: 10px;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            font-weight: 500;
-            color: #888;
-        }
-
-        /* ---------- 5. Galería Reducida ---------- */
-        .about-gallery-section {
-            margin-bottom: 120px;
-        }
-        .gallery-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
             margin-bottom: 40px;
         }
-        .gallery-title {
-            font-size: 24px;
-            font-weight: 300;
-            margin: 0;
-        }
-        .gallery-link {
-            font-size: 10px;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            font-weight: 500;
-            color: #B85C38;
-            text-decoration: none;
-            transition: opacity 300ms ease;
-        }
-        .gallery-link:hover { opacity: 0.7; }
-        
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-        }
-        .gallery-item {
-            aspect-ratio: 4 / 5;
-            border-radius: 8px;
-            overflow: hidden;
-            position: relative;
-        }
-        .gallery-item img {
+        .about-image {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 700ms ease;
+            height: auto;
+            margin-bottom: 40px;
         }
-        .gallery-item:hover img {
-            transform: scale(1.03);
+        .about-text {
+            font-size: 16px;
+            line-height: 1.6;
+            font-weight: 300;
         }
-        /* Fade in para las imagenes */
-        .fade-in {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 800ms ease, transform 800ms ease;
+        .about-text p {
+            margin-bottom: 24px;
         }
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* ---------- 6. CTA Final ---------- */
-        .about-cta-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 48px;
-            border-top: 1px solid #e0e0e0;
-        }
-        .cta-text {
-            font-size: 15px;
-            font-weight: 400;
-            color: #1a1a1a;
-            max-width: 300px;
-            line-height: 1.5;
-            margin: 0;
-        }
-        .cta-buttons {
-            display: flex;
-            gap: 16px;
-        }
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 24px;
-            border-radius: 40px;
-            font-size: 12px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: all 300ms ease;
-        }
-        .btn-primary {
-            background-color: #B85C38;
-            color: #fff !important;
-            border: 1px solid #B85C38;
-        }
-        .btn-primary:hover {
-            background-color: #9c4c2d;
-            border-color: #9c4c2d;
-        }
-        .btn-outline {
-            background-color: transparent;
-            color: #1a1a1a !important;
-            border: 1px solid #d0d0d0;
-        }
-        .btn-outline:hover {
-            border-color: #1a1a1a;
-        }
-
-        /* ---------- Responsive ---------- */
-        @media (max-width: 1024px) {
-            .about-hero-split {
-                grid-template-columns: 1fr;
-                gap: 48px;
-                margin-bottom: 80px;
-            }
-            .about-hero-right {
-                padding-top: 0;
-            }
-            .pillars-grid {
-                gap: 32px;
-            }
-            .about-main-image {
-                aspect-ratio: 16 / 9;
-            }
-        }
-
+        
         @media (max-width: 768px) {
-            .about-page-section {
+            .about-simple-section {
                 padding-top: 100px;
-                padding-left: 24px;
-                padding-right: 24px;
-            }
-            .about-stats {
-                grid-template-columns: 1fr;
-                gap: 32px;
-            }
-            .pillars-grid {
-                grid-template-columns: 1fr;
-                gap: 40px;
-            }
-            .gallery-grid {
-                grid-template-columns: 1fr;
-                gap: 24px;
-            }
-            .about-main-image {
-                aspect-ratio: 4 / 3;
-                margin-bottom: 80px;
-            }
-            .about-quote-section {
-                margin-bottom: 80px;
-            }
-            .about-cta-section {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 32px;
-            }
-            .gallery-header {
-                flex-direction: column;
-                gap: 16px;
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .fade-in {
-                transition: none !important;
-                opacity: 1 !important;
-                transform: none !important;
-            }
-            .gallery-item img {
-                transition: none !important;
             }
         }
     </style>
@@ -378,126 +46,28 @@
 <body>
     <!-- HEADER -->
     <header class="landing-header" id="header">
-        <nav>
-            <a href="trabajos.html" class="nav-link" data-i18n="nav-trabajos">trabajos</a>
-            <a href="sobre.html"    class="nav-link" data-i18n="nav-sobre">sobre</a>
-            <a href="contacto.html" class="nav-link" data-i18n="nav-contacto">contacto</a>
-        </nav>
         <div class="logo-text" onclick="window.location.href='index.html'">
             <img src="images/logo.png" alt="Grupo Culata Jovái Arquitectos">
         </div>
     </header>
 
     <!-- SECCIÓN SOBRE -->
-    <section id="nosotros" class="about-page-section">
-
-        <!-- 1. Hero Split Intro -->
-        <div class="about-hero-split fade-in">
-            <div class="about-hero-left">
-                <span class="about-kicker">Nuestra filosofía</span>
-                <h1 class="about-hero-title">Sobre el estudio</h1>
-            </div>
+    <section id="nosotros" class="about-simple-section fade-in">
+        <h1 class="about-title" data-i18n="about-title">Sobre el estudio</h1>
+        
+        <img src="images/equipo_estudio.png" alt="Equipo Grupo Culata Jovái" class="about-image">
+        
+        <div class="about-text">
+            <p data-i18n="about-p1">Grupo Culata Jovái es un estudio de arquitectura y urbanismo con sede en Asunción, Paraguay. El estudio se dedica principalmente al diseño arquitectónico y urbano, así como a la construcción, extendiendo su práctica a actividades académicas, docencia, música y arte.</p>
             
-            <div class="about-hero-right">
-                <p class="about-lead">
-                    En Grupo Culata Jovái Arquitectos creemos en una arquitectura que trasciende el espacio físico. Buscamos la perfecta armonía entre el entorno, la funcionalidad y la estética contemporánea.
-                </p>
-                <p class="about-body">
-                    Somos un equipo de arquitectos y arquitectas con base en Paraguay. Desde 2006 diseñamos casas, pabellones y reformas donde la luz natural, la ventilación cruzada y los materiales de la región son los protagonistas. Cada obra es una respuesta única a un lugar y a una forma de vivir.
-                </p>
-                
-                <div class="divider"></div>
-                
-                <div class="about-stats">
-                    <div class="stat-item">
-                        <span class="stat-number">18+</span>
-                        <span class="stat-label">Años de trayectoria</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">120</span>
-                        <span class="stat-label">Proyectos entregados</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">45k</span>
-                        <span class="stat-label">m² construidos</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 2. Bloque "Cómo trabajamos" -->
-        <div class="about-pillars fade-in">
-            <div class="pillars-kicker">Cómo trabajamos</div>
-            <div class="pillars-grid">
-                <div class="pillar-item">
-                    <svg class="pillar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
-                    </svg>
-                    <h3 class="pillar-title">Escuchar el lugar</h3>
-                    <p class="pillar-desc">Cada proyecto comienza por entender el terreno, la orientación, el clima y la vida de quienes lo habitarán. El sitio marca el rumbo.</p>
-                </div>
-                
-                <div class="pillar-item">
-                    <svg class="pillar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                        <polyline points="2 17 12 22 22 17"></polyline>
-                        <polyline points="2 12 12 17 22 12"></polyline>
-                    </svg>
-                    <h3 class="pillar-title">Materiales honestos</h3>
-                    <p class="pillar-desc">Trabajamos con ladrillo, madera y hormigón a la vista. Materiales nobles que envejecen bien y dan calidez y verdad a cada espacio.</p>
-                </div>
-                
-                <div class="pillar-item">
-                    <svg class="pillar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                    </svg>
-                    <h3 class="pillar-title">Diseño perdurable</h3>
-                    <p class="pillar-desc">Buscamos arquitectura de bajo impacto y larga vida: eficiente, luminosa y pensada para adaptarse al paso del tiempo.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3. Imagen Hero Central -->
-        <div class="about-main-image fade-in">
-            <img src="images/FOTOS SELECCIONADAS/01_Vivienda GT_Grupo Culata Jovái - © Federico Cairoli.jpg" alt="Vivienda GT exterior" loading="lazy">
-        </div>
-
-        <!-- 4. Manifiesto / Cita -->
-        <div class="about-quote-section fade-in">
-            <h2 class="about-quote">“No diseñamos edificios, diseñamos la manera en que las personas habitan la luz, el aire y el paisaje.”</h2>
-            <span class="about-quote-author">Grupo Culata Jovái Arquitectos</span>
-        </div>
-
-        <!-- 5. Galería Reducida ("Obras seleccionadas") -->
-        <div class="about-gallery-section fade-in">
-            <div class="gallery-header">
-                <h2 class="gallery-title">Obras seleccionadas</h2>
-                <a href="trabajos.html" class="gallery-link">Ver todas</a>
-            </div>
+            <p data-i18n="about-p2">Fundado en 2011 por Miguel Ángel (Miky) González Merlo, el estudio incorporó a Emmerick Braun como socio en 2017.</p>
             
-            <div class="gallery-grid">
-                <div class="gallery-item">
-                    <img src="images/FOTOS SELECCIONADAS/42_Casa Miralago_Grupo Culata Jovái - © Federico Cairoli (low).jpeg" alt="Casa Miralago" loading="lazy">
-                </div>
-                <div class="gallery-item">
-                    <img src="images/FOTOS SELECCIONADAS/08_Casita Suburbana_Grupo Culata Jovái - © Federico Cairoli.jpg" alt="Casita Suburbana" loading="lazy">
-                </div>
-                <div class="gallery-item">
-                    <img src="images/FOTOS SELECCIONADAS/03_Estudio Ciudad Nueva - © Federico Cairoli (low).jpg" alt="Estudio Ciudad Nueva" loading="lazy">
-                </div>
-            </div>
+            <p data-i18n="about-p3">Miguel Ángel (Miky) González Merlo es arquitecto por la Facultad de Arquitectura, Diseño y Arte de la Universidad Nacional de Asunción (FADA-UNA), donde también se ha desempeñado como docente. Además de su carrera arquitectónica, ha incursionado en la música como cantante, guitarrista y compositor en diversos proyectos musicales, destacándose Villagrán Bolaños.</p>
+            
+            <p data-i18n="about-p4">Emmerick Braun es arquitecto por la Facultad de Arquitectura, Diseño y Arte de la Universidad Nacional de Asunción (FADA-UNA) y posee un Máster en Estudios Avanzados en Arquitectura (MBArch) con especialidad en Urbanismo por la Escola Tècnica Superior d’Arquitectura de Barcelona (ETSAB-UPC). Actualmente enseña Diseño Urbano en la FADA-UNA.</p>
+            
+            <p data-i18n="about-p5">Han sido invitados por numerosas instituciones para presentar el trabajo del estudio, el cual también ha recibido premios y ha sido expuesto y publicado tanto a nivel nacional como internacional.</p>
         </div>
-
-        <!-- 6. CTA Final -->
-        <div class="about-cta-section fade-in">
-            <p class="cta-text">¿Tenés un proyecto en mente? Conversemos sobre cómo darle forma.</p>
-            <div class="cta-buttons">
-                <a href="contacto.html" class="btn btn-primary">Contactar &rarr;</a>
-                <a href="trabajos.html" class="btn btn-outline">Ver proyectos</a>
-            </div>
-        </div>
-
     </section>
 
     <!-- SELECTOR DE IDIOMA -->
@@ -510,9 +80,30 @@
     <script src="script.js"></script>
     <script>
         const translations = {
-            es: { 'nav-trabajos': 'trabajos', 'nav-sobre': 'sobre',  'nav-contacto': 'contacto' },
-            en: { 'nav-trabajos': 'works',    'nav-sobre': 'about',  'nav-contacto': 'contact' },
-            de: { 'nav-trabajos': 'arbeiten', 'nav-sobre': 'über',   'nav-contacto': 'kontakt' }
+            es: { 
+                'about-title': 'Sobre el estudio',
+                'about-p1': 'Grupo Culata Jovái es un estudio de arquitectura y urbanismo con sede en Asunción, Paraguay. El estudio se dedica principalmente al diseño arquitectónico y urbano, así como a la construcción, extendiendo su práctica a actividades académicas, docencia, música y arte.',
+                'about-p2': 'Fundado en 2011 por Miguel Ángel (Miky) González Merlo, el estudio incorporó a Emmerick Braun como socio en 2017.',
+                'about-p3': 'Miguel Ángel (Miky) González Merlo es arquitecto por la Facultad de Arquitectura, Diseño y Arte de la Universidad Nacional de Asunción (FADA-UNA), donde también se ha desempeñado como docente. Además de su carrera arquitectónica, ha incursionado en la música como cantante, guitarrista y compositor en diversos proyectos musicales, destacándose Villagrán Bolaños.',
+                'about-p4': 'Emmerick Braun es arquitecto por la Facultad de Arquitectura, Diseño y Arte de la Universidad Nacional de Asunción (FADA-UNA) y posee un Máster en Estudios Avanzados en Arquitectura (MBArch) con especialidad en Urbanismo por la Escola Tècnica Superior d’Arquitectura de Barcelona (ETSAB-UPC). Actualmente enseña Diseño Urbano en la FADA-UNA.',
+                'about-p5': 'Han sido invitados por numerosas instituciones para presentar el trabajo del estudio, el cual también ha recibido premios y ha sido expuesto y publicado tanto a nivel nacional como internacional.'
+            },
+            en: {
+                'about-title': 'About the studio',
+                'about-p1': 'Grupo Culata Jovái is an architecture and urbanism studio based in Asunción, Paraguay. The studio is primarily dedicated to architectural and urban design, as well as construction, extending its practice to academic activities, teaching, music, and art.',
+                'about-p2': 'Founded in 2011 by Miguel Ángel (Miky) González Merlo, the studio welcomed Emmerick Braun as a partner in 2017.',
+                'about-p3': 'Miguel Ángel (Miky) González Merlo is an architect by the Facultad de Arquitectura, Diseño y Arte from the Universidad Nacional de Asunción (FADA-UNA), where he has also worked as a professor. In addition to his architectural career, he has ventured into music as a singer, guitarist, and composer in various musical projects, most notably Villagrán Bolaños.',
+                'about-p4': 'Emmerick Braun is an architect by the Facultad de Arquitectura, Diseño y Arte from the Universidad Nacional de Asunción (FADA-UNA) and holds a Master’s degree in Advanced Studies in Architecture (MBArch) with a specialization in Urbanism from the Escola Tècnica Superior d’Arquitectura de Barcelona (ETSAB-UPC). He currently teaches Urban Design at FADA-UNA.',
+                'about-p5': 'They have been invited to numerous institutions to present the studio’s work, which has also received awards and has been exhibited and published both nationally and internationally.'
+            },
+            de: {
+                'about-title': 'Über das Studio',
+                'about-p1': 'Grupo Culata Jovái ist ein Architektur- und Städtebaustudio mit Sitz in Asunción, Paraguay. Das Studio widmet sich in erster Linie dem Architektur- und Städtebauentwurf sowie der Bauausführung und erweitert seine Praxis auf akademische Aktivitäten, Lehre, Musik und Kunst.',
+                'about-p2': 'Gegründet im Jahr 2011 von Miguel Ángel (Miky) González Merlo, hieß das Studio 2017 Emmerick Braun als Partner willkommen.',
+                'about-p3': 'Miguel Ángel (Miky) González Merlo ist Architekt der Facultad de Arquitectura, Diseño y Arte der Universidad Nacional de Asunción (FADA-UNA), wo er auch als Professor tätig war. Zusätzlich zu seiner architektonischen Karriere ist er als Sänger, Gitarrist und Komponist in verschiedenen Musikprojekten aktiv, allen voran Villagrán Bolaños.',
+                'about-p4': 'Emmerick Braun ist Architekt der Facultad de Arquitectura, Diseño y Arte der Universidad Nacional de Asunción (FADA-UNA) und hält einen Master-Abschluss in Advanced Studies in Architecture (MBArch) mit Spezialisierung auf Urbanismus der Escola Tècnica Superior d’Arquitectura de Barcelona (ETSAB-UPC). Zurzeit lehrt er Städtebau an der FADA-UNA.',
+                'about-p5': 'Sie wurden von zahlreichen Institutionen eingeladen, die Arbeit des Studios zu präsentieren, welche zudem Auszeichnungen erhalten hat und national sowie international ausgestellt und veröffentlicht wurde.'
+            }
         };
 
         function changeLanguage(lang) {
@@ -520,58 +111,32 @@
             updateLanguageUI(lang);
             applyTranslations(lang);
         }
+        
         function updateLanguageUI(lang) {
             document.querySelectorAll('.lang-option').forEach(opt =>
                 opt.classList.toggle('active', opt.dataset.lang === lang)
             );
         }
+        
         function applyTranslations(lang) {
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.dataset.i18n;
-                if (translations[lang]?.[key]) el.textContent = translations[lang][key];
+                if (translations[lang] && translations[lang][key]) {
+                    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                        el.placeholder = translations[lang][key];
+                    } else {
+                        el.textContent = translations[lang][key];
+                    }
+                }
             });
         }
+        
         function initLanguage() {
-            const lang = localStorage.getItem('selectedLanguage') || 'es';
-            updateLanguageUI(lang);
-            applyTranslations(lang);
+            const savedLang = localStorage.getItem('selectedLanguage') || 'es';
+            changeLanguage(savedLang);
         }
 
-        /* Animación de entrada suave (Fade in) */
-        function initScrollAnimations() {
-            const motionOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            const elements = document.querySelectorAll('.fade-in');
-            
-            if (!motionOK) { 
-                elements.forEach(el => el.classList.add('visible')); 
-                return; 
-            }
-
-            const io = new IntersectionObserver(entries => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                        io.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-
-            elements.forEach(el => io.observe(el));
-        }
-
-        function initHeaderScroll() {
-            const h = document.getElementById('header');
-            if (!h) return;
-            window.addEventListener('scroll', () =>
-                h.classList.toggle('scrolled', window.scrollY > 40)
-            , { passive: true });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initLanguage();
-            initScrollAnimations();
-            initHeaderScroll();
-        });
+        document.addEventListener('DOMContentLoaded', initLanguage);
     </script>
 </body>
 </html>
