@@ -36,3 +36,6 @@ dropbox-tokens.txt
 dropbox-tokens.json
 # NOTA: dropbox-config.js contiene credenciales
 # Solo subir con valores de ejemplo, no reales
+
+# Test screenshots
+screenshots/
