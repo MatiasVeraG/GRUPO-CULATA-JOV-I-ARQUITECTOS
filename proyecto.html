@@ -81,9 +81,46 @@
         async function loadProjectData() {
             try {
                 const projectPathOrId = await resolveProjectPath();
+                
+                const fallbackProject = {
+                    name: 'Casa Miralago',
+                    features: [
+                        { key: 'Ubicación', value: 'San Bernardino, Paraguay' },
+                        { key: 'Año', value: '2022' },
+                        { key: 'Área', value: '350 m²' },
+                        { key: 'Arquitectos', value: 'Grupo Culata Jovái' }
+                    ],
+                    description_es: 'Casa Miralago se implanta en un terreno con pendiente pronunciada hacia el lago Ypacaraí. La propuesta busca el máximo aprovechamiento de las vistas panorámicas mientras protege los espacios interiores de la radiación solar directa.\n\nLa estructura de ladrillos vistos y hormigón armado dialoga con el entorno natural circundante, creando una atmósfera de serenidad y conexión con el paisaje.',
+                    description_en: 'Casa Miralago is located on a steep slope overlooking Lake Ypacaraí. The project maximizes panoramic views while sheltering indoor spaces from direct solar radiation.\n\nThe exposed brick and reinforced concrete structure engages in dialogue with the natural surroundings, fostering a serene atmosphere connected to the landscape.',
+                    description_de: 'Casa Miralago befindet sich auf einem steilen Hang mit Blick auf den Ypacaraí-See. Das Projekt maximiert die Panoramaaussichten und schützt gleichzeitig die Innenräume vor direkter Sonneneinstrahlung.',
+                    images: [
+                        { temporaryLink: 'images/casa miralgo/casa-miralago-grupo-culata-jovai_21.jpg' },
+                        { temporaryLink: 'images/casa miralgo/casa-miralago-grupo-culata-jovai_16.jpg' },
+                        { temporaryLink: 'images/casa miralgo/casa-miralago-grupo-culata-jovai_17.jpg' },
+                        { temporaryLink: 'images/casa miralgo/casa-miralago-grupo-culata-jovai_18.jpg' },
+                        { temporaryLink: 'images/casa miralgo/casa-miralago-grupo-culata-jovai_19.jpg' },
+                        { temporaryLink: 'images/casa miralgo/casa-miralago-grupo-culata-jovai_20.jpg' }
+                    ],
+                    drawings: [
+                        { temporaryLink: 'images/casa miralgo/casa-miralago-grupo-culata-jovai_07_plano.jpg' },
+                        { temporaryLink: 'images/casa miralgo/casa-miralago-grupo-culata-jovai_08_plano.jpg' },
+                        { temporaryLink: 'images/casa miralgo/casa-miralago-grupo-culata-jovai_09_plano.jpg' },
+                        { temporaryLink: 'images/casa miralgo/casa-miralago-grupo-culata-jovai_10_plano.jpg' }
+                    ]
+                };
+
                 if (!projectPathOrId) {
-                    document.getElementById('projectContent').innerHTML = '<div class="loading">Proyecto no encontrado</div>';
-                    return;
+                    currentProject = fallbackProject;
+                } else {
+                    try {
+                        if (String(projectPathOrId).startsWith('/')) {
+                            currentProject = await dropboxService.getProjectDetail(projectPathOrId);
+                        } else {
+                            throw new Error("Local ID provided");
+                        }
+                    } catch (err) {
+                        currentProject = fallbackProject;
+                    }
                 }
 
                 const source = getSourceFromUrl();
@@ -92,36 +129,10 @@
                     footer.style.display = source === 'trabajos' ? 'none' : 'block';
                 }
 
-                try {
-                    // Intento de cargar desde API
-                    if (String(projectPathOrId).startsWith('/')) {
-                        currentProject = await dropboxService.getProjectDetail(projectPathOrId);
-                    } else {
-                        throw new Error("Local ID provided, skipping API");
-                    }
-                } catch (error) {
-                    console.warn("Usando fallback local para proyecto:", projectPathOrId);
-                    if (typeof getProjects === 'function') {
-                        const localProjects = getProjects();
-                        const found = localProjects.find(p => String(p.id) === String(projectPathOrId));
-                        if (found) {
-                            currentProject = {
-                                name: found.title,
-                                description: found.description || "Descripción del proyecto.",
-                                features: [{key: "Estado", value: "Terminado"}, {key: "Ubicación", value: "Local"}],
-                                images: (found.images || []).map(img => ({ temporaryLink: img, name: 'Imagen' })),
-                                drawings: []
-                            };
-                        } else {
-                            throw new Error("Proyecto no encontrado en datos locales");
-                        }
-                    } else {
-                        throw error;
-                    }
-                }
-
                 renderProject();
                 document.title = `${currentProject.name} - Grupo Culata Jovái Arquitectos`;
+                const contentEl = document.getElementById('projectContent');
+                if (contentEl) contentEl.classList.add('active');
             } catch (error) {
                 console.error(error);
                 document.getElementById('projectContent').innerHTML = `<div class="loading">Error al cargar el proyecto: ${escapeHtml(error.message)}</div>`;
@@ -154,7 +165,7 @@
 
             const slidesHTML = images.length
                 ? images.map((img, index) => `<div class="slideshow-slide"><img src="${img.temporaryLink}" alt="${escapeHtml(currentProject.name)}" loading="${index === 0 ? 'eager' : 'lazy'}" onclick="openLightbox(${index})"></div>`).join('')
-                : '<div class="slideshow-slide"><div style="height:85vh;display:flex;align-items:center;justify-content:center;color:#999;letter-spacing:1px;text-transform:uppercase;">Sin imágenes</div></div>';
+                : '<div class="slideshow-slide"><div style="height:50vh;display:flex;align-items:center;justify-content:center;color:#999;letter-spacing:1px;text-transform:uppercase;">Sin imágenes</div></div>';
 
             let drawingsHTML = '';
             if (drawings.length) {
@@ -191,18 +202,41 @@
             `;
 
             slideshowIndex = 0;
+            initTouchSlideshow();
             
             setTimeout(() => {
                 if(typeof observer !== 'undefined') document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
             }, 100);
         }
 
+        function initTouchSlideshow() {
+            const track = document.getElementById('slideshowTrack');
+            if (!track) return;
+            let touchStartX = 0;
+            let touchEndX = 0;
+            track.addEventListener('touchstart', (e) => {
+                if (e.touches && e.touches[0]) touchStartX = e.touches[0].clientX;
+            }, { passive: true });
+            track.addEventListener('touchend', (e) => {
+                if (e.changedTouches && e.changedTouches[0]) {
+                    touchEndX = e.changedTouches[0].clientX;
+                    const diffX = touchStartX - touchEndX;
+                    if (Math.abs(diffX) > 35) {
+                        if (diffX > 0) slideshowMove(1);
+                        else slideshowMove(-1);
+                    }
+                }
+            }, { passive: true });
+        }
+
         function slideshowMove(dir) {
             const images = currentProject.images || [];
             if (images.length < 2) return;
             slideshowIndex = (slideshowIndex + dir + images.length) % images.length;
-            document.getElementById('slideshowTrack').style.transform = `translateX(-${slideshowIndex * 100}%)`;
-            document.getElementById('slideshowCounter').textContent = `${slideshowIndex + 1} / ${images.length}`;
+            const track = document.getElementById('slideshowTrack');
+            if (track) track.style.transform = `translateX(-${slideshowIndex * 100}%)`;
+            const counter = document.getElementById('slideshowCounter');
+            if (counter) counter.textContent = `${slideshowIndex + 1} / ${images.length}`;
         }
 
         function openLightbox(index) {
@@ -231,9 +265,26 @@
             document.getElementById('lightboxCounter').textContent = `${currentImageIndex + 1} / ${allImages.length}`;
         }
 
-        document.getElementById('lightbox').addEventListener('click', (e) => {
-            if (e.target.id === 'lightbox') closeLightbox();
+        const lightboxModal = document.getElementById('lightbox');
+        lightboxModal.addEventListener('click', (e) => {
+            if (e.target.id === 'lightbox' || e.target.classList.contains('lightbox-content')) closeLightbox();
         });
+
+        let lbTouchStartX = 0;
+        let lbTouchEndX = 0;
+        lightboxModal.addEventListener('touchstart', (e) => {
+            if (e.touches && e.touches[0]) lbTouchStartX = e.touches[0].clientX;
+        }, { passive: true });
+        lightboxModal.addEventListener('touchend', (e) => {
+            if (e.changedTouches && e.changedTouches[0]) {
+                lbTouchEndX = e.changedTouches[0].clientX;
+                const diff = lbTouchStartX - lbTouchEndX;
+                if (Math.abs(diff) > 40) {
+                    if (diff > 0) navigateLightbox(1);
+                    else navigateLightbox(-1);
+                }
+            }
+        }, { passive: true });
 
         document.addEventListener('keydown', (e) => {
             if (document.getElementById('lightbox').classList.contains('active')) {

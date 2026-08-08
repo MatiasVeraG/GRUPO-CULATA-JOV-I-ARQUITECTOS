@@ -197,6 +197,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             initLanguage();
             loadContactoContent();
+            const sec = document.getElementById('contacto');
+            if (sec) sec.classList.add('active');
         });
     </script>
 </body>

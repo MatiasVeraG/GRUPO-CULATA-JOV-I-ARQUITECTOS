@@ -89,9 +89,11 @@ h2 {
    LAYOUT
    ========================================================================== */
 section {
-    padding: var(--space-16) var(--space-8);
+    padding: clamp(60px, 8vw, var(--space-16)) clamp(16px, 4vw, var(--space-8));
     max-width: 1600px;
     margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* ==========================================================================
@@ -109,7 +111,10 @@ section {
     align-items: center;
     background-color: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     transition: all var(--transition-normal);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .landing-header.scrolled {
@@ -681,24 +686,26 @@ nav {
 /* ==========================================================================
    RESPONSIVE DESIGN
    ========================================================================== */
-@media (max-width: 1200px) {
+@media (max-width: 1100px) {
     .projects-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-2);
     }
 }
 
 @media (max-width: 768px) {
     :root {
-        --space-16: 80px;
-        --space-8: 40px;
+        --space-16: 64px;
+        --space-8: 32px;
+        --space-4: 20px;
     }
     
     .landing-header {
-        padding: var(--space-3) var(--space-4);
+        padding: 16px 24px;
     }
     
     .logo-text {
-        height: 35px; /* Keeps logo slightly bigger on mobile */
+        height: 30px;
     }
     
     .carousel-nav-buttons {
@@ -726,10 +733,23 @@ nav {
     
     .projects-grid {
         grid-template-columns: 1fr;
+        gap: var(--space-3);
     }
     
     .project-item {
-        aspect-ratio: 1/1;
+        aspect-ratio: 4/5;
+    }
+
+    .project-overlay {
+        opacity: 1;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.2) 50%, transparent 100%);
+    }
+
+    .project-overlay span {
+        transform: translateY(0);
+        opacity: 1;
+        font-size: 13px;
+        letter-spacing: 1.5px;
     }
     
     .modal-body {
@@ -738,7 +758,7 @@ nav {
     }
     
     .modal-image-container {
-        height: 50vh;
+        height: 45vh;
     }
     
     .about-block.text p, .contacto-info p {
@@ -748,13 +768,15 @@ nav {
 
 @media (max-width: 480px) {
     .landing-header {
-        padding: var(--space-2) var(--space-3);
-        flex-direction: column;
-        gap: var(--space-2);
+        padding: 12px 16px;
+    }
+
+    .logo-text {
+        height: 26px;
     }
     
     .hero-zone {
-        padding-top: 100px;
+        padding-top: 80px;
     }
 }
 
@@ -820,15 +842,18 @@ nav {
 .slideshow-track {
     display: flex;
     transition: transform var(--transition-slow);
+    touch-action: pan-y;
 }
 
 .slideshow-slide {
     min-width: 100%;
-    height: 85vh;
+    height: clamp(350px, 75vh, 750px);
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: #fafafa;
+    padding: var(--space-2);
+    box-sizing: border-box;
 }
 
 .slideshow-slide img {
@@ -854,6 +879,7 @@ nav {
     padding: var(--space-2) var(--space-3);
     transition: all var(--transition-fast);
     border-radius: 2px;
+    z-index: 10;
 }
 
 .slideshow-btn:hover {
@@ -874,6 +900,7 @@ nav {
     font-size: var(--text-sm);
     letter-spacing: 2px;
     border-radius: 2px;
+    z-index: 10;
 }
 
 .project-info {
@@ -1005,17 +1032,21 @@ nav {
     align-items: center;
     justify-content: center;
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 .lightbox.active {
     display: flex;
 }
 .lightbox-content {
-    max-width: 90vw;
-    max-height: 90vh;
+    max-width: 92vw;
+    max-height: 88vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .lightbox-content img {
     max-width: 100%;
-    max-height: 90vh;
+    max-height: 88vh;
     object-fit: contain;
     box-shadow: 0 10px 40px rgba(0,0,0,0.1);
 }
@@ -1025,6 +1056,7 @@ nav {
     cursor: pointer;
     user-select: none;
     transition: color var(--transition-fast);
+    z-index: 20;
 }
 .lightbox-close:hover, .lightbox-nav:hover {
     color: var(--accent-color);
@@ -1055,22 +1087,65 @@ nav {
 @media (max-width: 900px) {
     .project-info {
         flex-direction: column;
-        padding: var(--space-8) var(--space-4);
+        padding: clamp(24px, 5vw, var(--space-8)) clamp(16px, 4vw, var(--space-4));
+        gap: var(--space-6);
     }
     .project-sidebar {
         max-width: none;
+        flex: 1 1 auto;
         border-right: none;
         padding-right: 0;
-        margin-bottom: var(--space-6);
+        margin-bottom: 0;
     }
     .project-description-wrap {
         max-width: none;
+        flex: 1 1 auto;
         padding-left: 0;
     }
-    .slideshow-slide img { height: 60vh; }
-    .back-wrap { padding: var(--space-8) var(--space-4) 0; }
-    .drawings-wrap { padding: 0 var(--space-4) var(--space-8); }
-    .drawings-grid { grid-template-columns: repeat(2, 1fr); }
+    .slideshow-slide {
+        height: clamp(240px, 50vh, 420px);
+    }
+    .slideshow-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 20px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .slideshow-prev { left: 10px; }
+    .slideshow-next { right: 10px; }
+    .slideshow-counter {
+        bottom: 10px;
+        right: 10px;
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+    .back-wrap { padding: var(--space-4) clamp(16px, 4vw, var(--space-4)) 0; }
+    .drawings-wrap { padding: 0 clamp(16px, 4vw, var(--space-4)) var(--space-8); }
+    .drawings-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    
+    .lightbox-close {
+        top: 12px;
+        right: 12px;
+        font-size: 32px;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .lightbox-nav {
+        font-size: 32px;
+        padding: 8px;
+    }
+    .lightbox-prev { left: 8px; }
+    .lightbox-next { right: 8px; }
+    .lightbox-counter {
+        bottom: 16px;
+        font-size: 11px;
+    }
 }
 
 /* ==========================================================================
@@ -1423,15 +1498,96 @@ nav {
     .contact-info-col {
         padding-right: 0;
     }
+
+    .form-input, .form-textarea {
+        font-size: 16px;
+    }
 }
 
-
 .section-title {
-    font-size: var(--text-2xl, 2rem);
+    font-size: clamp(1.5rem, 3vw, 2rem);
     letter-spacing: 4px;
-    margin-bottom: 4rem;
+    margin-bottom: clamp(2rem, 4vw, 4rem);
     text-align: center;
     text-transform: uppercase;
     font-weight: 300;
+}
+
+/* ==========================================================================
+   ABOUT SIMPLE SECTION (sobre.html)
+   ========================================================================== */
+.about-simple-section {
+    padding: clamp(80px, 12vh, 140px) clamp(16px, 6vw, 6%) 80px;
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.about-title {
+    font-size: clamp(1.75rem, 4vw, 3rem);
+    font-weight: 400;
+    margin-bottom: clamp(20px, 3vw, 40px);
+    letter-spacing: 2px;
+}
+
+.about-image {
+    width: 100%;
+    height: auto;
+    margin-bottom: clamp(20px, 3vw, 40px);
+    display: block;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.about-text {
+    font-size: clamp(14px, 1.2vw, 16px);
+    line-height: 1.75;
+    font-weight: 300;
+    color: #222;
+}
+
+.about-text p {
+    margin-bottom: 24px;
+}
+
+/* ==========================================================================
+   FLOATING LANGUAGE SELECTOR (GLOBAL)
+   ========================================================================== */
+.language-selector {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.language-selector.floating,
+div.language-selector[style*="position: fixed"] {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    z-index: 200;
+}
+
+@media (max-width: 768px) {
+    div.language-selector[style*="position: fixed"] {
+        bottom: 20px !important;
+        right: 20px !important;
+        padding: 5px 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    div.language-selector[style*="position: fixed"] {
+        bottom: 14px !important;
+        right: 14px !important;
+        padding: 4px 10px;
+    }
+    
+    .lang-option {
+        font-size: 11px;
+    }
 }
 

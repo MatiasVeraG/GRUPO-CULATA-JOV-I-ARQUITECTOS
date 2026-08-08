@@ -9,39 +9,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <style>
-        .about-simple-section {
-            padding: 140px 6% 96px;
-            max-width: 1000px;
-            margin: 0 auto;
-            font-family: 'Space Grotesk', sans-serif;
-            color: #1a1a1a;
-        }
-        .about-title {
-            font-size: clamp(2rem, 4vw, 3rem);
-            font-weight: 400;
-            margin-bottom: 40px;
-        }
-        .about-image {
-            width: 100%;
-            height: auto;
-            margin-bottom: 40px;
-        }
-        .about-text {
-            font-size: 16px;
-            line-height: 1.6;
-            font-weight: 300;
-        }
-        .about-text p {
-            margin-bottom: 24px;
-        }
-        
-        @media (max-width: 768px) {
-            .about-simple-section {
-                padding-top: 100px;
-            }
-        }
-    </style>
 </head>
 <body>
     <!-- HEADER -->
@@ -136,7 +103,11 @@
             changeLanguage(savedLang);
         }
 
-        document.addEventListener('DOMContentLoaded', initLanguage);
+        document.addEventListener('DOMContentLoaded', () => {
+            initLanguage();
+            const sec = document.getElementById('nosotros');
+            if (sec) sec.classList.add('active');
+        });
     </script>
 </body>
 </html>
