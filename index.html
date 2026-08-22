@@ -64,29 +64,30 @@
             width: calc(100vw - clamp(280px, 25%, 380px));
             height: 100vh;
             position: relative;
-            overflow: hidden;
+            overflow-x: auto;
+            overflow-y: hidden;
+            display: flex;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
             z-index: 1;
+            /* Hide scrollbars */
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+        }
+
+        .carousel-container::-webkit-scrollbar {
+            display: none; /* Chrome/Safari/Opera */
         }
 
         /* CAROUSEL SLIDES */
         .carousel-slide {
             width: 100%;
             height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            z-index: 0;
-        }
-
-        .carousel-slide.last-active {
+            flex-shrink: 0;
+            position: relative;
+            scroll-snap-align: start;
             opacity: 1;
             z-index: 1;
-        }
-
-        .carousel-slide.active {
-            opacity: 1;
-            z-index: 2;
         }
 
         .carousel-slide img {
@@ -97,14 +98,6 @@
             object-position: center;
             cursor: default;
             z-index: 1;
-        }
-
-        .carousel-slide.active img {
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .carousel-slide {
-            }
         }
 
         /* SIDEBAR CONTENT */
@@ -155,11 +148,30 @@
             color: var(--accent-color);
         }
 
+        .desktop-logo {
+            display: flex;
+        }
+
+        .mobile-header {
+            display: none;
+        }
+
         .contact-block {
             padding-bottom: 30%;
             display: flex;
             flex-direction: column;
             gap: 35px;
+        }
+
+        .links-column {
+            display: flex;
+            flex-direction: column;
+            gap: 35px;
+        }
+
+        .about-link a {
+            display: block;
+            padding-bottom: 30px;
         }
 
         .sidebar-footer {
@@ -212,6 +224,18 @@
 
         /* RESPONSIVE */
         @media (max-width: 768px) {
+            .mobile-header {
+                display: flex;
+                padding: 16px 24px 8px 24px;
+                background: var(--bg-color, #FFFFFF);
+                z-index: 10;
+                order: 0;
+            }
+
+            .desktop-logo {
+                display: none !important;
+            }
+
             .main-layout {
                 flex-direction: column;
                 height: 100vh;
@@ -222,20 +246,22 @@
 
             .carousel-container {
                 width: 100%;
-                height: 52vh;
-                height: 52dvh;
+                flex: 1;
+                height: auto;
                 order: 1; /* Carousel at the top */
-                flex-shrink: 0;
+                flex-shrink: 1;
             }
 
             .sidebar {
                 width: 100%;
-                height: 48vh;
-                height: 48dvh;
+                height: 250px;
+                max-height: 35vh;
+                max-height: 35dvh;
                 padding: 16px 24px;
                 order: 2; /* Sidebar below */
                 overflow-y: auto;
-                justify-content: space-between;
+                justify-content: flex-start;
+                gap: 30px;
                 flex-shrink: 0;
             }
 
@@ -248,10 +274,22 @@
                 padding-bottom: 0;
                 gap: 12px;
                 margin-bottom: 0;
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            .links-column {
+                gap: 20px;
+                align-items: flex-start;
+                padding-right:70px;
+            }
+
+            .about-link a {
+                padding-bottom: 0px !important;
             }
 
             .contact-info {
-                gap: 8px;
+                gap: 20px;
                 padding-bottom: 0;
             }
 
@@ -266,7 +304,7 @@
             }
 
             .social-links-text {
-                gap: 8px;
+                gap: 15px;
             }
 
             .social-links-text a {
@@ -280,7 +318,8 @@
             }
 
             .language-selector {
-                gap: 14px;
+                gap: 20px;
+                padding-top: 25px;
             }
         }
 
@@ -309,9 +348,16 @@
 </head>
 <body>
     <div class="main-layout">
+        <!-- HEADER MOBILE -->
+        <div class="mobile-header">
+            <div class="logo-text" onclick="window.location.href='index.html'">
+                <img src="images/logo.png" alt="Grupo Culata Jovái Arquitectos">
+            </div>
+        </div>
+
         <!-- SIDEBAR -->
         <aside class="sidebar">
-            <div class="logo-text" onclick="window.location.href='index.html'">
+            <div class="logo-text desktop-logo" onclick="window.location.href='index.html'">
                 <img src="images/logo.png" alt="Grupo Culata Jovái Arquitectos">
             </div>
 
@@ -321,12 +367,14 @@
                     <p><strong>Email</strong><br><a href="mailto:contacto@culatajovai.com">contacto@culatajovai.com</a></p>
                     <p><strong data-i18n="contact-phone">Teléfono</strong><br><a href="tel:+595999000000">+595 999 000 000</a></p>
                 </div>
-                <div class="social-links-text">
-                    <a style="padding-bottom: 30px;" href="sobre.html" data-i18n="nav-sobre">Sobre</a>
-                </div>
-                <div class="social-links-text">
-                    <a href="https://www.instagram.com" target="_blank">Instagram</a>
-                    <a href="https://www.facebook.com" target="_blank">Facebook</a>
+                <div class="links-column">
+                    <div class="social-links-text about-link">
+                        <a href="sobre.html" data-i18n="nav-sobre">Sobre</a>
+                    </div>
+                    <div class="social-links-text">
+                        <a href="https://www.instagram.com" target="_blank">Instagram</a>
+                        <a href="https://www.facebook.com" target="_blank">Facebook</a>
+                    </div>
                 </div>
             </div>
 
@@ -409,9 +457,12 @@
             
             container.innerHTML = '';
 
-            projects.forEach((project, index) => {
+            // Clonar último elemento al inicio y el primer elemento al final para efecto infinito
+            const allProjects = [projects[projects.length - 1], ...projects, projects[0]];
+
+            allProjects.forEach((project) => {
                 const slide = document.createElement('div');
-                slide.className = 'carousel-slide' + (index === 0 ? ' active' : '');
+                slide.className = 'carousel-slide';
                 
                 if (project.cover) {
                     slide.innerHTML = `<img src="${project.cover}" alt="${project.title}">`;
@@ -421,86 +472,52 @@
                 
                 container.appendChild(slide);
             });
+
+            // Establecer posición inicial en el primer elemento real (saltando el clon)
+            setTimeout(() => {
+                container.scrollLeft = container.clientWidth;
+            }, 0);
         }
 
-        let currentSlide = 0;
-        let lastSlideIndex = -1;
+        // Scroll infinito con clones
+        const setupInfiniteScroll = () => {
+            const container = document.getElementById('carouselContainer');
+            if (!container) return;
 
-        function showSlide(index) {
-            const slides = document.querySelectorAll('.carousel-slide');
-            if(slides.length === 0) return;
-            
-            slides.forEach(slide => {
-                slide.classList.remove('active', 'last-active');
-            });
-            
-            if (lastSlideIndex !== -1 && slides[lastSlideIndex]) {
-                slides[lastSlideIndex].classList.add('last-active');
-            }
-            
-            if (slides[index]) {
-                slides[index].classList.add('active');
-            }
-            
-            lastSlideIndex = index;
-        }
-
-        function nextSlide() {
-            const slides = document.querySelectorAll('.carousel-slide');
-            if(slides.length === 0) return;
-            currentSlide = (currentSlide + 1) % slides.length;
-            showSlide(currentSlide);
-        }
-
-        function prevSlide() {
-            const slides = document.querySelectorAll('.carousel-slide');
-            if(slides.length === 0) return;
-            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-            showSlide(currentSlide);
-        }
-
-        // Event listeners
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight') nextSlide();
-            if (e.key === 'ArrowLeft') prevSlide();
-        });
-
-        // Touch swipe support for mobile
-        const carouselEl = document.getElementById('carouselContainer');
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        carouselEl.addEventListener('touchstart', (e) => {
-            if (e.touches && e.touches[0]) {
-                touchStartX = e.touches[0].clientX;
-            }
-        }, { passive: true });
-
-        carouselEl.addEventListener('touchend', (e) => {
-            if (e.changedTouches && e.changedTouches[0]) {
-                touchEndX = e.changedTouches[0].clientX;
-                handleSwipe();
-            }
-        }, { passive: true });
-
-        function handleSwipe() {
-            const diffX = touchStartX - touchEndX;
-            if (Math.abs(diffX) > 40) {
-                if (diffX > 0) {
-                    nextSlide();
-                } else {
-                    prevSlide();
+            container.addEventListener('scroll', () => {
+                const maxScrollLeft = container.scrollWidth - container.clientWidth;
+                // Si llegó al clon del final (derecha)
+                if (container.scrollLeft >= maxScrollLeft - 5) {
+                    container.style.scrollBehavior = 'auto';
+                    container.scrollLeft = container.clientWidth;
+                    // Forzar reflow antes de restaurar smooth
+                    container.offsetHeight; 
+                    container.style.scrollBehavior = 'smooth';
                 }
-                clearInterval(autoSlide);
-                autoSlide = setInterval(nextSlide, 15000);
-            }
-        }
+                // Si llegó al clon del inicio (izquierda)
+                else if (container.scrollLeft <= 5) {
+                    container.style.scrollBehavior = 'auto';
+                    container.scrollLeft = maxScrollLeft - container.clientWidth;
+                    container.offsetHeight;
+                    container.style.scrollBehavior = 'smooth';
+                }
+            });
 
-        // Auto-avance con intervalo de permanencia de 15s
-        let autoSlide = setInterval(nextSlide, 15000);
+            // Teclado
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight') {
+                    container.scrollBy({ left: container.clientWidth, behavior: 'smooth' });
+                }
+                if (e.key === 'ArrowLeft') {
+                    container.scrollBy({ left: -container.clientWidth, behavior: 'smooth' });
+                }
+            });
+        };
 
         // Inicializar carousel
-        createCarousel();
+        createCarousel().then(() => {
+            setupInfiniteScroll();
+        });
 
         // Inicializar idioma
         initLanguage();
